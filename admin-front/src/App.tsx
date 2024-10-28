@@ -1,10 +1,11 @@
 import React from 'react';
+import { Route, Routes } from 'react-router-dom';
 
 function App() {
   return (
-    <div className="App">
-      관리자 사이트
-    </div>
+    <Routes>
+      <Route />
+    </Routes>
   );
 }
 
