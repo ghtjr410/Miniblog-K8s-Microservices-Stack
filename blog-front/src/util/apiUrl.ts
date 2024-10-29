@@ -1,0 +1,1 @@
+export const KEYCLOAK_URL = `http://localhost:8181/`;

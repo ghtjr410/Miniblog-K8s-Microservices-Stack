@@ -4,7 +4,7 @@ export const ROUTES = {
     SEARCH: '/search',
     BLOG: '/blog',
     HISTORY: '/history',
-    POST_EDIT: '/post-edit',
+    POST_EDIT: '/write',
     PROFILE: '/profile',
     TEST: '/test',
 };
