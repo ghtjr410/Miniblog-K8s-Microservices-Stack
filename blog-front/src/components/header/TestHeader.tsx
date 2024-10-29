@@ -3,7 +3,6 @@ import Keycloak from 'keycloak-js';
 import { CiBellOn } from "react-icons/ci";
 import { CiSearch } from "react-icons/ci";
 import { CiUser } from "react-icons/ci";
-import { Outlet } from "react-router-dom";
 import { useNavigation } from "../../util/navigation";
 import { ROUTES } from "../../constants/routes";
 
@@ -11,7 +10,7 @@ interface Props{
     keycloak: Keycloak | null;
 }
 
-const Header: React.FC<Props> = ({keycloak}) => {
+const TestHeader: React.FC<Props> = ({keycloak}) => {
     const [dropdownVisible, setDropdownVisible] = useState<boolean>(false);
 
     const { navigateTo } = useNavigation();
@@ -54,7 +53,7 @@ const Header: React.FC<Props> = ({keycloak}) => {
     }
 
     return (
-    <div className="flex flex-col">
+    <div>
         {/* Header 영역 */}
         <div className="bg-slate-100 shadow-md flex justify-center">
             <div className="bg-slate-200 h-16 max-w-screen-2xl w-full flex items-center justify-between">
@@ -82,7 +81,7 @@ const Header: React.FC<Props> = ({keycloak}) => {
                                 <CiUser className="text-4xl" />
                                 <div className="text-xs text-gray-500 group-hover:text-black">▼</div>
                                 {dropdownVisible && (
-                                    <div className="absolute top-14 right-0 w-48 bg-slate-200 shadow-[0_6px_6px_-1px_rgba(0,0,0,0.1),_0_2px_4px_-1px_rgba(0,0,0,0.06)]">
+                                    <div className="absolute top-14 right-0 w-48 bg-slate-200 shadow-[0_6px_6px_-1px_rgba(0,0,0,0.1),_0_2px_4px_-1px_rgba(0,0,0,0.06)] z-10">
                                         <div className="bg-slate-300 px-3 py-4 font-semibold hover:bg-slate-400 hover:text-blue-500">
                                             내 블로그
                                         </div>
@@ -118,12 +117,8 @@ const Header: React.FC<Props> = ({keycloak}) => {
                 </div>
             </div>
         </div>
-        {/* Outlet 영역 */}
-        <div className="pt-6 flex-1  bg-slate-600">
-            <Outlet />
-        </div>
     </div>
     );
 }
 
-export default Header;
+export default TestHeader;
