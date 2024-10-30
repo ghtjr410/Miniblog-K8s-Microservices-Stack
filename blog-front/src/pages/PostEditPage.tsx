@@ -6,7 +6,7 @@ import TestHeader from "../components/header/TestHeader";
 import { useNavigation } from "../util/navigation";
 import { ROUTES } from "../constants/routes";
 import '../styles/quillStyle.css'
-import { API_IMAGE_PRESIGNED_URL, CLOUD_FRONT_URL } from "../util/apiUrl";
+import { API_IMAGE_PRESIGNED_URL, API_POST_CREATE_URL, CLOUD_FRONT_URL } from "../util/apiUrl";
 import axios from "axios";
 
 interface Props{
@@ -64,21 +64,16 @@ const PostEditPage: React.FC<Props> = ({keycloak}) => {
               );
               
               const { presignedUrl, objectKey } = response.data;
-              console.log(`presignedUrl: ${presignedUrl}`);
-              console.log(`objectKey: ${objectKey} `);
+
               await axios.put(presignedUrl, file, {
                 headers: {
                   'Content-Type': file.type,
                 },
-              }).then(response => {
-                console.log('Upload successful:', response);
-              }).catch(error => {
-                console.error('Error uploading to S3:', error.response ? error.response.data : error.message);
               });
+
               const imageUrl = CLOUD_FRONT_URL +`${objectKey}`;
-              console.log(`이미지 주소 ${imageUrl}`);
-    
-            //   // 에디터에 이미지 삽입
+
+              // 에디터에 이미지 삽입
               const quill = quillRef.current?.getEditor();
               if (!quill) {
                 console.error("Quill editor is not initialized.");
@@ -121,7 +116,28 @@ const PostEditPage: React.FC<Props> = ({keycloak}) => {
     const handleSubmit = () => {
         console.log("Title:", title);
         console.log("Content:", content);
-        // 여기서 추가적인 로직을 구현할 수 있습니다 (예: 서버로 전송)
+        const token = keycloak?.token;
+
+        axios.post(
+            API_POST_CREATE_URL,
+            {
+                title: title,
+                content: content,
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+            }
+        )
+        .then(response => {
+            console.log('Post creation successful:', response.data);
+        })
+        .catch(error => {
+            console.error('Error creating post:', error.response ? error.response.data : error.message);
+        });
+
       };
 
     // ---------------------------------------------------------

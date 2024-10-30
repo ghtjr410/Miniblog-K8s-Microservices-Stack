@@ -31,6 +31,27 @@ function App() {
     })
     .then((authenticated) => {
       setKeycloak(keycloakInstance);
+      if (authenticated) {
+        // 토큰 갱신 인터벌 설정
+        const refreshInterval = setInterval(() => {
+          keycloakInstance
+            .updateToken(70)
+            .then((refreshed) => {
+              if (refreshed) {
+                console.log('토큰이 갱신되었습니다.');
+              } else {
+                console.warn('토큰이 아직 유효합니다.');
+              }
+            })
+            .catch(() => {
+              console.error('토큰 갱신 실패, 로그인 페이지로 이동합니다.');
+              keycloakInstance.login();
+            });
+        }, 60000);
+
+        // 컴포넌트 언마운트 시 인터벌 정리
+        return () => clearInterval(refreshInterval);
+      }
     })
     .catch((error) => {
       console.error("keycloak 초기화 실패: ", error);

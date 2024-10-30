@@ -8,5 +8,9 @@ export const API_GATEWAY_URL = `http://localhost:4040`;
  * export const API_GATEWAY_URL = 
  */
 
+// Image Service
 export const CLOUD_FRONT_URL = `https://images.ghtjr.com/`;
 export const API_IMAGE_PRESIGNED_URL = `${API_GATEWAY_URL}/api/v1/images/presigned-url`;
+
+// Post Service
+export const API_POST_CREATE_URL = `${API_GATEWAY_URL}/api/v1/posts`;
