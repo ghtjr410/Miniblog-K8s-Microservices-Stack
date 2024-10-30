@@ -17,6 +17,7 @@
     <modules>
         <module>api-gateway</module>
         <module>image-service</module>
+        <module>post-service</module>
     </modules>
 
     <properties>
