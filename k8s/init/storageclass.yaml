@@ -1,0 +1,9 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: gp3-csi  # 이름을 변경하여 새로운 StorageClass로 생성하거나, 기존 이름을 유지할 수 있습니다.
+provisioner: ebs.csi.aws.com
+parameters:
+  type: gp3  # gp3로 변경
+volumeBindingMode: WaitForFirstConsumer
+reclaimPolicy: Delete
