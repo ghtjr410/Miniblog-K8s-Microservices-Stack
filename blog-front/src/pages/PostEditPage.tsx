@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import Keycloak from "keycloak-js";
 import ReactQuill from "react-quill-new";
 import 'react-quill-new/dist/quill.snow.css';
@@ -6,6 +6,8 @@ import TestHeader from "../components/header/TestHeader";
 import { useNavigation } from "../util/navigation";
 import { ROUTES } from "../constants/routes";
 import '../styles/quillStyle.css'
+import { API_IMAGE_PRESIGNED_URL, CLOUD_FRONT_URL } from "../util/apiUrl";
+import axios from "axios";
 
 interface Props{
     keycloak: Keycloak | null;
@@ -14,7 +16,6 @@ interface Props{
 const PostEditPage: React.FC<Props> = ({keycloak}) => {
     const [title, setTitle] = useState<string>('');
     const titleRef = useRef<HTMLTextAreaElement>(null);
-
     const [content, setContent] = useState<string>('');
     const quillRef = useRef<ReactQuill>(null);
 
@@ -40,6 +41,69 @@ const PostEditPage: React.FC<Props> = ({keycloak}) => {
         }
     };
     // ---------------------------------------------------------
+
+    const imageHandler = useCallback(async ()=> {
+        const input = document.createElement('input');
+        input.setAttribute('type', 'file');
+        input.setAttribute('accept', 'image/*');
+        input.click();
+    
+        input.onchange = async () => {
+          const file = input.files?.[0];
+          if (file) {
+            try {
+              const token = keycloak?.token;
+              //presign url 받아오기
+              const response = await axios.post(
+                API_IMAGE_PRESIGNED_URL, 
+                {
+                  fileName: file.name,
+                  fileType: file.type,
+                },
+                { headers: { Authorization: `Bearer ${token}` }}
+              );
+              
+              const { presignedUrl, objectKey } = response.data;
+              console.log(`presignedUrl: ${presignedUrl}`);
+              console.log(`objectKey: ${objectKey} `);
+              await axios.put(presignedUrl, file, {
+                headers: {
+                  'Content-Type': file.type,
+                },
+              }).then(response => {
+                console.log('Upload successful:', response);
+              }).catch(error => {
+                console.error('Error uploading to S3:', error.response ? error.response.data : error.message);
+              });
+              const imageUrl = CLOUD_FRONT_URL +`${objectKey}`;
+              console.log(`이미지 주소 ${imageUrl}`);
+    
+            //   // 에디터에 이미지 삽입
+              const quill = quillRef.current?.getEditor();
+              if (!quill) {
+                console.error("Quill editor is not initialized.");
+                return;
+              }
+              const range = quill?.getSelection();
+    
+              if (!range) {
+                quill.focus();
+                const newRange = quill.getSelection();
+                if (!newRange) {
+                  return;
+                }
+                quill.insertEmbed(newRange.index, 'image', imageUrl);
+              } else{
+                quill.insertEmbed(range.index, 'image', imageUrl);
+                console.log("이미지 삽입 최종 성공");
+              }
+            } catch (error) {
+              console.error("이미지 업로드 중 에러 발생:", error);
+            }
+          }
+        };
+      },[keycloak]);
+
     const quillModules = {
         toolbar: {
           container: [
@@ -47,11 +111,17 @@ const PostEditPage: React.FC<Props> = ({keycloak}) => {
             [{ header: [1, 2, 3, 4, 5, false] }],
             ["bold", "underline"],
           ],
-        //   handlers: {
-        //     image: imageHandler,
-        //   },
-    
+          handlers: {
+            image: imageHandler,
+          },
         },
+      };
+
+    // ---------------------------------------------------------
+    const handleSubmit = () => {
+        console.log("Title:", title);
+        console.log("Content:", content);
+        // 여기서 추가적인 로직을 구현할 수 있습니다 (예: 서버로 전송)
       };
 
     // ---------------------------------------------------------
@@ -99,6 +169,7 @@ const PostEditPage: React.FC<Props> = ({keycloak}) => {
                     </button>
                     <button 
                         className="px-8 py-4 font-bold bg-blue-500 text-white rounded cursor-pointer hover:bg-blue-600"
+                        onClick={handleSubmit}
                     >
                         작성하기
                     </button>
