@@ -17,7 +17,6 @@ public class PostController {
     public ResponseEntity<PostResponseDTO> createPost(
             @RequestHeader(value = "X-User-Sub", required = false) String userUuid,
             @RequestBody PostRequestDTO postRequestDTO){
-        ResponseEntity<PostResponseDTO> response = postService.createPost(userUuid, postRequestDTO);
-        return response;
+        return postService.createPost(userUuid, postRequestDTO);
     }
 }

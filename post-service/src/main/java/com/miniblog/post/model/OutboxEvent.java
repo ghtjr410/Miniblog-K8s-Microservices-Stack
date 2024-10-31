@@ -1,5 +1,6 @@
 package com.miniblog.post.model;
 
+import com.miniblog.post.util.SagaStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -7,33 +8,26 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
-import java.util.UUID;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "post")
+@Table(name = "outbox_event")
 @Builder
-public class Post {
+public class OutboxEvent {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true, nullable = false)
+    private String eventUuId;
     private String postUuid;
-
-    private String userUuid;
-    private String nickname;
-    private String title;
-    private String content;
+    private String eventType;
+    private String payload;
     private Date createdDate;
-    private Date updatedDate;
 
-    @PrePersist
-    public void prePersist() {
-        if (postUuid == null) {
-            postUuid = UUID.randomUUID().toString();
-        }
-    }
+    @Enumerated(EnumType.STRING)
+    private SagaStatus sagaStatus;
+
+    private Boolean processed;
 }
