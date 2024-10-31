@@ -33,3 +33,13 @@ spec:
                 name: keycloak-service  # Keycloak 서비스로 트래픽을 전달
                 port:
                   number: 8080  # Keycloak 서비스 포트
+    - host: api.ghtjr.com  # API Gateway에 대한 도메인 추가
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: api-gateway-service  # API Gateway 서비스로 트래픽을 전달
+                port:
+                  number: 4040  # API Gateway 서비스 포트

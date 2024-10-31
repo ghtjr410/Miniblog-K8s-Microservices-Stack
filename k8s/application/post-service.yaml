@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: miniblog
+  name: post-service-deployment
+  labels:
+    app: post-service-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: post-service-deployment
+  template:
+    metadata:
+      labels:
+        app: post-service-deployment
+    spec:
+      containers:
+        - name: post-service
+          image: 017820660901.dkr.ecr.ap-northeast-2.amazonaws.com/post-service:latest
+          ports:
+            - containerPort: 4042
+          env:
+            - name: SPRING_APPLICATION_NAME
+              value: "post-service"
+            - name: SERVER_PORT
+              value: "4042"
+            - name: SPRING_DATASOURCE_URI
+              value: ""
+            - name: SPRING_DATASOURCE_USERNAME
+              value: ""
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: ""
+            - name: SPRING_DATASOURCE_DRIVER-CLASS-NAME
+              value: "com.mysql.cj.jdbc.Driver"
+            - name: SPRING_JPA_HIBERNATE_DDL-AUTO
+              value: "update"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: miniblog
+  name: post-service-service
+spec:
+  selector:
+    app: post-service-deployment
+  ports:
+    - protocol: TCP
+      port: 4042
+      targetPort: 4042
+  type: ClusterIP

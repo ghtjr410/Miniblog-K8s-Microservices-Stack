@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: miniblog
+  name: api-gateway-deployment
+  labels:
+    app: api-gateway-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api-gateway-deployment
+  template:
+    metadata:
+      labels:
+        app: api-gateway-deployment
+    spec:
+      containers:
+      - name: api-gateway
+        image: 017820660901.dkr.ecr.ap-northeast-2.amazonaws.com/api-gateway:latest
+        ports:
+          - containerPort: 4040
+        env:
+          - name: SPRING_APPLICATION_NAME
+            value: "api-gateway"
+          - name: SERVER_PORT
+            value: "4040"
+          - name: SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI
+            value: "https://keycloak.ghtjr.com/realms/miniblog-realm"
+          - name: IMAGE_SERVICE_URL
+            value: "http://image-service-service:4041"
+          - name: IMAGE_SERVICE_PATH_PATTERN
+            value: "/api/v1/images/**"
+          - name: POST_SERVICE_URL
+            value: "http://post-service-service:4042"
+          - name: POST_SERVICE_PATH_PATTERN
+            value: "/api/v1/posts/**"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: miniblog
+  name: api-gateway-service
+spec:
+  selector:
+    app: api-gateway-deployment
+  ports:
+    - protocol: TCP
+      port: 4040
+      targetPort: 4040
+  type: ClusterIP
