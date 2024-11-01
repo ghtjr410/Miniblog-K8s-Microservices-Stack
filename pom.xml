@@ -18,6 +18,7 @@
         <module>api-gateway</module>
         <module>image-service</module>
         <module>post-service</module>
+        <module>query-service</module>
     </modules>
 
     <properties>
