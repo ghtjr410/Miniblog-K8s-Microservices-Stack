@@ -14,7 +14,8 @@ interface Props{
 }
 
 const PostEditPage: React.FC<Props> = ({keycloak}) => {
-    const [title, setTitle] = useState<string>('');
+    const [userInfo, setUserInfo] = useState<null | Record<string, any>>(null);
+    const [title, setTitle] = useState<string>(''); 
     const titleRef = useRef<HTMLTextAreaElement>(null);
     const [content, setContent] = useState<string>('');
     const quillRef = useRef<ReactQuill>(null);
@@ -22,13 +23,31 @@ const PostEditPage: React.FC<Props> = ({keycloak}) => {
     const { navigateTo } = useNavigation();
 
     // ---------------------------------------------------------
+    // useEffect(() => {
+    //     // 키클락 객체상태 분기점
+    //     console.log(`keycloak 객체 상태 : ${keycloak}`)
+    //     if (!keycloak?.authenticated) {
+    //         keycloak?.login();
+            
+    //     } 
+    // })
+
     useEffect(() => {
         // 키클락 객체상태 분기점
         console.log(`keycloak 객체 상태 : ${keycloak}`)
-        if (!keycloak?.authenticated) {
+        if (keycloak && keycloak.authenticated) {
+            // 사용자 정보 로드
+            keycloak.loadUserInfo().then((userInfo) => {
+                setUserInfo(userInfo);
+                console.log(JSON.stringify(userInfo));
+                
+            });
+        } else {
             keycloak?.login();
         }
-    })
+    }, [keycloak]);
+
+
     // ---------------------------------------------------------
     const handleTitleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         setTitle(e.target.value);
@@ -53,26 +72,40 @@ const PostEditPage: React.FC<Props> = ({keycloak}) => {
           if (file) {
             try {
               const token = keycloak?.token;
-              //presign url 받아오기
+              console.log("1. Presigned URL 요청 시작");
+              // presigned URL 요청
               const response = await axios.post(
                 API_IMAGE_PRESIGNED_URL, 
                 {
-                  fileName: file.name,
-                  fileType: file.type,
+                    fileName: file.name,
+                    fileType: file.type,
                 },
                 { headers: { Authorization: `Bearer ${token}` }}
-              );
+            ).then((response) => {
+                console.log("2. Presigned URL 요청 성공", response.data);
+                return response;
+            }).catch((error) => {
+                console.error("2. Presigned URL 요청 실패", error.response ? error.response.data : error.message);
+                throw error;
+            });
               
               const { presignedUrl, objectKey } = response.data;
-
+              console.log("3. Presigned URL로 이미지 업로드 시작", { presignedUrl, objectKey });
+              
+              // presigned URL로 이미지 업로드
               await axios.put(presignedUrl, file, {
                 headers: {
-                  'Content-Type': file.type,
+                    'Content-Type': file.type,
                 },
-              });
+            }).then((response) => {
+                console.log("4. Presigned URL로 이미지 업로드 성공", response.status);
+            }).catch((error) => {
+                console.error("4. Presigned URL로 이미지 업로드 실패", error.response ? error.response.data : error.message);
+                throw error;
+            });
 
               const imageUrl = CLOUD_FRONT_URL +`${objectKey}`;
-
+              console.log("5. 최종 이미지 URL:", imageUrl);
               // 에디터에 이미지 삽입
               const quill = quillRef.current?.getEditor();
               if (!quill) {
@@ -90,7 +123,7 @@ const PostEditPage: React.FC<Props> = ({keycloak}) => {
                 quill.insertEmbed(newRange.index, 'image', imageUrl);
               } else{
                 quill.insertEmbed(range.index, 'image', imageUrl);
-                console.log("이미지 삽입 최종 성공");
+                console.log("6.이미지 삽입 최종 성공");
               }
             } catch (error) {
               console.error("이미지 업로드 중 에러 발생:", error);
@@ -117,12 +150,14 @@ const PostEditPage: React.FC<Props> = ({keycloak}) => {
         console.log("Title:", title);
         console.log("Content:", content);
         const token = keycloak?.token;
+        const nickname = userInfo?.nickname;
 
         axios.post(
             API_POST_CREATE_URL,
             {
                 title: title,
                 content: content,
+                nickname: nickname,
             },
             {
                 headers: {
