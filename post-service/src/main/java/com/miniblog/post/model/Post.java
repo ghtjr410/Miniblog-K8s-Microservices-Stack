@@ -23,9 +23,14 @@ public class Post {
     @Column(unique = true, nullable = false)
     private String postUuid;
 
+    @Column(nullable = false)
     private String userUuid;
+    @Column(nullable = false)
     private String nickname;
     private String title;
+
+    @Lob
+    @Column(columnDefinition = "LONGTEXT") // 또는 "LONGTEXT"
     private String content;
     private Date createdDate;
     private Date updatedDate;

@@ -20,9 +20,15 @@ public class OutboxEvent {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private String eventUuId;
+
+    @Column(nullable = false)
     private String postUuid;
+
     private String eventType;
+    @Lob
+    @Column(columnDefinition = "LONGTEXT")
     private String payload;
     private Date createdDate;
 
