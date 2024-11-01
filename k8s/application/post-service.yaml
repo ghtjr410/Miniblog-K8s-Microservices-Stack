@@ -31,10 +31,20 @@ spec:
               value: ""
             - name: SPRING_DATASOURCE_PASSWORD
               value: ""
-            - name: SPRING_DATASOURCE_DRIVER-CLASS-NAME
+            - name: SPRING_DATASOURCE_DRIVER_CLASS_NAME
               value: "com.mysql.cj.jdbc.Driver"
-            - name: SPRING_JPA_HIBERNATE_DDL-AUTO
+            - name: SPRING_JPA_HIBERNATE_DDL_AUTO
               value: "update"
+            - name: SPRING_KAFKA_BOOTSTRAP_SERVERS
+              value: "broker-service:9092"
+            - name: SPRING_KAFKA_PRODUCER_KEY_SERIALIZER
+              value: "org.apache.kafka.common.serialization.StringSerializer"
+            - name: SPRING_KAFKA_PRODUCER_VALUE_SERIALIZER
+              value: "io.confluent.kafka.serializers.KafkaAvroSerializer"
+            - name: SPRING_KAFKA_PROPERTIES_SCHEMA_REGISTRY_URL
+              value: "http://schema-registry-service:8085"
+            - name: POST_CREATED_EVENT_TOPIC_NAME
+              value: "post.created"
 ---
 apiVersion: v1
 kind: Service
