@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: miniblog
+  name: query-service-deployment
+  labels:
+    app: query-service-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: query-service-deployment
+  template:
+    metadata:
+      labels:
+        app: query-service-deployment
+    spec:
+      containers:
+        - name: query-service
+          image: 017820660901.dkr.ecr.ap-northeast-2.amazonaws.com/query-service:latest
+          ports:
+            - containerPort: 4042
+          env:
+            - name: SPRING_APPLICATION_NAME
+              value: "query-service"
+            - name: SERVER_PORT
+              value: "4043"
+            - name: SPRING_KAFKA_BOOTSTRAP_SERVERS
+              value: "broker-service:9092"
+            - name: SPRING_KAFKA_CONSUMER_KEY_DESERIALIZER
+              value: "org.apache.kafka.common.serialization.StringDeserializer"
+            - name: SPRING_KAFKA_CONSUMER_VALUE_DESERIALIZER
+              value: "io.confluent.kafka.serializers.KafkaAvroDeserializer"
+            - name: SPRING_KAFKA_CONSUMER_SPECIFIC_AVRO_READER
+              value: "true"
+            - name: SPRING_KAFKA_PROPERTIES_SCHEMA_REGISTRY_URL
+              value: "http://schema-registry-service:8085"
+            - name: QUERY_CONSUMER_GROUP_ID
+              value: "query-service-group"
+            - name: POST_CREATED_EVENT_TOPIC_NAME
+              value: "post.created"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: miniblog
+  name: query-service-service
+spec:
+  selector:
+    app: query-service-deployment
+  ports:
+    - protocol: TCP
+      port: 4043
+      targetPort: 4043
+  type: ClusterIP
