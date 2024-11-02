@@ -39,6 +39,8 @@ spec:
               value: "query-service-group"
             - name: POST_CREATED_EVENT_TOPIC_NAME
               value: "post.created"
+            - name: SPRING_DATA_MONGODB_URI
+              value: "mongodb://root:1234@mongodb-service:27017/querydb?authSource=admin"
 ---
 apiVersion: v1
 kind: Service
