@@ -4,6 +4,5 @@ public enum SagaStatus {
     CREATED,
     PROCESSING,
     COMPLETED,
-    COMPENSATED,
     FAILED
 }

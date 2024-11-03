@@ -33,7 +33,7 @@ public class OutboxEvent {
     private Date createdDate;
 
     @Enumerated(EnumType.STRING)
-    private SagaStatus sagaStatus;
+    private SagaStatus sagaStatus; // CREATED, PROCESSING, COMPLETED, FAILED
 
     private Boolean processed;
 }
