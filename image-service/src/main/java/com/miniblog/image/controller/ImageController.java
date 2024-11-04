@@ -1,6 +1,7 @@
 package com.miniblog.image.controller;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,6 +20,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/images")
 @RequiredArgsConstructor
+@Slf4j
 public class ImageController {
     @Value("${aws.s3.bucket}")
     private String bucketName;
@@ -31,7 +33,7 @@ public class ImageController {
         String originalFileName = request.get("fileName");
         String fileType = request.get("fileType");
         String objectKey = UUID.randomUUID().toString() + "_" + originalFileName;
-
+        log.info("generatePresignedUrl : originalFileName={}, fileType={} objectKey={}",originalFileName, fileType, objectKey);
         // PutObjectRequest 생성
         PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                 .bucket(bucketName)
@@ -46,7 +48,7 @@ public class ImageController {
                 .build();
 
         String presignedUrl = s3Presigner.presignPutObject(putObjectPresignRequest).url().toString();
-
+        log.info("generatePresignedUrl : presignedUrl={}",presignedUrl);
         Map<String, String> response = new HashMap<>();
         response.put("presignedUrl", presignedUrl);
         response.put("objectKey", objectKey);
