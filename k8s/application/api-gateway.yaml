@@ -34,6 +34,10 @@ spec:
           - name: POST_SERVICE_URL
             value: "http://post-service-service:4042"
           - name: POST_SERVICE_PATH_PATTERN
+            value: "/api/v1/post/**"
+          - name: QUERY_SERVICE_URL
+            value: "http://query-service-service:4043"
+          - name: QUERY_SERVICE_PATH_PATTERN
             value: "/api/v1/posts/**"
 ---
 apiVersion: v1
