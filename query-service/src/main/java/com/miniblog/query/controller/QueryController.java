@@ -25,6 +25,11 @@ public class QueryController {
 
     @GetMapping
     public Page<Post> getPosts(Pageable pageable) {
+//        try{
+//            Thread.sleep(5000);
+//        }catch (InterruptedException e) {
+//            throw new RuntimeException(e);
+//        }
         return postRepository.findAll(pageable);
     }
 }

@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 public class SecurityConfig {
     // 인증 필요 없는 URL
     private final String[] freeResourceUrls = {"/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**",
-            "/swagger-resources/**", "/api-docs/**", "/aggregate/**", "/actuator/prometheus", "/api/v1/posts/**"};
+            "/swagger-resources/**", "/api-docs/**", "/aggregate/**", "/actuator/health", "/api/v1/posts/**"};
     private final String[] userOnlyResourceUrls = {"/api/v1/images/**", "/api/v1/post/**"};
     private final String[] adminOnlyResourceUrls = {"/api/v1/admin/**"};
 

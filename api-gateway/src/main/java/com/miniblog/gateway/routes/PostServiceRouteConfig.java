@@ -4,6 +4,7 @@ import com.miniblog.gateway.filter.JwtHeaderFilter;
 import com.miniblog.gateway.util.HeaderType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.gateway.server.mvc.filter.CircuitBreakerFilterFunctions;
 import org.springframework.cloud.gateway.server.mvc.filter.FilterFunctions;
 import org.springframework.cloud.gateway.server.mvc.handler.GatewayRouterFunctions;
 import org.springframework.cloud.gateway.server.mvc.handler.HandlerFunctions;
@@ -13,6 +14,7 @@ import org.springframework.web.servlet.function.RequestPredicates;
 import org.springframework.web.servlet.function.RouterFunction;
 import org.springframework.web.servlet.function.ServerResponse;
 
+import java.net.URI;
 import java.util.EnumSet;
 import java.util.Set;
 
@@ -36,6 +38,7 @@ public class PostServiceRouteConfig {
 
         return GatewayRouterFunctions.route("post_service")
                 .route(RequestPredicates.path(postServicePathPattern), HandlerFunctions.http(postServiceUrl))
+                .filter(CircuitBreakerFilterFunctions.circuitBreaker("postServiceCircuitBreaker", URI.create("forward:/fallbackRoute")))
                 .filter(jwtHeaderFilter.addJwtHeadersFilter(headersToInclude))
                 .build();
     }
@@ -43,6 +46,7 @@ public class PostServiceRouteConfig {
     public RouterFunction<ServerResponse> postServiceSwaggerRoute() {
         return GatewayRouterFunctions.route("post_service_swagger")
                 .route(RequestPredicates.path(postServiceSwaggerUrl), HandlerFunctions.http(postServiceUrl))
+                .filter(CircuitBreakerFilterFunctions.circuitBreaker("postServiceCircuitBreaker", URI.create("forward:/fallbackRoute")))
                 .filter(FilterFunctions.setPath("/api-docs"))
                 .build();
     }
