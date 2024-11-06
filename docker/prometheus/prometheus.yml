@@ -1,0 +1,30 @@
+# prometheus.yml
+global:
+  scrape_interval: 2s
+  evaluation_interval: 2s
+
+scrape_configs:
+  - job_name: 'api-gateway'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['host.docker.internal:4040']
+        labels:
+          application: 'API Gateway'
+  - job_name: 'image-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['host.docker.internal:4041']
+        labels:
+          application: 'Image Service'
+  - job_name: 'post-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['host.docker.internal:4042']
+        labels:
+          application: 'Post Service'
+  - job_name: 'query-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['host.docker.internal:4043']
+        labels:
+          application: 'Query Service'
