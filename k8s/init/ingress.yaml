@@ -43,3 +43,13 @@ spec:
                 name: api-gateway-service  # API Gateway 서비스로 트래픽을 전달
                 port:
                   number: 4040  # API Gateway 서비스 포트
+    - host: grafana.ghtjr.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: grafana-service
+                port:
+                  number: 3000
