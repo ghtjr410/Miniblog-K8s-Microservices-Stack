@@ -25,6 +25,8 @@ spec:
               value: "post-service"
             - name: SERVER_PORT
               value: "4042"
+            - name: LOKI_URL
+              value: "http://loki:3100/loki/api/v1/push"
             - name: SPRING_DATASOURCE_URI
               value: ""
             - name: SPRING_DATASOURCE_USERNAME

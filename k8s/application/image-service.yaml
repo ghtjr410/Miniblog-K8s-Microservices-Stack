@@ -25,6 +25,8 @@ spec:
               value: "image-service"
             - name: SERVER_PORT
               value: "4041"
+            - name: LOKI_URL
+              value: "http://loki:3100/loki/api/v1/push"
             - name: AWS_S3_BUCKET
               value: "images.ghtjr.com"
             - name: AWS_REGION

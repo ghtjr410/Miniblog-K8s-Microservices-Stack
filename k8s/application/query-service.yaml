@@ -25,6 +25,8 @@ spec:
               value: "query-service"
             - name: SERVER_PORT
               value: "4043"
+            - name: LOKI_URL
+              value: "http://loki:3100/loki/api/v1/push"
             - name: SPRING_KAFKA_BOOTSTRAP_SERVERS
               value: "broker-service:9092"
             - name: SPRING_KAFKA_CONSUMER_KEY_DESERIALIZER

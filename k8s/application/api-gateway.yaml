@@ -27,6 +27,8 @@ spec:
             value: "4040"
           - name: SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI
             value: "https://keycloak.ghtjr.com/realms/miniblog-realm"
+          - name: LOKI_URL
+            value: "http://loki:3100/loki/api/v1/push"
           - name: IMAGE_SERVICE_URL
             value: "http://image-service-service:4041"
           - name: IMAGE_SERVICE_PATH_PATTERN
