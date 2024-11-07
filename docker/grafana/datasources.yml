@@ -12,3 +12,20 @@ datasources:
       exemplarTraceIdDestinations:
         - name: trace_id
           datasourceUid: tempo
+  - name: Loki
+    type: loki
+    uid: loki
+    access: proxy
+    orgId: 1
+    url: http://host.docker.internal:3100
+    basicAuth: false
+    isDefault: false
+    version: 1
+    editable: false
+    apiVersion: 1
+    jsonData:
+      derivedFields:
+        - datasourceUid: tempo
+          matcherRegex: \[.+,(.+?),
+          name: TraceID
+          url: $${__value.raw}
