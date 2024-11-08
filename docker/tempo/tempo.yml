@@ -1,0 +1,13 @@
+# tempo.yml
+server:
+  http_listen_port: 3110
+
+distributor:
+  receivers:
+    zipkin:
+
+storage:
+  trace:
+    backend: local
+    local:
+      path: /tmp/tempo/blocks

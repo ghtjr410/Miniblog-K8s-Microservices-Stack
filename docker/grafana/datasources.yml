@@ -12,6 +12,23 @@ datasources:
       exemplarTraceIdDestinations:
         - name: trace_id
           datasourceUid: tempo
+  - name: Tempo
+    type: tempo
+    access: proxy
+    orgId: 1
+    url: http://host.docker.internal:3110
+    basicAuth: false
+    isDefault: true
+    version: 1
+    editable: false
+    apiVersion: 1
+    uid: tempo
+    jsonData:
+      httpMethod: GET
+      tracesToLogs:
+        datasourceUid: 'loki'
+      nodeGraph:
+        enabled: true
   - name: Loki
     type: loki
     uid: loki
