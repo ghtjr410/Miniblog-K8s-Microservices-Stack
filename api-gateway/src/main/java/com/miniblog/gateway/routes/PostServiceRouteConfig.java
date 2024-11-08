@@ -38,8 +38,8 @@ public class PostServiceRouteConfig {
 
         return GatewayRouterFunctions.route("post_service")
                 .route(RequestPredicates.path(postServicePathPattern), HandlerFunctions.http(postServiceUrl))
-                .filter(CircuitBreakerFilterFunctions.circuitBreaker("postServiceCircuitBreaker", URI.create("forward:/fallbackRoute")))
                 .filter(jwtHeaderFilter.addJwtHeadersFilter(headersToInclude))
+                .filter(CircuitBreakerFilterFunctions.circuitBreaker("postServiceCircuitBreaker", URI.create("forward:/fallbackRoute")))
                 .build();
     }
     @Bean
