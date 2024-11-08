@@ -1,0 +1,88 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: tempo-pvc
+  namespace: miniblog
+spec:
+  storageClassName: gp3-csi  # 업데이트한 StorageClass 사용
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tempo
+  namespace: miniblog
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tempo
+  template:
+    metadata:
+      labels:
+        app: tempo
+    spec:
+      containers:
+        - name: tempo
+          image: grafana/tempo:2.2.2
+          args: ["-config.file=/etc/tempo.yaml"]
+          volumeMounts:
+            - name: tempo-config
+              mountPath: /etc/tempo.yaml
+              subPath: tempo.yaml
+            - name: tempo-data
+              mountPath: /tmp/tempo
+          ports:
+            - containerPort: 3200
+              name: tempo
+            - containerPort: 9411
+              name: zipkin
+      volumes:
+        - name: tempo-config
+          configMap:
+            name: tempo-config
+        - name: tempo-data
+          persistentVolumeClaim:
+            claimName: tempo-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tempo
+  namespace: miniblog
+spec:
+  selector:
+    app: tempo
+  ports:
+    - protocol: TCP
+      port: 3110
+      targetPort: 3110
+      name: tempo
+    - protocol: TCP
+      port: 9411
+      targetPort: 9411
+      name: zipkin
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: tempo-config
+  namespace: miniblog
+data:
+  tempo.yaml: |
+    server:
+      http_listen_port: 3110
+    
+    distributor:
+      receivers:
+        zipkin:
+    
+    storage:
+      trace:
+        backend: local
+        local:
+          path: /tmp/tempo/blocks

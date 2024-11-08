@@ -32,7 +32,7 @@ spec:
             - name: GF_AUTH_GENERIC_OAUTH_CLIENT_ID
               value: grafana-client
             - name: GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET
-              value: 
+              value:
             - name: GF_AUTH_GENERIC_OAUTH_SCOPES
               value: openid email profile
             - name: GF_AUTH_GENERIC_OAUTH_AUTH_URL
@@ -88,6 +88,23 @@ data:
           exemplarTraceIdDestinations:
             - name: trace_id
               datasourceUid: tempo
+      - name: Tempo
+        type: tempo
+        access: proxy
+        orgId: 1
+        url: http://tempo:3110
+        basicAuth: false
+        isDefault: true
+        version: 1
+        editable: false
+        apiVersion: 1
+        uid: tempo
+        jsonData:
+          httpMethod: GET
+          tracesToLogs:
+            datasourceUid: 'loki'
+          nodeGraph:
+            enabled: true
       - name: Loki
         type: loki
         uid: loki

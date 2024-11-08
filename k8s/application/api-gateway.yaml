@@ -41,6 +41,8 @@ spec:
             value: "http://query-service-service:4043"
           - name: QUERY_SERVICE_PATH_PATTERN
             value: "/api/v1/posts/**"
+          - name: MANAGEMENT_ZIPKIN_TRACING_ENDPOINT
+            value: "http://tempo:9411"
 ---
 apiVersion: v1
 kind: Service

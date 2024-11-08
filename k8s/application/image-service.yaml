@@ -35,6 +35,8 @@ spec:
               value: ""
             - name: AWS_SECRETACCESSKEY
               value: ""
+            - name: MANAGEMENT_ZIPKIN_TRACING_ENDPOINT
+              value: "http://tempo:9411"
 ---
 apiVersion: v1
 kind: Service

@@ -43,6 +43,8 @@ spec:
               value: "post.created"
             - name: SPRING_DATA_MONGODB_URI
               value: "mongodb://root:1234@mongodb-service:27017/querydb?authSource=admin"
+            - name: MANAGEMENT_ZIPKIN_TRACING_ENDPOINT
+              value: "http://tempo:9411"
 ---
 apiVersion: v1
 kind: Service

@@ -47,6 +47,8 @@ spec:
               value: "http://schema-registry-service:8085"
             - name: POST_CREATED_EVENT_TOPIC_NAME
               value: "post.created"
+            - name: MANAGEMENT_ZIPKIN_TRACING_ENDPOINT
+              value: "http://tempo:9411"
 ---
 apiVersion: v1
 kind: Service
