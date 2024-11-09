@@ -8,6 +8,7 @@ import com.miniblog.post.model.OutboxEvent;
 import com.miniblog.post.model.Post;
 import com.miniblog.post.repository.OutboxEventRepository;
 import com.miniblog.post.repository.PostRepository;
+import io.micrometer.tracing.Tracer;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +24,7 @@ public class PostService {
     private final OutboxEventRepository outboxEventRepository;
     private final PostMapper postMapper;
     private final OutboxMapper outboxMapper;
+    private final Tracer tracer;
 
     @Transactional
     public ResponseEntity<PostResponseDTO> createPost(
@@ -33,6 +35,10 @@ public class PostService {
             post = postRepository.save(post);
 
             OutboxEvent outboxEvent = outboxMapper.toEntity(post);
+
+            String traceId = tracer.currentSpan().context().traceId();
+            outboxEvent.setTraceId(traceId);
+
             outboxEventRepository.save(outboxEvent);
 //            if (true) {
 //                // 강제 예외 발생

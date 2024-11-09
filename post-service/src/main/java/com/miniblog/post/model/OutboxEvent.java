@@ -21,6 +21,9 @@ public class OutboxEvent {
     private Long id;
 
     @Column(nullable = false)
+    private String traceId;
+
+    @Column(nullable = false)
     private String eventUuId;
 
     @Column(nullable = false)

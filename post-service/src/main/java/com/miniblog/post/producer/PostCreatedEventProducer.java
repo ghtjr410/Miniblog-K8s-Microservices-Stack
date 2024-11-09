@@ -4,6 +4,8 @@ import com.miniblog.post.avro.PostCreatedEvent;
 import com.miniblog.post.model.OutboxEvent;
 import com.miniblog.post.repository.OutboxEventRepository;
 import com.miniblog.post.util.SagaStatus;
+import io.micrometer.tracing.Span;
+import io.micrometer.tracing.Tracer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,29 +25,36 @@ import java.util.concurrent.ExecutionException;
 public class PostCreatedEventProducer {
     private final KafkaTemplate<String, PostCreatedEvent> kafkaTemplate;
     private final OutboxEventRepository outboxEventRepository;
+    private final Tracer tracer;
 
     @Value("${post.created.event.topic.name}")
     private String topicName;
 
     @Retryable(
-            value = { Exception.class},
+            value = { Exception.class },
             maxAttempts = 5,
             backoff = @Backoff(delay = 1000, multiplier = 2)
     )
-    public void publishEvent(String key, PostCreatedEvent postCreatedEvent, OutboxEvent outboxEvent) {
+    public void publishEvent(String key, PostCreatedEvent postCreatedEvent, OutboxEvent outboxEvent, Span span) {
         RetryContext context = RetrySynchronizationManager.getContext();
         int retryCount = context != null ? context.getRetryCount() : 0;
         log.info("이벤트 발행 시도 중, key: {}, attempt number: {}", key, retryCount + 1);
-        try {
-            kafkaTemplate.send(topicName, key, postCreatedEvent).get(); // 동기화하여 예외 처리
-            handleSuccess(outboxEvent);
-        } catch (InterruptedException | ExecutionException e) {
-            throw new RuntimeException(e);
+
+        try (Tracer.SpanInScope ws = tracer.withSpan(span)){
+            try {
+                kafkaTemplate.send(topicName, key, postCreatedEvent).get(); // 동기화하여 예외 처리
+                handleSuccess(outboxEvent);
+            } catch (InterruptedException | ExecutionException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
     @Recover
-    public void recover(Exception ex, String key, PostCreatedEvent postCreatedEvent, OutboxEvent outboxEvent) {
-        handleFailure(outboxEvent, ex);
+    public void recover(Exception ex, String key, PostCreatedEvent postCreatedEvent, OutboxEvent outboxEvent, Span span) {
+        // 실패 시에도 Span을 현재 컨텍스트에 설정
+        try (Tracer.SpanInScope ws = tracer.withSpan(span)) {
+            handleFailure(outboxEvent, ex);
+        }
     }
 
     private void handleSuccess(OutboxEvent outboxEvent) {
