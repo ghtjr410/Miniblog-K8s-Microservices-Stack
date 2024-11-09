@@ -37,7 +37,7 @@ public class PostCreatedConsumerConfig {
         factory.setConsumerFactory(postCreatedEventConsumerFactory());
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
         factory.setCommonErrorHandler(postCreatedErrorHandlerConfig.postCreatedEventErrorHandler());
-
+        factory.getContainerProperties().setObservationEnabled(true); // Observation 활성화
         return factory;
     }
 }

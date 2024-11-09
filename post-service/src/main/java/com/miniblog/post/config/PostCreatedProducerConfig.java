@@ -20,6 +20,8 @@ public class PostCreatedProducerConfig {
 
     @Bean
     public KafkaTemplate<String, PostCreatedEvent> postCreatedEventKafkaTemplate() {
-        return new KafkaTemplate<>(postCreatedEventProducerFactory());
+        KafkaTemplate<String, PostCreatedEvent> kafkaTemplate = new KafkaTemplate<>(postCreatedEventProducerFactory());
+        kafkaTemplate.setObservationEnabled(true);  // Observation 활성화
+        return kafkaTemplate;
     }
 }
