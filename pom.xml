@@ -19,6 +19,7 @@
         <module>image-service</module>
         <module>post-service</module>
         <module>query-service</module>
+        <module>comment-service</module>
     </modules>
 
     <properties>
