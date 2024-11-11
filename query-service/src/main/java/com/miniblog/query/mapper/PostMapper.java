@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class PostMapper {
-    public Post toDocument(PostCreatedEvent postCreatedEvent) {
+    public Post toCreatePost(PostCreatedEvent postCreatedEvent) {
         return Post.builder()
                 .postUuid(postCreatedEvent.getPostUuid().toString())
                 .userUuid(postCreatedEvent.getUserUuid().toString())
@@ -15,6 +15,9 @@ public class PostMapper {
                 .content(postCreatedEvent.getContent().toString())
                 .createdDate(postCreatedEvent.getCreatedDate())
                 .updatedDate(postCreatedEvent.getUpdatedDate())
+                .likeCount(0)
+                .viewCount(0)
+                .commentCount(0)
                 .build();
     }
 }

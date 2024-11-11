@@ -22,4 +22,9 @@ public class Post {
 
     private Long createdDate;
     private Long updatedDate;
+
+    // 집계 필드
+    private Integer likeCount;
+    private Integer viewCount;
+    private Integer commentCount;
 }
