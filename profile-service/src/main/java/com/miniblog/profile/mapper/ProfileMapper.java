@@ -9,18 +9,7 @@ import java.util.UUID;
 
 @Component
 public class ProfileMapper {
-    public Profile createProfile(String userUuid, ProfileRequestDTO profileRequestDTO) {
-        return Profile.builder()
-                .profileUuid(UUID.randomUUID().toString())
-                .userUuid(userUuid)
-                .nickname(profileRequestDTO.nickname())
-                .email(profileRequestDTO.email())
-                .title(profileRequestDTO.title())
-                .intro(profileRequestDTO.intro())
-                .build();
-    }
-
-    public void updateProfile(Profile profile, ProfileRequestDTO profileRequestDTO) {
+    public void toEntity(Profile profile, ProfileRequestDTO profileRequestDTO) {
         if (profileRequestDTO.nickname() != null) {
             profile.setNickname(profileRequestDTO.nickname());
         }
