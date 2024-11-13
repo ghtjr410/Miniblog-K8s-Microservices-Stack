@@ -46,6 +46,8 @@ public class KafkaProducerConfig {
 
     @Bean
     public KafkaTemplate<String, SpecificRecordBase> kafkaTemplate() {
-        return new KafkaTemplate<>(producerFactory());
+        KafkaTemplate<String, SpecificRecordBase> kafkaTemplate = new KafkaTemplate<>(producerFactory());
+        kafkaTemplate.setObservationEnabled(true);
+        return kafkaTemplate;
     }
 }

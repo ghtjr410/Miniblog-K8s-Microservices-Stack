@@ -8,6 +8,7 @@ import com.miniblog.profile.model.OutboxEvent;
 import com.miniblog.profile.model.Profile;
 import com.miniblog.profile.repository.OutboxEventRepository;
 import com.miniblog.profile.repository.ProfileRepository;
+import io.micrometer.tracing.Tracer;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +26,7 @@ public class ProfileService {
     private final OutboxEventRepository outboxEventRepository;
     private final ProfileMapper profileMapper;
     private final OutboxMapper outboxMapper;
+    private final Tracer tracer;
 
     @Transactional
     public ResponseEntity<ProfileResponseDTO> createOrUpdateProfile(
@@ -48,7 +50,8 @@ public class ProfileService {
             
             // OutboxEvent 생성 및 저장
             OutboxEvent outboxEvent = outboxMapper.toOutboxEvent(profile, isNew);
-            outboxEvent.setTraceId("abcdefg"); // 나중에 tempo 관련 로직 추가 예정
+            String traceId = tracer.currentSpan().context().traceId();
+            outboxEvent.setTraceId(traceId); // 나중에 tempo 관련 로직 추가 예정
             outboxEventRepository.save(outboxEvent);
 
             log.info("{} profile for userUuid={}", isNew ? "Creating new" : "Updating", userUuid);
