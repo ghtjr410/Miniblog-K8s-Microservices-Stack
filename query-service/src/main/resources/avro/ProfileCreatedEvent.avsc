@@ -1,0 +1,13 @@
+{
+  "namespace": "com.miniblog.profile.avro",
+  "type": "record",
+  "name": "ProfileCreatedEvent",
+  "fields": [
+    {"name": "profileUuid", "type": "string"},
+    {"name": "userUuid", "type": "string"},
+    {"name": "nickname", "type": "string"},
+    {"name": "email", "type": "string"},
+    {"name": "title", "type": "string"},
+    {"name": "intro", "type": "string"}
+  ]
+}

@@ -4,6 +4,7 @@ import com.miniblog.query.model.Post;
 import com.miniblog.query.repository.PostRepository;
 import com.miniblog.query.service.QueryService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/posts")
 @RequiredArgsConstructor
+@Slf4j
 public class QueryController {
     private final QueryService queryService;
     private final PostRepository postRepository;
@@ -30,6 +32,7 @@ public class QueryController {
 //        }catch (InterruptedException e) {
 //            throw new RuntimeException(e);
 //        }
-        return postRepository.findAll(pageable);
+        log.info("현재위치 QueryController - getPosts :");
+        return queryService.getPosts(pageable);
     }
 }

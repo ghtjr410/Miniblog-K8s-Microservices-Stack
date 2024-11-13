@@ -87,7 +87,7 @@ public class PostCreatedEventService {
     }
 
     private void savePost(PostCreatedEvent postCreatedEvent) {
-        Post post = postMapper.toDocument(postCreatedEvent);
+        Post post = postMapper.toCreatePost(postCreatedEvent);
         postRepository.save(post);
         log.info("Post 저장 완료: PostUuid={}", post.getPostUuid());
     }

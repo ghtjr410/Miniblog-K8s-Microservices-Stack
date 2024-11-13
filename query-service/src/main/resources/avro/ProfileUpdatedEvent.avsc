@@ -1,0 +1,10 @@
+{
+  "namespace": "com.miniblog.profile.avro",
+  "type": "record",
+  "name": "ProfileUpdatedEvent",
+  "fields": [
+    {"name": "profileUuid", "type": "string"},
+    {"name": "title", "type": "string"},
+    {"name": "intro", "type": "string"}
+  ]
+}
