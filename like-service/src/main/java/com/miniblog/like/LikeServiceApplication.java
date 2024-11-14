@@ -1,4 +1,4 @@
-package com.ghtjr.like;
+package com.miniblog.like;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
