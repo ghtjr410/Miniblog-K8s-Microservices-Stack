@@ -9,10 +9,10 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.miniblog</groupId>
-	<artifactId>like-service</artifactId>
+	<artifactId>viewcount-service</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>like-service</name>
-	<description>Like Service</description>
+	<name>viewcount-service</name>
+	<description>Viewcount Service</description>
 	<url/>
 	<licenses>
 		<license/>
