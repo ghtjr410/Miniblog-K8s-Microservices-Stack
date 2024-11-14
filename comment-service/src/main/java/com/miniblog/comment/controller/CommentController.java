@@ -1,8 +1,8 @@
-package com.ghtjr.comment.controller;
+package com.miniblog.comment.controller;
 
-import com.ghtjr.comment.dto.CommentRequestDTO;
-import com.ghtjr.comment.dto.CommentResponseDTO;
-import com.ghtjr.comment.service.CommentService;
+import com.miniblog.comment.dto.CommentRequestDTO;
+import com.miniblog.comment.dto.CommentResponseDTO;
+import com.miniblog.comment.service.CommentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

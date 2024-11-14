@@ -1,4 +1,4 @@
-package com.ghtjr.comment.dto;
+package com.miniblog.comment.dto;
 
 public record CommentResponseDTO(
         String nickname,

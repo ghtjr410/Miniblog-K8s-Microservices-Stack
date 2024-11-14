@@ -1,6 +1,6 @@
-package com.ghtjr.comment.repository;
+package com.miniblog.comment.repository;
 
-import com.ghtjr.comment.model.Comment;
+import com.miniblog.comment.model.Comment;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

@@ -1,4 +1,4 @@
-package com.ghtjr.comment;
+package com.miniblog.comment;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

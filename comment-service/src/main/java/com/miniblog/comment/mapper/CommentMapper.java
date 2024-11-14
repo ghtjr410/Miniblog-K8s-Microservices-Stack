@@ -1,8 +1,8 @@
-package com.ghtjr.comment.mapper;
+package com.miniblog.comment.mapper;
 
-import com.ghtjr.comment.dto.CommentRequestDTO;
-import com.ghtjr.comment.dto.CommentResponseDTO;
-import com.ghtjr.comment.model.Comment;
+import com.miniblog.comment.dto.CommentRequestDTO;
+import com.miniblog.comment.dto.CommentResponseDTO;
+import com.miniblog.comment.model.Comment;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;

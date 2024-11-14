@@ -1,10 +1,10 @@
-package com.ghtjr.comment.service;
+package com.miniblog.comment.service;
 
-import com.ghtjr.comment.dto.CommentRequestDTO;
-import com.ghtjr.comment.dto.CommentResponseDTO;
-import com.ghtjr.comment.mapper.CommentMapper;
-import com.ghtjr.comment.model.Comment;
-import com.ghtjr.comment.repository.CommentRepository;
+import com.miniblog.comment.dto.CommentRequestDTO;
+import com.miniblog.comment.dto.CommentResponseDTO;
+import com.miniblog.comment.mapper.CommentMapper;
+import com.miniblog.comment.model.Comment;
+import com.miniblog.comment.repository.CommentRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

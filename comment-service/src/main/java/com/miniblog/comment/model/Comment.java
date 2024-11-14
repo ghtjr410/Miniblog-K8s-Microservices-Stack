@@ -1,4 +1,4 @@
-package com.ghtjr.comment.model;
+package com.miniblog.comment.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
