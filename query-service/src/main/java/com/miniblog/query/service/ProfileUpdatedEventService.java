@@ -1,28 +1,24 @@
 package com.miniblog.query.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.miniblog.post.avro.PostCreatedEvent;
-import com.miniblog.query.mapper.PostMapper;
-import com.miniblog.query.model.Post;
+import com.miniblog.profile.avro.ProfileUpdatedEvent;
+import com.miniblog.query.mapper.ProfileMapper;
 import com.miniblog.query.model.ProcessedEvent;
-import com.miniblog.query.repository.PostRepository;
-import com.miniblog.query.repository.ProcessedEventRepository;
+import com.miniblog.query.model.Profile;
+import com.miniblog.query.repository.ProfileRepository;
 import com.miniblog.query.util.SagaStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class PostCreatedEventService {
-    private final PostRepository postRepository;
-    private final PostMapper postMapper;
+public class ProfileUpdatedEventService {
+    private final ProfileRepository profileRepository;
+    private final ProfileMapper profileMapper;
     private final EventProcessingHelper eventProcessingHelper;
 
-    public void processEvent(String eventUuid, PostCreatedEvent postCreatedEvent) {
+    public void processEvent(String eventUuid, ProfileUpdatedEvent profileUpdatedEvent) {
         log.info("processEvent called for eventUuid={}", eventUuid);
 
         // 멱등성 체크 및 상태 업데이트 처리
@@ -37,13 +33,13 @@ public class PostCreatedEventService {
         eventProcessingHelper.validateSagaStatus(processedEvent, eventUuid);
 
         try {
-            // Post 저장
-            savePost(postCreatedEvent);
+            // Profile 저장
+            saveProfile(profileUpdatedEvent);
 
             // 상태를 COMPLETED로 업데이트
             eventProcessingHelper.updateSagaStatus(eventUuid, new SagaStatus[]{SagaStatus.PROCESSING, SagaStatus.RETRYING}, SagaStatus.COMPLETED);
         } catch (Exception ex) {
-            log.error("Post 저장 중 오류 발생: eventUuid={}", eventUuid, ex);
+            log.error("Profile 저장 중 오류 발생: eventUuid={}", eventUuid, ex);
             // 상태를 FAILED로 업데이트
             eventProcessingHelper.updateSagaStatus(eventUuid, new SagaStatus[]{SagaStatus.PROCESSING, SagaStatus.RETRYING}, SagaStatus.FAILED);
             // 예외를 다시 던져 Kafka의 재시도 로직을 트리거
@@ -51,9 +47,10 @@ public class PostCreatedEventService {
         }
     }
 
-    private void savePost(PostCreatedEvent postCreatedEvent) {
-        Post post = postMapper.toCreatePost(postCreatedEvent);
-        postRepository.save(post);
-        log.info("Post 저장 완료: PostUuid={}", post.getPostUuid());
+    private void saveProfile(ProfileUpdatedEvent profileUpdatedEvent) {
+        Profile profile = profileRepository.findByProfileUuid(profileUpdatedEvent.getProfileUuid().toString())
+                .orElseThrow(() -> new IllegalStateException("프로필을 찾을 수 없습니다. ProfileUuid=" + profileUpdatedEvent.getProfileUuid()));
+        profileMapper.toUpdatedProfile(profile, profileUpdatedEvent);
+        profileRepository.save(profile);
     }
 }
