@@ -18,9 +18,9 @@ public class PostCreatedConsumer {
     @KafkaListener(
             topics = "${post.created.event.topic.name}",
             groupId = "${query.consumer.group-id}",
-            containerFactory = "postCreatedEventListenerContainerFactory")
+            containerFactory = "kafkaListenerContainerFactory")
     public void consume(ConsumerRecord<String, PostCreatedEvent> record, Acknowledgment ack) {
-        log.info("Received message: key={}, value={}", record.key(), record.value());
+        log.info("Received PostCreatedEvent: key={}, value={}", record.key(), record.value());
 
         String eventUuid = record.key();
         PostCreatedEvent postCreatedEvent = record.value();
@@ -28,5 +28,4 @@ public class PostCreatedConsumer {
         postCreatedEventService.processEvent(eventUuid, postCreatedEvent);
         ack.acknowledge();
     }
-
 }

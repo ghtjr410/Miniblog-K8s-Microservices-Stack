@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
-public class CommonConsumerConfig {
+public class ConsumerPropertiesConfig { // Kafka 소비자 설정을 제공
     @Value("${spring.kafka.bootstrap-servers}")
     private String bootstrapServers;
 
@@ -21,7 +21,7 @@ public class CommonConsumerConfig {
     private String schemaRegistryUrl;
 
     @Bean
-    protected Map<String, Object> commonConsumerConfigs() {
+    protected Map<String, Object> consumerConfigs() {
         Map<String, Object> configProps = new HashMap<>();
         configProps.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         configProps.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
