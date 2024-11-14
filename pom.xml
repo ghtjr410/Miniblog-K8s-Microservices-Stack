@@ -20,6 +20,10 @@
         <module>post-service</module>
         <module>query-service</module>
         <module>comment-service</module>
+        <module>like-service</module>
+        <module>viewcount-service</module>
+        <module>profile-service</module>
+        <module>account-service</module>
     </modules>
 
     <properties>
