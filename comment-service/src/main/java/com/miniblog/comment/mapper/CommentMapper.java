@@ -6,9 +6,6 @@ import com.miniblog.comment.dto.CommentUpdatedRequestDTO;
 import com.miniblog.comment.model.Comment;
 import org.springframework.stereotype.Component;
 
-import java.util.Date;
-import java.util.UUID;
-
 @Component
 public class CommentMapper {
     public Comment createToEntity(String userUuid, CommentCreatedRequestDTO commentRequestDTO) {

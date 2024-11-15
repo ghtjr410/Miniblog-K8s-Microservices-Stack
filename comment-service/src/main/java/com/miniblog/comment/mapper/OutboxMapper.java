@@ -1,6 +1,5 @@
 package com.miniblog.comment.mapper;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.miniblog.comment.model.Comment;
 import com.miniblog.comment.model.OutboxEvent;
 import com.miniblog.comment.util.EventType;

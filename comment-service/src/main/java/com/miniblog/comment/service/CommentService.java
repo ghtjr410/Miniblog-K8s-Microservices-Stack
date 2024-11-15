@@ -6,13 +6,10 @@ import com.miniblog.comment.dto.CommentResponseDTO;
 import com.miniblog.comment.dto.CommentUpdatedRequestDTO;
 import com.miniblog.comment.exception.CommentNotFoundException;
 import com.miniblog.comment.mapper.CommentMapper;
-import com.miniblog.comment.mapper.OutboxMapper;
 import com.miniblog.comment.model.Comment;
-import com.miniblog.comment.model.OutboxEvent;
 import com.miniblog.comment.repository.CommentRepository;
-import com.miniblog.comment.repository.OutboxEventRepository;
 import com.miniblog.comment.util.EventType;
-import io.micrometer.tracing.Tracer;
+import com.miniblog.comment.util.TracerUtility;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,11 +19,10 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @Slf4j
 public class CommentService {
-    private final OutboxEventRepository outboxEventRepository;
     private final CommentRepository commentRepository;
     private final CommentMapper commentMapper;
-    private final OutboxMapper outboxMapper;
-    private final Tracer tracer;
+    private final OutboxEventService outboxEventService;
+    private final TracerUtility tracerUtility;
 
     @Transactional
     public CommentResponseDTO createComment(
@@ -37,10 +33,8 @@ public class CommentService {
             comment = commentRepository.save(comment);
 
             // OutboxEvent 생성 및 저장
-            OutboxEvent outboxEvent = outboxMapper.toOutboxEvent(comment, EventType.COMMENT_CREATED);
-            String traceId = tracer.currentSpan().context().traceId();
-            outboxEvent.setTraceId(traceId);
-            outboxEventRepository.save(outboxEvent);
+            String traceId = tracerUtility.getTraceId();
+            outboxEventService.createOutboxEvent(comment, EventType.COMMENT_CREATED, traceId);
 
             log.info("Success Create Comment : id = {}, commentUuid = {] ", comment.getId(), comment.getCommentUuid());
             return commentMapper.toResponseDTO(comment);
@@ -63,10 +57,8 @@ public class CommentService {
             commentRepository.save(comment);
 
             // OutboxEvent 생성 및 저장
-            OutboxEvent outboxEvent = outboxMapper.toOutboxEvent(comment, EventType.COMMENT_UPDATED);
-            String traceId = tracer.currentSpan().context().traceId();
-            outboxEvent.setTraceId(traceId);
-            outboxEventRepository.save(outboxEvent);
+            String traceId = tracerUtility.getTraceId();
+            outboxEventService.createOutboxEvent(comment, EventType.COMMENT_UPDATED, traceId);
 
             log.info("Success Update Comment : id = {}, commentUuid = {}", comment.getId(), comment.getCommentUuid());
             return commentMapper.toResponseDTO(comment);
@@ -88,10 +80,8 @@ public class CommentService {
             commentRepository.delete(comment);
 
             // OutboxEvent 생성 및 저장
-            OutboxEvent outboxEvent = outboxMapper.toOutboxEvent(comment, EventType.COMMENT_DELETED);
-            String traceId = tracer.currentSpan().context().traceId();
-            outboxEvent.setTraceId(traceId);
-            outboxEventRepository.save(outboxEvent);
+            String traceId = tracerUtility.getTraceId();
+            outboxEventService.createOutboxEvent(comment, EventType.COMMENT_DELETED, traceId);
 
             log.info("Success Delete Comment : id = {}, commentUuid = {}", comment.getId(), comment.getCommentUuid());
         } catch (Exception ex) {
