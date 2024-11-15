@@ -5,6 +5,7 @@ import com.miniblog.comment.dto.CommentDeletedRequestDTO;
 import com.miniblog.comment.dto.CommentResponseDTO;
 import com.miniblog.comment.dto.CommentUpdatedRequestDTO;
 import com.miniblog.comment.service.CommentService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,21 +19,21 @@ public class CommentController {
     @PostMapping
     public ResponseEntity<CommentResponseDTO> createComment(
             @RequestHeader(value = "X-User-Sub", required = false) String userUuid,
-            @RequestBody CommentCreatedRequestDTO commentCreatedRequestDTO) {
+            @Valid @RequestBody CommentCreatedRequestDTO commentCreatedRequestDTO) {
         return commentService.createComment(userUuid, commentCreatedRequestDTO);
     }
 
     @PutMapping
     public ResponseEntity<CommentResponseDTO> updateComment(
             @RequestHeader(value = "X-User-Sub", required = false) String userUuid,
-            @RequestBody CommentUpdatedRequestDTO commentUpdatedRequestDTO) {
+            @Valid @RequestBody CommentUpdatedRequestDTO commentUpdatedRequestDTO) {
         return commentService.updateComment(userUuid, commentUpdatedRequestDTO);
     }
 
     @DeleteMapping
     public ResponseEntity<?> deleteComment(
             @RequestHeader(value = "X-User-Sub", required = false) String userUuid,
-            @RequestBody CommentDeletedRequestDTO commentDeletedRequestDTO) {
+            @Valid @RequestBody CommentDeletedRequestDTO commentDeletedRequestDTO) {
         return commentService.deleteComment(userUuid, commentDeletedRequestDTO);
     }
 }

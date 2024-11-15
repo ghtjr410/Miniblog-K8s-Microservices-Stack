@@ -1,5 +1,9 @@
 package com.miniblog.comment.dto;
 
+import jakarta.validation.constraints.NotBlank;
+
 public record CommentDeletedRequestDTO(
-        String commentUuid) {
+        @NotBlank(message = "Comment UUID is required.")
+        String commentUuid
+) {
 }
