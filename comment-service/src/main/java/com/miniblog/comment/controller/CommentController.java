@@ -7,6 +7,7 @@ import com.miniblog.comment.dto.CommentUpdatedRequestDTO;
 import com.miniblog.comment.service.CommentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,20 +21,23 @@ public class CommentController {
     public ResponseEntity<CommentResponseDTO> createComment(
             @RequestHeader(value = "X-User-Sub", required = false) String userUuid,
             @Valid @RequestBody CommentCreatedRequestDTO commentCreatedRequestDTO) {
-        return commentService.createComment(userUuid, commentCreatedRequestDTO);
+        CommentResponseDTO responseDTO = commentService.createComment(userUuid, commentCreatedRequestDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
     }
 
     @PutMapping
     public ResponseEntity<CommentResponseDTO> updateComment(
             @RequestHeader(value = "X-User-Sub", required = false) String userUuid,
             @Valid @RequestBody CommentUpdatedRequestDTO commentUpdatedRequestDTO) {
-        return commentService.updateComment(userUuid, commentUpdatedRequestDTO);
+        CommentResponseDTO responseDTO = commentService.updateComment(userUuid, commentUpdatedRequestDTO);
+        return ResponseEntity.ok(responseDTO);
     }
 
     @DeleteMapping
     public ResponseEntity<?> deleteComment(
             @RequestHeader(value = "X-User-Sub", required = false) String userUuid,
             @Valid @RequestBody CommentDeletedRequestDTO commentDeletedRequestDTO) {
-        return commentService.deleteComment(userUuid, commentDeletedRequestDTO);
+        commentService.deleteComment(userUuid, commentDeletedRequestDTO);
+        return ResponseEntity.noContent().build();
     }
 }

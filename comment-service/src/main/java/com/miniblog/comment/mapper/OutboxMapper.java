@@ -20,7 +20,7 @@ public class OutboxMapper {
     private final CommentUpdatedEventMapper commentUpdatedEventMapper;
     private final CommentDeletedEventMapper commentDeletedEventMapper;
 
-    public OutboxEvent toOutboxEvent(Comment comment, EventType eventType) throws JsonProcessingException {
+    public OutboxEvent toOutboxEvent(Comment comment, EventType eventType){
         try {
             SpecificRecordBase event;
 
