@@ -1,4 +1,4 @@
-package com.miniblog.comment.config;
+package com.miniblog.comment.aspect;
 
 import io.micrometer.observation.Observation;
 import io.micrometer.observation.ObservationRegistry;

@@ -28,65 +28,44 @@ public class CommentService {
     public CommentResponseDTO createComment(
             String userUuid,
             CommentCreatedRequestDTO commentCreatedRequestDTO) {
-        try {
-            Comment comment = commentMapper.createToEntity(userUuid, commentCreatedRequestDTO);
-            comment = commentRepository.save(comment);
 
-            // OutboxEvent 생성 및 저장
-            String traceId = tracerUtility.getTraceId();
-            outboxEventService.createOutboxEvent(comment, EventType.COMMENT_CREATED, traceId);
+        Comment comment = commentMapper.createToEntity(userUuid, commentCreatedRequestDTO);
+        comment = commentRepository.save(comment);
 
-            log.info("Success Create Comment : id = {}, commentUuid = {] ", comment.getId(), comment.getCommentUuid());
-            return commentMapper.toResponseDTO(comment);
-        } catch (Exception ex) {
-            log.error("Error Create Comment : ", ex);
-            throw new RuntimeException("Error occurred while creating comment", ex);
-        }
+        String traceId = tracerUtility.getTraceId();
+        outboxEventService.createOutboxEvent(comment, EventType.COMMENT_CREATED, traceId);
+
+        return commentMapper.toResponseDTO(comment);
     }
 
     @Transactional
     public CommentResponseDTO updateComment(
             String userUuid,
             CommentUpdatedRequestDTO commentUpdatedRequestDTO) {
-        try {
-            String commentUuid = commentUpdatedRequestDTO.commentUuid();
 
-            Comment comment = commentRepository.findByCommentUuidAndUserUuid(commentUuid, userUuid)
-                    .orElseThrow(() -> new CommentNotFoundException("Comment not found or user not authorized: commentUuid = " + commentUuid + ", userUuid = " + userUuid));
-            commentMapper.updateToEntity(comment, commentUpdatedRequestDTO);
-            commentRepository.save(comment);
+        String commentUuid = commentUpdatedRequestDTO.commentUuid();
+        Comment comment = commentRepository.findByCommentUuidAndUserUuid(commentUuid, userUuid)
+                .orElseThrow(() -> new CommentNotFoundException("Comment not found or user not authorized: commentUuid = " + commentUuid + ", userUuid = " + userUuid));
+        commentMapper.updateToEntity(comment, commentUpdatedRequestDTO);
+        commentRepository.save(comment);
 
-            // OutboxEvent 생성 및 저장
-            String traceId = tracerUtility.getTraceId();
-            outboxEventService.createOutboxEvent(comment, EventType.COMMENT_UPDATED, traceId);
+        String traceId = tracerUtility.getTraceId();
+        outboxEventService.createOutboxEvent(comment, EventType.COMMENT_UPDATED, traceId);
 
-            log.info("Success Update Comment : id = {}, commentUuid = {}", comment.getId(), comment.getCommentUuid());
-            return commentMapper.toResponseDTO(comment);
-        } catch (Exception ex) {
-            log.error("Error Update Comment : ", ex);
-            throw new RuntimeException("Error occurred while updating comment", ex);
-        }
+        return commentMapper.toResponseDTO(comment);
     }
 
     @Transactional
     public void deleteComment(
             String userUuid,
             CommentDeletedRequestDTO commentDeletedRequestDTO) {
-        try {
-            String commentUuid = commentDeletedRequestDTO.commentUuid();
 
-            Comment comment = commentRepository.findByCommentUuidAndUserUuid(commentUuid, userUuid)
-                    .orElseThrow(() -> new CommentNotFoundException("Comment not found or user not authorized: commentUuid = " + commentUuid + ", userUuid = " + userUuid));
-            commentRepository.delete(comment);
+        String commentUuid = commentDeletedRequestDTO.commentUuid();
+        Comment comment = commentRepository.findByCommentUuidAndUserUuid(commentUuid, userUuid)
+                .orElseThrow(() -> new CommentNotFoundException("Comment not found or user not authorized: commentUuid = " + commentUuid + ", userUuid = " + userUuid));
+        commentRepository.delete(comment);
 
-            // OutboxEvent 생성 및 저장
-            String traceId = tracerUtility.getTraceId();
-            outboxEventService.createOutboxEvent(comment, EventType.COMMENT_DELETED, traceId);
-
-            log.info("Success Delete Comment : id = {}, commentUuid = {}", comment.getId(), comment.getCommentUuid());
-        } catch (Exception ex) {
-            log.error("Error Delete Comment : ", ex);
-            throw new RuntimeException("Error occurred while updating comment", ex);
-        }
+        String traceId = tracerUtility.getTraceId();
+        outboxEventService.createOutboxEvent(comment, EventType.COMMENT_DELETED, traceId);
     }
 }

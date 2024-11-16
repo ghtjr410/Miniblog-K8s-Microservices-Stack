@@ -48,19 +48,19 @@ public class Comment {
         Instant now = Instant.now();
         this.createdDate = now;
         this.updatedDate = now;
-        log.info("Entity is about to be created - CommentUUID: {}, PostUUID: {}, UserUUID: {}, Nickname: {}, Content: {}",
+        log.info("Comment is about to be created - CommentUUID: {}, PostUUID: {}, UserUUID: {}, Nickname: {}, Content: {}",
                 this.commentUuid, this.postUuid, this.userUuid, this.nickname, this.content);
     }
 
     @PreUpdate // 업데이트되기 직전(UPDATE 쿼리 실행 전)에 실행
     public void preUpdate() {
         this.updatedDate = Instant.now();
-        log.info("Entity is about to be updated - CommentUUID: {}, Content: {}, UpdatedDate: {}",
+        log.info("Comment is about to be updated - CommentUUID: {}, Content: {}, UpdatedDate: {}",
                 this.commentUuid, this.content, this.updatedDate);
     }
 
     @PreRemove // 삭제되기 직전(DELETE 쿼리 실행 전)에 실행
     public void preRemove() {
-        log.info("Entity is about to be removed: {}", this.commentUuid);
+        log.info("Comment is about to be removed: {}", this.commentUuid);
     }
 }
