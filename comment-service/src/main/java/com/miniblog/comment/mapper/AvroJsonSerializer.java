@@ -12,14 +12,18 @@ import java.io.IOException;
 
 @Component
 public class AvroJsonSerializer {
-    public <T extends SpecificRecordBase> String serialize(T avroEvent) throws IOException {
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        DatumWriter<T> datumWriter = new SpecificDatumWriter<>(avroEvent.getSchema());
-        JsonEncoder jsonEncoder = EncoderFactory.get().jsonEncoder(avroEvent.getSchema(), byteArrayOutputStream);
-        datumWriter.write(avroEvent, jsonEncoder);
-        jsonEncoder.flush();
-        byteArrayOutputStream.flush();
+    public <T extends SpecificRecordBase> String serialize(T avroEvent) {
+        try {
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            DatumWriter<T> datumWriter = new SpecificDatumWriter<>(avroEvent.getSchema());
+            JsonEncoder jsonEncoder = EncoderFactory.get().jsonEncoder(avroEvent.getSchema(), byteArrayOutputStream);
+            datumWriter.write(avroEvent, jsonEncoder);
+            jsonEncoder.flush();
+            byteArrayOutputStream.flush();
 
-        return byteArrayOutputStream.toString();
+            return byteArrayOutputStream.toString();
+        } catch (IOException ex) {
+            throw new RuntimeException("Failed to serialize Avro event", ex);
+        }
     }
 }

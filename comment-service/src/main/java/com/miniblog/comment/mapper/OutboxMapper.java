@@ -20,33 +20,28 @@ public class OutboxMapper {
     private final CommentDeletedEventMapper commentDeletedEventMapper;
 
     public OutboxEvent toOutboxEvent(Comment comment, EventType eventType){
-        try {
-            SpecificRecordBase event;
+        SpecificRecordBase event;
 
-            switch (eventType) {
-                case COMMENT_CREATED:
-                    event = commentCreatedEventMapper.toEntity(comment);
-                    break;
-                case COMMENT_UPDATED:
-                    event = commentUpdatedEventMapper.toEntity(comment);
-                    break;
-                case COMMENT_DELETED:
-                    event = commentDeletedEventMapper.toEntity(comment);
-                    break;
-                default:
-                    throw new IllegalArgumentException("지원하지 않는 이벤트 타입입니다: " + eventType);
-            }
-
-            String payload = avroJsonSerializer.serialize(event);
-
-            return OutboxEvent.builder()
-                    .commentUuid(comment.getCommentUuid())
-                    .eventType(eventType)
-                    .payload(payload)
-                    .build();
-        } catch (IOException ex) {
-            log.error("OutboxMapper toOutboxEvent : {}", ex.getMessage(), ex);
-            throw new RuntimeException("OutboxEvent 생성 실패", ex);
+        switch (eventType) {
+            case COMMENT_CREATED:
+                event = commentCreatedEventMapper.toEntity(comment);
+                break;
+            case COMMENT_UPDATED:
+                event = commentUpdatedEventMapper.toEntity(comment);
+                break;
+            case COMMENT_DELETED:
+                event = commentDeletedEventMapper.toEntity(comment);
+                break;
+            default:
+                throw new IllegalArgumentException("지원하지 않는 이벤트 타입입니다: " + eventType);
         }
+
+        String payload = avroJsonSerializer.serialize(event);
+
+        return OutboxEvent.builder()
+                .commentUuid(comment.getCommentUuid())
+                .eventType(eventType)
+                .payload(payload)
+                .build();
     }
 }

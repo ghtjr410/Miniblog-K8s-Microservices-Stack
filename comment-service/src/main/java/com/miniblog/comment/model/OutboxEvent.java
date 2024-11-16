@@ -54,7 +54,7 @@ public class OutboxEvent {
         this.createdDate = Instant.now(); // 무조건 현재 시간으로 설정
         this.sagaStatus = SagaStatus.CREATED; // 항상 CREATED 상태로 초기화
         this.processed = false; // 항상 false로 초기화
-        log.info("Comment is about to be created - EventUUID: {}, CommentUUID: {}, EventType: {}, CreateDate: {}, SagaStatus: {}, Processed: {}, Payload: {}",
+        log.info("OutboxEvent is about to be created - EventUUID: {}, CommentUUID: {}, EventType: {}, CreateDate: {}, SagaStatus: {}, Processed: {}, Payload: {}",
                 this.eventUuid, this.commentUuid, this.eventType, this.createdDate, this.sagaStatus, this.processed, this.payload);
     }
 }

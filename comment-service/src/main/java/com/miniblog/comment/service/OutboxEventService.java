@@ -5,6 +5,7 @@ import com.miniblog.comment.model.Comment;
 import com.miniblog.comment.model.OutboxEvent;
 import com.miniblog.comment.repository.OutboxEventRepository;
 import com.miniblog.comment.util.EventType;
+import com.miniblog.comment.util.TracerUtility;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -13,14 +14,12 @@ import org.springframework.stereotype.Service;
 public class OutboxEventService {
     private final OutboxEventRepository outboxEventRepository;
     private final OutboxMapper outboxMapper;
+    private final TracerUtility tracerUtility;
 
-    public void createOutboxEvent(Comment comment, EventType eventType, String traceId) {
-        try {
-            OutboxEvent outboxEvent = outboxMapper.toOutboxEvent(comment, eventType);
-            outboxEvent.setTraceId(traceId);
-            outboxEventRepository.save(outboxEvent);
-        } catch (Exception ex) {
-            throw new RuntimeException("Failed to save OutboxEvent", ex); // 예외를 던짐
-        }
+    public void createOutboxEvent(Comment comment, EventType eventType) {
+        String traceId = tracerUtility.getTraceId();
+        OutboxEvent outboxEvent = outboxMapper.toOutboxEvent(comment, eventType);
+        outboxEvent.setTraceId(traceId);
+        outboxEventRepository.save(outboxEvent);
     }
 }

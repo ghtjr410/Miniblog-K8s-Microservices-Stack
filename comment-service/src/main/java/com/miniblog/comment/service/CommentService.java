@@ -9,7 +9,6 @@ import com.miniblog.comment.mapper.CommentMapper;
 import com.miniblog.comment.model.Comment;
 import com.miniblog.comment.repository.CommentRepository;
 import com.miniblog.comment.util.EventType;
-import com.miniblog.comment.util.TracerUtility;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +21,6 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final CommentMapper commentMapper;
     private final OutboxEventService outboxEventService;
-    private final TracerUtility tracerUtility;
 
     @Transactional
     public CommentResponseDTO createComment(
@@ -31,9 +29,7 @@ public class CommentService {
 
         Comment comment = commentMapper.createToEntity(userUuid, commentCreatedRequestDTO);
         comment = commentRepository.save(comment);
-
-        String traceId = tracerUtility.getTraceId();
-        outboxEventService.createOutboxEvent(comment, EventType.COMMENT_CREATED, traceId);
+        outboxEventService.createOutboxEvent(comment, EventType.COMMENT_CREATED);
 
         return commentMapper.toResponseDTO(comment);
     }
@@ -48,9 +44,7 @@ public class CommentService {
                 .orElseThrow(() -> new CommentNotFoundException("Comment not found or user not authorized: commentUuid = " + commentUuid + ", userUuid = " + userUuid));
         commentMapper.updateToEntity(comment, commentUpdatedRequestDTO);
         commentRepository.save(comment);
-
-        String traceId = tracerUtility.getTraceId();
-        outboxEventService.createOutboxEvent(comment, EventType.COMMENT_UPDATED, traceId);
+        outboxEventService.createOutboxEvent(comment, EventType.COMMENT_UPDATED);
 
         return commentMapper.toResponseDTO(comment);
     }
@@ -65,7 +59,6 @@ public class CommentService {
                 .orElseThrow(() -> new CommentNotFoundException("Comment not found or user not authorized: commentUuid = " + commentUuid + ", userUuid = " + userUuid));
         commentRepository.delete(comment);
 
-        String traceId = tracerUtility.getTraceId();
-        outboxEventService.createOutboxEvent(comment, EventType.COMMENT_DELETED, traceId);
+        outboxEventService.createOutboxEvent(comment, EventType.COMMENT_DELETED);
     }
 }
