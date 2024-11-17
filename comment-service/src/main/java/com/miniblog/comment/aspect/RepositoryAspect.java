@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 public class RepositoryAspect {
     private final ObservationRegistry observationRegistry;
 
+    // @Around("execution(* org.springframework.data.repository.Repository+.*(..)) || (@within(org.springframework.stereotype.Repository) && execution(* *(..)))")
     @Around("execution(* org.springframework.data.jpa.repository.JpaRepository+.*(..))")
     public Object observedJpaRepositoryMethods(ProceedingJoinPoint proceedingJoinPoint) throws Throwable {
         String methodName = proceedingJoinPoint.getSignature().getName();
