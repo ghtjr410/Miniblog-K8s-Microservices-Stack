@@ -1,6 +1,5 @@
 package com.miniblog.comment.service;
 
-import brave.propagation.TraceContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.miniblog.comment.avro.CommentCreatedEvent;
 import com.miniblog.comment.avro.CommentDeletedEvent;
@@ -8,18 +7,17 @@ import com.miniblog.comment.avro.CommentUpdatedEvent;
 import com.miniblog.comment.model.OutboxEvent;
 import com.miniblog.comment.producer.EventProducer;
 import com.miniblog.comment.repository.OutboxEventRepository;
+import com.miniblog.comment.tracing.SpanFactory;
+import com.miniblog.comment.util.EventType;
 import com.miniblog.comment.util.SagaStatus;
 import io.micrometer.tracing.Span;
 import io.micrometer.tracing.Tracer;
 import io.micrometer.tracing.Tracer.SpanInScope;
-import io.micrometer.tracing.brave.bridge.BraveSpan;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.avro.specific.SpecificRecordBase;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
-import java.math.BigInteger;
-import java.util.concurrent.ThreadLocalRandom;
 
 @Service
 @RequiredArgsConstructor
@@ -29,7 +27,8 @@ public class OutboxEventProcessor {
     private final EventProducer eventProducer;
     private final ObjectMapper objectMapper;
     private final Tracer tracer;
-    private final brave.Tracer braveTracer;
+    private final SpanFactory spanFactory;
+    private final OutboxEventService outboxEventService;
 
     @Value("${comment.created.event.topic.name}")
     private String commentCreatedTopicName;
@@ -38,129 +37,69 @@ public class OutboxEventProcessor {
     @Value("${comment.deleted.event.topic.name}")
     private String commentDeletedTopicName;
 
-    public void processCommentCreatedEvent(OutboxEvent outboxEvent) {
+    public void processEvent(OutboxEvent outboxEvent) {
+        Span newSpan = null;
         try {
-            outboxEvent.setSagaStatus(SagaStatus.PROCESSING);
-            outboxEventRepository.save(outboxEvent);
-            CommentCreatedEvent commentCreatedEvent = objectMapper.readValue(outboxEvent.getPayload(), CommentCreatedEvent.class);
+            // 1. PROCESSING 상태로 업데이트
+            log.info("Created일때 상태변경");
+            boolean updated = outboxEventService.updateStatus(outboxEvent.getEventUuid(), SagaStatus.CREATED, SagaStatus.PROCESSING, null);
+            if (!updated) {
+                log.info("Event with UUID {} is already being processed or has invalid status.", outboxEvent.getEventUuid());
+                return; // 다른 스레드에서 처리 중이므로 메서드 종료
+            }
 
-            String traceIdString = outboxEvent.getTraceId();
+            // 2. 이벤트 타입 확인
+            String topicName = getTopicName(outboxEvent.getEventType());
+            Class<? extends SpecificRecordBase> eventClass = getEventClass(outboxEvent.getEventType());
 
-            // 128비트 traceId 문자열을 두 개의 long 값으로 분리
-            BigInteger traceIdBigInt = new BigInteger(traceIdString, 16);
-            long traceIdHigh = traceIdBigInt.shiftRight(64).longValue();
-            long traceIdLow = traceIdBigInt.longValue();
+            // 3. 페이로드 역직렬화
+            SpecificRecordBase eventObject = objectMapper.readValue(outboxEvent.getPayload(), eventClass);
 
-            long spanId;
-            do {
-                spanId = ThreadLocalRandom.current().nextLong();
-            } while (spanId == 0);
+            // 4. Span 생성
+            newSpan = spanFactory.createSpanFromTraceId(outboxEvent.getTraceId());
 
-            // TraceContext 생성
-            TraceContext traceContext = TraceContext.newBuilder()
-                    .traceIdHigh(traceIdHigh)
-                    .traceId(traceIdLow)
-                    .spanId(spanId)
-                    .sampled(true)
-                    .build();
-            
-            // Braver Tracer를 사용하여 Span 생성
-            brave.Span braveSpan = braveTracer.toSpan(traceContext).name("OutboxEventProcessing").start();
-
-            // Brave Span을 Micrometer Span으로 래핑
-            Span newSpan = new BraveSpan(braveSpan);
-
+            // 5. 이벤트 발행
             try (SpanInScope ws = tracer.withSpan(newSpan)) {
-                eventProducer.publishEvent(commentCreatedTopicName, outboxEvent.getEventUuid(), commentCreatedEvent, outboxEvent, newSpan);
-            } finally {
+                eventProducer.publishEvent(topicName, outboxEvent.getEventUuid(), eventObject, newSpan);
+            }
+            // 6. 완료 상태 업데이트 및 processed 필드 저장 (별도의 트랜잭션)
+            outboxEventService.markEventAsCompleted(outboxEvent);
+        } catch (Exception ex) {
+            // 7. 실패 상태 업데이트 (별도의 트랜잭션)
+            outboxEventService.markEventAsFailed(outboxEvent);
+            log.error("Error processing OutboxEvent: {}", ex.getMessage(), ex);
+        } finally {
+            if (newSpan != null) {
                 newSpan.end();
             }
-        } catch (Exception ex) {
-            log.error("Error processing OutboxEvent : {}", ex.getMessage());
         }
     }
 
-    public void processCommentUpdatedEvent(OutboxEvent outboxEvent) {
-        try {
-            outboxEvent.setSagaStatus(SagaStatus.PROCESSING);
-            outboxEventRepository.save(outboxEvent);
-            CommentUpdatedEvent commentUpdatedEvent = objectMapper.readValue(outboxEvent.getPayload(), CommentUpdatedEvent.class);
 
-            String traceIdString = outboxEvent.getTraceId();
 
-            // 128비트 traceId 문자열을 두 개의 long 값으로 분리
-            BigInteger traceIdBigInt = new BigInteger(traceIdString, 16);
-            long traceIdHigh = traceIdBigInt.shiftRight(64).longValue();
-            long traceIdLow = traceIdBigInt.longValue();
-
-            long spanId;
-            do {
-                spanId = ThreadLocalRandom.current().nextLong();
-            } while (spanId == 0);
-
-            // TraceContext 생성
-            TraceContext traceContext = TraceContext.newBuilder()
-                    .traceIdHigh(traceIdHigh)
-                    .traceId(traceIdLow)
-                    .spanId(spanId)
-                    .sampled(true)
-                    .build();
-
-            // Braver Tracer를 사용하여 Span 생성
-            brave.Span braveSpan = braveTracer.toSpan(traceContext).name("OutboxEventProcessing").start();
-
-            // Brave Span을 Micrometer Span으로 래핑
-            Span newSpan = new BraveSpan(braveSpan);
-
-            try (SpanInScope ws = tracer.withSpan(newSpan)) {
-                eventProducer.publishEvent(commentUpdatedTopicName, outboxEvent.getEventUuid(), commentUpdatedEvent, outboxEvent, newSpan);
-            } finally {
-                newSpan.end();
-            }
-        } catch (Exception ex) {
-            log.error("Error processing OutboxEvent : {}", ex.getMessage());
+    private String getTopicName(EventType eventType) {
+        switch (eventType) {
+            case COMMENT_CREATED:
+                return commentCreatedTopicName;
+            case COMMENT_UPDATED:
+                return commentUpdatedTopicName;
+            case COMMENT_DELETED:
+                return commentDeletedTopicName;
+            default:
+                throw new IllegalArgumentException("Unsupported event type: " + eventType);
         }
     }
 
-    public void processCommentDeletedEvent(OutboxEvent outboxEvent) {
-        try {
-            outboxEvent.setSagaStatus(SagaStatus.PROCESSING);
-            outboxEventRepository.save(outboxEvent);
-            CommentDeletedEvent commentDeletedEvent = objectMapper.readValue(outboxEvent.getPayload(), CommentDeletedEvent.class);
-
-            String traceIdString = outboxEvent.getTraceId();
-
-            //128비트 traceId 문자열을 두 개의 long 값으로 분리
-            BigInteger traceIdBigInt = new BigInteger(traceIdString, 16);
-            long traceIdHigh = traceIdBigInt.shiftRight(64).longValue();
-            long traceIdLow = traceIdBigInt.longValue();
-
-            long spanId;
-            do {
-                spanId = ThreadLocalRandom.current().nextLong();
-            } while (spanId == 0);
-
-            // TraceContext 생성
-            TraceContext traceContext = TraceContext.newBuilder()
-                    .traceIdHigh(traceIdHigh)
-                    .traceId(traceIdLow)
-                    .spanId(spanId)
-                    .sampled(true)
-                    .build();
-
-            // Braver Tracer를 사용하여 Span 생성
-            brave.Span braveSpan = braveTracer.toSpan(traceContext).name("OutboxEventProcessing").start();
-
-            // Brave Span을 Micrometer Span으로 래핑
-            Span newSpan = new BraveSpan(braveSpan);
-
-            try (SpanInScope ws = tracer.withSpan(newSpan)) {
-                eventProducer.publishEvent(commentDeletedTopicName, outboxEvent.getEventUuid(), commentDeletedEvent, outboxEvent, newSpan);
-            } finally {
-                newSpan.end();
-            }
-        } catch (Exception ex) {
-            log.error("Error processing OutboxEvent : {}", ex.getMessage());
+    private Class<? extends SpecificRecordBase> getEventClass(EventType eventType) {
+        switch (eventType) {
+            case COMMENT_CREATED:
+                return CommentCreatedEvent.class;
+            case COMMENT_UPDATED:
+                return CommentUpdatedEvent.class;
+            case COMMENT_DELETED:
+                return CommentDeletedEvent.class;
+            default:
+                throw new IllegalArgumentException("Unsupported event type: " + eventType);
         }
     }
 }
