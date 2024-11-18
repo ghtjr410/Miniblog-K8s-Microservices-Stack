@@ -28,3 +28,33 @@ scrape_configs:
       - targets: ['host.docker.internal:4043']
         labels:
           application: 'Query Service'
+  - job_name: 'comment-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['host.docker.internal:4044']
+        labels:
+          application: 'Comment Service'
+  - job_name: 'like-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['host.docker.internal:4045']
+        labels:
+          application: 'Like Service'
+  - job_name: 'viewcount-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['host.docker.internal:4046']
+        labels:
+          application: 'Viewcount Service'
+  - job_name: 'profile-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['host.docker.internal:4047']
+        labels:
+          application: 'Profile Service'
+  - job_name: 'account-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['host.docker.internal:4048']
+        labels:
+          application: 'Account Service'
