@@ -1,0 +1,9 @@
+{
+  "namespace": "com.miniblog.viewcount.avro",
+  "type": "record",
+  "name": "ViewcountUpdatedEvent",
+  "fields": [
+    {"name": "postUuid", "type": "string"},
+    {"name": "totalViews", "type": "long"}
+  ]
+}
