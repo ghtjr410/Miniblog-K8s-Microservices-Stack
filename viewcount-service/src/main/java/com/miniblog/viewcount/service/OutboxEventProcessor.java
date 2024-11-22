@@ -68,19 +68,19 @@ public class OutboxEventProcessor {
 
     private String getTopicName(EventType eventType) {
         switch (eventType) {
-            case VIEWCOUNT_UPDATE:
+            case VIEWCOUNT_UPDATE -> {
                 return viewcountUpdatedTopicName;
-            default:
-                throw new IllegalArgumentException("Unsupported event type: " + eventType);
+            }
+            default -> throw new IllegalArgumentException("Unsupported event type: " + eventType);
         }
     }
 
     private Class<? extends SpecificRecordBase> getEventClass(EventType eventType) {
         switch (eventType) {
-            case VIEWCOUNT_UPDATE:
+            case VIEWCOUNT_UPDATE -> {
                 return ViewcountUpdatedEvent.class;
-            default:
-                throw new IllegalArgumentException("Unsupported event type: " + eventType);
+            }
+            default -> throw new IllegalArgumentException("Unsupported event type: " + eventType);
         }
     }
 }

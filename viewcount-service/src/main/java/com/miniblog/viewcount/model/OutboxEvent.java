@@ -37,6 +37,9 @@ public class OutboxEvent {
     @Column(name = "trace_id", nullable = false, length = 32)
     private String traceId;
 
+    @Column(name = "post_uuid", nullable = false, length = 36)
+    private String postUuid;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "event_type", nullable = false, length = 30)
     private EventType eventType;
