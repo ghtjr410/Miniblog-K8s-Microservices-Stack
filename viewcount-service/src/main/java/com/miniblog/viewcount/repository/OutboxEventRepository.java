@@ -9,6 +9,6 @@ import java.util.List;
 import java.util.UUID;
 
 @Repository
-public interface OutboxEventRepository extends JpaRepository<OutboxEvent, UUID>, OutboxEventRepositoryCustom{
+public interface OutboxEventRepository extends BaseRepository<OutboxEvent, UUID> {
     List<OutboxEvent> findByProcessedFalseAndSagaStatus(SagaStatus sagaStatus);
 }

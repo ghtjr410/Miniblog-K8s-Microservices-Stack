@@ -3,19 +3,27 @@ package com.miniblog.viewcount.repository;
 import com.miniblog.viewcount.util.SagaStatus;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.jpa.repository.support.JpaEntityInformation;
+import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 
 import java.util.Arrays;
 import java.util.UUID;
 
-@Repository
-@RequiredArgsConstructor
-public class OutboxEventRepositoryCustomImpl implements OutboxEventRepositoryCustom{
+public class BaseRepositoryImpl<T, ID> extends SimpleJpaRepository<T, ID> implements BaseRepository<T,ID> {
     private final EntityManager entityManager;
+    private final Class<T> domainClass;
 
+    public BaseRepositoryImpl(JpaEntityInformation<T, ?> entityInformation, EntityManager entityManager) {
+        super(entityInformation, entityManager);
+        this.entityManager = entityManager;
+        this.domainClass = entityInformation.getJavaType();
+    }
+
+    @Override
     public boolean updateSagaStatus(UUID eventUuid, SagaStatus[] expectedCurrentStatus, SagaStatus newStatus, Boolean processed) {
-        String jpql = "UPDATE OutboxEvent o SET o.sagaStatus = :newStatus";
+        String entityName = domainClass.getSimpleName();
+
+        String jpql = "UPDATE " + entityName + " o SET o.sagaStatus = :newStatus";
         if (processed != null) {
             jpql += ", o.processed = :processed";
         }
