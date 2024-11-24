@@ -1,42 +1,62 @@
 package com.miniblog.post.model;
 
+import com.miniblog.post.listener.OutboxEventListener;
+import com.miniblog.post.util.EventType;
 import com.miniblog.post.util.SagaStatus;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.UuidGenerator;
+import org.hibernate.type.SqlTypes;
 
-import java.util.Date;
+import java.time.Instant;
+import java.util.UUID;
 
-@Data
+@ToString
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity
-@Table(name = "outbox_event")
 @Builder
+@Entity
+@EntityListeners(OutboxEventListener.class)
+@Table(
+        name = "outbox_event",
+        indexes = {
+                @Index(name = "idx_saga_status_processed", columnList = "sagaStatus, processed")
+        }
+)
 public class OutboxEvent {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @JdbcTypeCode(SqlTypes.VARCHAR)
+    @UuidGenerator
+    @Column(name = "event_uuid", length = 36)
+    private UUID eventUuid;
 
-    @Column(nullable = false)
+    @Column(name = "trace_id", nullable = false, length = 32)
     private String traceId;
 
-    @Column(nullable = false)
-    private String eventUuId;
-
-    @Column(nullable = false)
-    private String postUuid;
-
-    private String eventType;
-    @Lob
-    @Column(columnDefinition = "LONGTEXT")
-    private String payload;
-    private Date createdDate;
+    @JdbcTypeCode(SqlTypes.VARCHAR)
+    @Column(name = "post_uuid", nullable = false, length = 36)
+    private UUID postUuid;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "event_type", nullable = false, length = 30)
+    private EventType eventType;
+
+    @Lob
+    @Column(name = "payload", columnDefinition = "LONGTEXT", nullable = false)
+    private String payload;
+
+    @CreationTimestamp
+    @Column(name = "created_date", nullable = false)
+    private Instant createdDate;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "saga_status", nullable = false, length = 30)
     private SagaStatus sagaStatus; // CREATED, PROCESSING, COMPLETED, FAILED
 
+    @Column(name = "processed", nullable = false)
     private Boolean processed;
 }
