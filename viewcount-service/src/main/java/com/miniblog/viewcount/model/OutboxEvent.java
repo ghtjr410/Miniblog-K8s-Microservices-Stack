@@ -1,7 +1,7 @@
 package com.miniblog.viewcount.model;
 
 import com.miniblog.viewcount.listener.OutboxEventListener;
-import com.miniblog.viewcount.util.EventType;
+import com.miniblog.viewcount.util.PublishedEventType;
 import com.miniblog.viewcount.util.SagaStatus;
 import jakarta.persistence.*;
 import lombok.*;
@@ -37,12 +37,13 @@ public class OutboxEvent {
     @Column(name = "trace_id", nullable = false, length = 32)
     private String traceId;
 
+    @JdbcTypeCode(SqlTypes.VARCHAR)
     @Column(name = "post_uuid", nullable = false, length = 36)
-    private String postUuid;
+    private UUID postUuid;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "event_type", nullable = false, length = 30)
-    private EventType eventType;
+    private PublishedEventType eventType;
 
     @Lob
     @Column(name = "payload", columnDefinition = "TEXT", nullable = false)

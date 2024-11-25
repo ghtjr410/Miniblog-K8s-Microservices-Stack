@@ -26,5 +26,6 @@ public class Viewcount {
 
     @Column(name = "total_views", nullable = false)
     @Min(0)
-    private Long totalViews;
+    @Builder.Default
+    private Long totalViews = 0L;
 }
