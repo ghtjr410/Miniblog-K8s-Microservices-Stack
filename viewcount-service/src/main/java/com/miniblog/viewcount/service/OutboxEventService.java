@@ -4,7 +4,7 @@ import com.miniblog.viewcount.mapper.OutboxMapper;
 import com.miniblog.viewcount.model.OutboxEvent;
 import com.miniblog.viewcount.model.Viewcount;
 import com.miniblog.viewcount.repository.OutboxEventRepository;
-import com.miniblog.viewcount.util.EventType;
+import com.miniblog.viewcount.util.PublishedEventType;
 import com.miniblog.viewcount.util.SagaStatus;
 import com.miniblog.viewcount.util.TracerUtility;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +23,7 @@ public class OutboxEventService {
     private final OutboxMapper outboxMapper;
     private final TracerUtility tracerUtility;
 
-    public void createOutboxEvent(Viewcount viewcount, EventType eventType) {
+    public void createOutboxEvent(Viewcount viewcount, PublishedEventType eventType) {
         String traceId = tracerUtility.getTraceId();
         OutboxEvent outboxEvent = outboxMapper.toOutboxEvent(viewcount, eventType);
         outboxEvent.setTraceId(traceId);

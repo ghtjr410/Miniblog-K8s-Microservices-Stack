@@ -4,7 +4,7 @@ import com.miniblog.viewcount.exception.NotFoundException;
 import com.miniblog.viewcount.mapper.ViewcountMapper;
 import com.miniblog.viewcount.model.Viewcount;
 import com.miniblog.viewcount.repository.ViewcountRepository;
-import com.miniblog.viewcount.util.EventType;
+import com.miniblog.viewcount.util.PublishedEventType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -32,13 +32,6 @@ public class ViewcountService {
         Viewcount updatedViewcount = viewcountMapper.updateToEntity(postUuidAsUUID, totalViews);
 
         log.info("Update Viewcount: {}", updatedViewcount);
-        outboxEventService.createOutboxEvent(updatedViewcount, EventType.VIEWCOUNT_UPDATE);
+        outboxEventService.createOutboxEvent(updatedViewcount, PublishedEventType.VIEWCOUNT_UPDATE);
     }
-
-//    @Transactional
-//    public void createViewcount(String postUuid) {
-//        Viewcount viewcount = new Viewcount();
-//        viewcount.setPostUuid(UUID.fromString(postUuid));
-//        viewcountRepository.save(viewcount);
-//    }
 }

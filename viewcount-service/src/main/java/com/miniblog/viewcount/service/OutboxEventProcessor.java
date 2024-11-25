@@ -5,7 +5,7 @@ import com.miniblog.viewcount.avro.ViewcountUpdatedEvent;
 import com.miniblog.viewcount.model.OutboxEvent;
 import com.miniblog.viewcount.producer.EventProducer;
 import com.miniblog.viewcount.tracing.SpanFactory;
-import com.miniblog.viewcount.util.EventType;
+import com.miniblog.viewcount.util.PublishedEventType;
 import com.miniblog.viewcount.util.SagaStatus;
 import io.micrometer.tracing.Span;
 import io.micrometer.tracing.Tracer;
@@ -66,7 +66,7 @@ public class OutboxEventProcessor {
         }
     }
 
-    private String getTopicName(EventType eventType) {
+    private String getTopicName(PublishedEventType eventType) {
         switch (eventType) {
             case VIEWCOUNT_UPDATE -> {
                 return viewcountUpdatedTopicName;
@@ -75,7 +75,7 @@ public class OutboxEventProcessor {
         }
     }
 
-    private Class<? extends SpecificRecordBase> getEventClass(EventType eventType) {
+    private Class<? extends SpecificRecordBase> getEventClass(PublishedEventType eventType) {
         switch (eventType) {
             case VIEWCOUNT_UPDATE -> {
                 return ViewcountUpdatedEvent.class;
