@@ -11,6 +11,9 @@ public class ViewcountListener {
 
     @PrePersist
     public void prePersist(Viewcount viewcount) {
+        if (viewcount.getTotalViews() == null) {
+            viewcount.setTotalViews(0L);
+        }
         log.info("viewcount is about to be created = {}", viewcount);
     }
 
