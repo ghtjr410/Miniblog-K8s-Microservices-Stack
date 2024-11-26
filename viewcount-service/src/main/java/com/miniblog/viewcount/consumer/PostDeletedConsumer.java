@@ -1,8 +1,8 @@
 package com.miniblog.viewcount.consumer;
 
 import com.miniblog.post.avro.PostDeletedEvent;
-import com.miniblog.viewcount.service.ReceivedEventProcessor;
-import com.miniblog.viewcount.util.ReceivedEventType;
+import com.miniblog.viewcount.service.ConsumedEventProcessor;
+import com.miniblog.viewcount.util.ConsumedEventType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -16,7 +16,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Slf4j
 public class PostDeletedConsumer {
-    private final ReceivedEventProcessor receivedEventProcessor;
+    private final ConsumedEventProcessor receivedEventProcessor;
 
     @KafkaListener(
             topics = "${post.deleted.event.topic.name}",
@@ -27,7 +27,7 @@ public class PostDeletedConsumer {
         UUID eventUuid = UUID.fromString(record.key());
         PostDeletedEvent postDeletedEvent = record.value();
 
-        receivedEventProcessor.processEvent(eventUuid, postDeletedEvent, PostDeletedEvent.class, ReceivedEventType.POST_DELETE);
+        receivedEventProcessor.processEvent(eventUuid, postDeletedEvent, ConsumedEventType.POST_DELETE);
         ack.acknowledge();
     }
 }

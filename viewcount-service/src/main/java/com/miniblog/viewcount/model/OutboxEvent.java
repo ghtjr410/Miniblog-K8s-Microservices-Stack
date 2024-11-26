@@ -1,7 +1,7 @@
 package com.miniblog.viewcount.model;
 
 import com.miniblog.viewcount.listener.OutboxEventListener;
-import com.miniblog.viewcount.util.PublishedEventType;
+import com.miniblog.viewcount.util.ProducedEventType;
 import com.miniblog.viewcount.util.SagaStatus;
 import jakarta.persistence.*;
 import lombok.*;
@@ -43,7 +43,7 @@ public class OutboxEvent {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "event_type", nullable = false, length = 30)
-    private PublishedEventType eventType;
+    private ProducedEventType eventType;
 
     @Lob
     @Column(name = "payload", columnDefinition = "TEXT", nullable = false)

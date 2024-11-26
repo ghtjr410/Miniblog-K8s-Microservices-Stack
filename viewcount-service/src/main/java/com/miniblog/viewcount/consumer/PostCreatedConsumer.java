@@ -1,8 +1,8 @@
 package com.miniblog.viewcount.consumer;
 
 import com.miniblog.post.avro.PostCreatedEvent;
-import com.miniblog.viewcount.service.ReceivedEventProcessor;
-import com.miniblog.viewcount.util.ReceivedEventType;
+import com.miniblog.viewcount.service.ConsumedEventProcessor;
+import com.miniblog.viewcount.util.ConsumedEventType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -16,7 +16,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Slf4j
 public class PostCreatedConsumer {
-    private final ReceivedEventProcessor receivedEventProcessor;
+    private final ConsumedEventProcessor receivedEventProcessor;
 
     @KafkaListener(
             topics = "${post.created.event.topic.name}",
@@ -27,7 +27,7 @@ public class PostCreatedConsumer {
         UUID eventUuid = UUID.fromString(record.key());
         PostCreatedEvent postCreatedEvent = record.value();
 
-        receivedEventProcessor.processEvent(eventUuid, postCreatedEvent, PostCreatedEvent.class, ReceivedEventType.POST_CREATE);
+        receivedEventProcessor.processEvent(eventUuid, postCreatedEvent, ConsumedEventType.POST_CREATE);
         ack.acknowledge();
     }
 }
