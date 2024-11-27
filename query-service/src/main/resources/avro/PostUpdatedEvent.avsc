@@ -1,0 +1,11 @@
+{
+  "namespace": "com.miniblog.post.avro",
+  "type": "record",
+  "name": "PostUpdatedEvent",
+  "fields": [
+    {"name": "postUuid", "type": "string"},
+    {"name": "title", "type": "string"},
+    {"name": "content", "type": "string"},
+    {"name": "updatedDate", "type": "long"}
+  ]
+}

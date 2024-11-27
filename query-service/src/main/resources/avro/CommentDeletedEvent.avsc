@@ -1,0 +1,9 @@
+{
+  "namespace": "com.miniblog.comment.avro",
+  "type": "record",
+  "name": "CommentDeletedEvent",
+  "fields": [
+    {"name": "commentUuid", "type": "string"},
+    {"name": "postUuid", "type": "string"}
+  ]
+}

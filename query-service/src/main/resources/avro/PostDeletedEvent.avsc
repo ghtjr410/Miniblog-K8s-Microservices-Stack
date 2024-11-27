@@ -1,0 +1,8 @@
+{
+  "namespace": "com.miniblog.post.avro",
+  "type": "record",
+  "name": "PostDeletedEvent",
+  "fields": [
+    {"name": "postUuid", "type": "string"}
+  ]
+}

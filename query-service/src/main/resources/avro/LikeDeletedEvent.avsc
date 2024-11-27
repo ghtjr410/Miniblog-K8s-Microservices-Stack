@@ -1,0 +1,9 @@
+{
+  "namespace": "com.miniblog.like.avro",
+  "type": "record",
+  "name": "LikeDeletedEvent",
+  "fields": [
+    {"name": "likeUuid", "type": "string"},
+    {"name": "postUuid", "type": "string"}
+  ]
+}

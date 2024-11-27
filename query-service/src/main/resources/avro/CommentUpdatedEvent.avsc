@@ -1,0 +1,10 @@
+{
+  "namespace": "com.miniblog.comment.avro",
+  "type": "record",
+  "name": "CommentUpdatedEvent",
+  "fields": [
+    {"name": "commentUuid", "type": "string"},
+    {"name": "content", "type": "string"},
+    {"name": "updatedDate", "type": "long"}
+  ]
+}
