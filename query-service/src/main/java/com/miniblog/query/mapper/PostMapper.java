@@ -4,6 +4,10 @@ import com.miniblog.post.avro.PostCreatedEvent;
 import com.miniblog.query.model.Post;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.UUID;
+
 @Component
 public class PostMapper {
     public Post toCreatePost(PostCreatedEvent postCreatedEvent) {
@@ -13,8 +17,8 @@ public class PostMapper {
                 .nickname(postCreatedEvent.getNickname().toString())
                 .title(postCreatedEvent.getTitle().toString())
                 .content(postCreatedEvent.getContent().toString())
-                .createdDate(postCreatedEvent.getCreatedDate())
-                .updatedDate(postCreatedEvent.getUpdatedDate())
+                .createdDate(Instant.ofEpochMilli(postCreatedEvent.getCreatedDate()))
+                .updatedDate(Instant.ofEpochMilli(postCreatedEvent.getUpdatedDate()))
                 .likeCount(0)
                 .viewCount(0)
                 .commentCount(0)

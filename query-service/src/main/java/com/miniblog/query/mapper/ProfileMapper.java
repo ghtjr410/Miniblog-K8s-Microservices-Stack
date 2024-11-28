@@ -17,9 +17,4 @@ public class ProfileMapper {
                 .intro(profileCreatedEvent.getIntro().toString())
                 .build();
     }
-
-    public void toUpdatedProfile(Profile profile, ProfileUpdatedEvent profileUpdatedEvent) {
-        profile.setTitle(profileUpdatedEvent.getTitle().toString());
-        profile.setIntro(profileUpdatedEvent.getIntro().toString());
-    }
 }
