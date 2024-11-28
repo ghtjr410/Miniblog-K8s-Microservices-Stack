@@ -3,20 +3,25 @@ package com.miniblog.query.model;
 import lombok.Builder;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.IndexDirection;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.time.Instant;
+
 @Data
 @Builder
-@Document(collection = "profile")
-public class Profile {
+@Document(collection = "like")
+public class Like {
     @Id
-    private String profileUuid;
+    private String likeUuid;
+
+    @Indexed
+    private String postUuid;
 
     @Indexed
     private String userUuid;
-    private String nickname;
-    private String email;
-    private String title;
-    private String intro;
+
+    @Indexed(direction = IndexDirection.ASCENDING)
+    private Instant createdDate;
 }
