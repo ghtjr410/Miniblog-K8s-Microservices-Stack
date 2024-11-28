@@ -1,6 +1,6 @@
 package com.miniblog.query.consumer;
 
-import com.miniblog.query.service.ConsumedEventProcessor;
+import com.miniblog.query.service.consumedEvent.ConsumedEventProcessor;
 import com.miniblog.query.util.ConsumedEventType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

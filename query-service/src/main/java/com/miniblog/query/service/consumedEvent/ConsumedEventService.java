@@ -1,4 +1,4 @@
-package com.miniblog.query.service;
+package com.miniblog.query.service.consumedEvent;
 
 import com.miniblog.query.model.ConsumedEvent;
 import com.miniblog.query.repository.consumedEvent.ConsumedEventRepository;

@@ -1,8 +1,7 @@
 package com.miniblog.query.consumer.viewcount;
 
-import com.miniblog.comment.avro.CommentCreatedEvent;
 import com.miniblog.query.consumer.GenericConsumer;
-import com.miniblog.query.service.ConsumedEventProcessor;
+import com.miniblog.query.service.consumedEvent.ConsumedEventProcessor;
 import com.miniblog.query.util.ConsumedEventType;
 import com.miniblog.viewcount.avro.ViewcountUpdatedEvent;
 import org.springframework.beans.factory.annotation.Value;

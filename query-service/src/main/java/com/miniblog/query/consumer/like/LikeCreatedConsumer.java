@@ -2,7 +2,7 @@ package com.miniblog.query.consumer.like;
 
 import com.miniblog.like.avro.LikeCreatedEvent;
 import com.miniblog.query.consumer.GenericConsumer;
-import com.miniblog.query.service.ConsumedEventProcessor;
+import com.miniblog.query.service.consumedEvent.ConsumedEventProcessor;
 import com.miniblog.query.util.ConsumedEventType;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
