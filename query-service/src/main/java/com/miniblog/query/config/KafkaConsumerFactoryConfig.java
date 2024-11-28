@@ -1,6 +1,7 @@
 package com.miniblog.query.config;
 
 import lombok.RequiredArgsConstructor;
+import org.apache.avro.specific.SpecificRecordBase;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
@@ -17,13 +18,13 @@ public class KafkaConsumerFactoryConfig { // ConsumerFactory와 ConcurrentKafkaL
     private final KafkaErrorHandlerConfig kafkaErrorHandlerConfig;
 
     @Bean
-    public ConsumerFactory<String, Object> consumerFactory() {
+    public ConsumerFactory<String, SpecificRecordBase> consumerFactory() {
         return new DefaultKafkaConsumerFactory<>(consumerPropertiesConfig.consumerConfigs());
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, Object> kafkaListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, Object> factory = new ConcurrentKafkaListenerContainerFactory<>();
+    public ConcurrentKafkaListenerContainerFactory<String, SpecificRecordBase> kafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, SpecificRecordBase> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
         factory.setCommonErrorHandler(kafkaErrorHandlerConfig.kafkaErrorHandler());
