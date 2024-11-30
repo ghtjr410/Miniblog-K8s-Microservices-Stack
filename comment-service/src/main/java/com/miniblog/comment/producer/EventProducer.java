@@ -1,8 +1,5 @@
 package com.miniblog.comment.producer;
 
-import com.miniblog.comment.model.OutboxEvent;
-import com.miniblog.comment.repository.OutboxEventRepository;
-import com.miniblog.comment.util.SagaStatus;
 import io.micrometer.tracing.Span;
 import io.micrometer.tracing.Tracer;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +20,6 @@ import java.util.concurrent.ExecutionException;
 @Slf4j
 public class EventProducer {
     private final KafkaTemplate<String, SpecificRecordBase> kafkaTemplate;
-    private final OutboxEventRepository outboxEventRepository;
     private final Tracer tracer;
 
     @Retryable(
@@ -47,7 +43,7 @@ public class EventProducer {
     }
 
     @Recover
-    public void recover(Exception ex, String topicName, String key, SpecificRecordBase event, OutboxEvent outboxEvent, Span span) {
+    public void recover(Exception ex, String topicName, String key, SpecificRecordBase event, Span span) {
         throw new RuntimeException("재시도 전부 실패");
     }
 }
