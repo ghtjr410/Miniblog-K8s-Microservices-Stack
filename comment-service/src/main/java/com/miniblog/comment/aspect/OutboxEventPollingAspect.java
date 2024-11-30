@@ -15,7 +15,7 @@ import java.util.List;
 public class OutboxEventPollingAspect {
 
     // OutboxEventPolling만 타겟팅
-    @Pointcut("execution(* com.miniblog.comment.service.OutboxEventPolling.pollPendingEvents(..))")
+    @Pointcut("execution(* com.miniblog.comment.service.outbox.OutboxEventPolling.pollPendingEvents(..))")
     public void pollPendingEventsMethod() {
     }
 

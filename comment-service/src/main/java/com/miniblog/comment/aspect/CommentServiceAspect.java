@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 public class CommentServiceAspect {
 
     // CommentService만 타겟팅
-    @Pointcut("execution(* com.miniblog.comment.service.CommentService.*(..))")
+    @Pointcut("execution(* com.miniblog.comment.service.comment.CommentService.*(..))")
     public void commentServiceMethods() {
     }
 

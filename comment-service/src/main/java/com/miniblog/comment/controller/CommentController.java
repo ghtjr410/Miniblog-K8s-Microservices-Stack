@@ -4,7 +4,7 @@ import com.miniblog.comment.dto.CommentCreatedRequestDTO;
 import com.miniblog.comment.dto.CommentDeletedRequestDTO;
 import com.miniblog.comment.dto.CommentResponseDTO;
 import com.miniblog.comment.dto.CommentUpdatedRequestDTO;
-import com.miniblog.comment.service.CommentService;
+import com.miniblog.comment.service.comment.CommentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
