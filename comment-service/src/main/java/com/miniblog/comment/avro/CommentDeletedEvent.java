@@ -14,10 +14,10 @@ import org.apache.avro.message.SchemaStore;
 
 @org.apache.avro.specific.AvroGenerated
 public class CommentDeletedEvent extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  private static final long serialVersionUID = -5841367774586832206L;
+  private static final long serialVersionUID = 7458892931456087477L;
 
 
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"CommentDeletedEvent\",\"namespace\":\"com.miniblog.comment.avro\",\"fields\":[{\"name\":\"commentUuid\",\"type\":\"string\"}]}");
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"CommentDeletedEvent\",\"namespace\":\"com.miniblog.comment.avro\",\"fields\":[{\"name\":\"commentUuid\",\"type\":\"string\"},{\"name\":\"postUuid\",\"type\":\"string\"}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
 
   private static final SpecificData MODEL$ = new SpecificData();
@@ -74,6 +74,7 @@ public class CommentDeletedEvent extends org.apache.avro.specific.SpecificRecord
   }
 
   private java.lang.CharSequence commentUuid;
+  private java.lang.CharSequence postUuid;
 
   /**
    * Default constructor.  Note that this does not initialize fields
@@ -85,9 +86,11 @@ public class CommentDeletedEvent extends org.apache.avro.specific.SpecificRecord
   /**
    * All-args constructor.
    * @param commentUuid The new value for commentUuid
+   * @param postUuid The new value for postUuid
    */
-  public CommentDeletedEvent(java.lang.CharSequence commentUuid) {
+  public CommentDeletedEvent(java.lang.CharSequence commentUuid, java.lang.CharSequence postUuid) {
     this.commentUuid = commentUuid;
+    this.postUuid = postUuid;
   }
 
   @Override
@@ -101,6 +104,7 @@ public class CommentDeletedEvent extends org.apache.avro.specific.SpecificRecord
   public java.lang.Object get(int field$) {
     switch (field$) {
     case 0: return commentUuid;
+    case 1: return postUuid;
     default: throw new IndexOutOfBoundsException("Invalid index: " + field$);
     }
   }
@@ -111,6 +115,7 @@ public class CommentDeletedEvent extends org.apache.avro.specific.SpecificRecord
   public void put(int field$, java.lang.Object value$) {
     switch (field$) {
     case 0: commentUuid = (java.lang.CharSequence)value$; break;
+    case 1: postUuid = (java.lang.CharSequence)value$; break;
     default: throw new IndexOutOfBoundsException("Invalid index: " + field$);
     }
   }
@@ -130,6 +135,23 @@ public class CommentDeletedEvent extends org.apache.avro.specific.SpecificRecord
    */
   public void setCommentUuid(java.lang.CharSequence value) {
     this.commentUuid = value;
+  }
+
+  /**
+   * Gets the value of the 'postUuid' field.
+   * @return The value of the 'postUuid' field.
+   */
+  public java.lang.CharSequence getPostUuid() {
+    return postUuid;
+  }
+
+
+  /**
+   * Sets the value of the 'postUuid' field.
+   * @param value the value to set.
+   */
+  public void setPostUuid(java.lang.CharSequence value) {
+    this.postUuid = value;
   }
 
   /**
@@ -174,6 +196,7 @@ public class CommentDeletedEvent extends org.apache.avro.specific.SpecificRecord
     implements org.apache.avro.data.RecordBuilder<CommentDeletedEvent> {
 
     private java.lang.CharSequence commentUuid;
+    private java.lang.CharSequence postUuid;
 
     /** Creates a new Builder */
     private Builder() {
@@ -190,6 +213,10 @@ public class CommentDeletedEvent extends org.apache.avro.specific.SpecificRecord
         this.commentUuid = data().deepCopy(fields()[0].schema(), other.commentUuid);
         fieldSetFlags()[0] = other.fieldSetFlags()[0];
       }
+      if (isValidValue(fields()[1], other.postUuid)) {
+        this.postUuid = data().deepCopy(fields()[1].schema(), other.postUuid);
+        fieldSetFlags()[1] = other.fieldSetFlags()[1];
+      }
     }
 
     /**
@@ -201,6 +228,10 @@ public class CommentDeletedEvent extends org.apache.avro.specific.SpecificRecord
       if (isValidValue(fields()[0], other.commentUuid)) {
         this.commentUuid = data().deepCopy(fields()[0].schema(), other.commentUuid);
         fieldSetFlags()[0] = true;
+      }
+      if (isValidValue(fields()[1], other.postUuid)) {
+        this.postUuid = data().deepCopy(fields()[1].schema(), other.postUuid);
+        fieldSetFlags()[1] = true;
       }
     }
 
@@ -244,12 +275,53 @@ public class CommentDeletedEvent extends org.apache.avro.specific.SpecificRecord
       return this;
     }
 
+    /**
+      * Gets the value of the 'postUuid' field.
+      * @return The value.
+      */
+    public java.lang.CharSequence getPostUuid() {
+      return postUuid;
+    }
+
+
+    /**
+      * Sets the value of the 'postUuid' field.
+      * @param value The value of 'postUuid'.
+      * @return This builder.
+      */
+    public com.miniblog.comment.avro.CommentDeletedEvent.Builder setPostUuid(java.lang.CharSequence value) {
+      validate(fields()[1], value);
+      this.postUuid = value;
+      fieldSetFlags()[1] = true;
+      return this;
+    }
+
+    /**
+      * Checks whether the 'postUuid' field has been set.
+      * @return True if the 'postUuid' field has been set, false otherwise.
+      */
+    public boolean hasPostUuid() {
+      return fieldSetFlags()[1];
+    }
+
+
+    /**
+      * Clears the value of the 'postUuid' field.
+      * @return This builder.
+      */
+    public com.miniblog.comment.avro.CommentDeletedEvent.Builder clearPostUuid() {
+      postUuid = null;
+      fieldSetFlags()[1] = false;
+      return this;
+    }
+
     @Override
     @SuppressWarnings("unchecked")
     public CommentDeletedEvent build() {
       try {
         CommentDeletedEvent record = new CommentDeletedEvent();
         record.commentUuid = fieldSetFlags()[0] ? this.commentUuid : (java.lang.CharSequence) defaultValue(fields()[0]);
+        record.postUuid = fieldSetFlags()[1] ? this.postUuid : (java.lang.CharSequence) defaultValue(fields()[1]);
         return record;
       } catch (org.apache.avro.AvroMissingFieldException e) {
         throw e;
@@ -284,6 +356,8 @@ public class CommentDeletedEvent extends org.apache.avro.specific.SpecificRecord
   {
     out.writeString(this.commentUuid);
 
+    out.writeString(this.postUuid);
+
   }
 
   @Override public void customDecode(org.apache.avro.io.ResolvingDecoder in)
@@ -293,11 +367,17 @@ public class CommentDeletedEvent extends org.apache.avro.specific.SpecificRecord
     if (fieldOrder == null) {
       this.commentUuid = in.readString(this.commentUuid instanceof Utf8 ? (Utf8)this.commentUuid : null);
 
+      this.postUuid = in.readString(this.postUuid instanceof Utf8 ? (Utf8)this.postUuid : null);
+
     } else {
-      for (int i = 0; i < 1; i++) {
+      for (int i = 0; i < 2; i++) {
         switch (fieldOrder[i].pos()) {
         case 0:
           this.commentUuid = in.readString(this.commentUuid instanceof Utf8 ? (Utf8)this.commentUuid : null);
+          break;
+
+        case 1:
+          this.postUuid = in.readString(this.postUuid instanceof Utf8 ? (Utf8)this.postUuid : null);
           break;
 
         default:
