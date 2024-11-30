@@ -8,7 +8,8 @@ import org.springframework.stereotype.Component;
 public class CommentDeletedEventMapper {
     public CommentDeletedEvent toEntity(Comment comment) {
         CommentDeletedEvent commentDeletedEvent = new CommentDeletedEvent();
-        commentDeletedEvent.setCommentUuid(comment.getCommentUuid());
+        commentDeletedEvent.setCommentUuid(comment.getCommentUuid().toString());
+        commentDeletedEvent.setPostUuid(comment.getPostUuid().toString());
         return commentDeletedEvent;
     }
 }

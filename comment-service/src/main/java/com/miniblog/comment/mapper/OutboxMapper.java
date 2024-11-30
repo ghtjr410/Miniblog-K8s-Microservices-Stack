@@ -2,24 +2,21 @@ package com.miniblog.comment.mapper;
 
 import com.miniblog.comment.model.Comment;
 import com.miniblog.comment.model.OutboxEvent;
-import com.miniblog.comment.util.EventType;
+import com.miniblog.comment.serializer.AvroJsonSerializer;
+import com.miniblog.comment.util.ProducedEventType;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.specific.SpecificRecordBase;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-
 @Component
 @RequiredArgsConstructor
-@Slf4j
 public class OutboxMapper {
     private final AvroJsonSerializer avroJsonSerializer;
     private final CommentCreatedEventMapper commentCreatedEventMapper;
     private final CommentUpdatedEventMapper commentUpdatedEventMapper;
     private final CommentDeletedEventMapper commentDeletedEventMapper;
 
-    public OutboxEvent toOutboxEvent(Comment comment, EventType eventType){
+    public OutboxEvent toOutboxEvent(Comment comment, ProducedEventType eventType){
         SpecificRecordBase event;
 
         switch (eventType) {

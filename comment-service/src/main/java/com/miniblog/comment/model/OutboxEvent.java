@@ -38,8 +38,8 @@ public class OutboxEvent {
     private String traceId;
 
     @JdbcTypeCode(SqlTypes.VARCHAR)
-    @Column(name = "post_uuid", nullable = false, length = 36)
-    private UUID postUuid;
+    @Column(name = "comment_uuid", nullable = false, length = 36)
+    private UUID commentUuid;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "event_type", nullable = false, length = 30)

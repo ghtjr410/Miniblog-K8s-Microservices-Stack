@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 public class CommentUpdatedEventMapper {
     public CommentUpdatedEvent toEntity(Comment comment) {
         CommentUpdatedEvent commentUpdatedEvent = new CommentUpdatedEvent();
-        commentUpdatedEvent.setCommentUuid(comment.getCommentUuid());
+        commentUpdatedEvent.setCommentUuid(comment.getCommentUuid().toString());
         commentUpdatedEvent.setContent(comment.getContent());
         commentUpdatedEvent.setUpdatedDate(comment.getUpdatedDate().toEpochMilli());
         return commentUpdatedEvent;

@@ -6,12 +6,14 @@ import com.miniblog.comment.dto.CommentUpdatedRequestDTO;
 import com.miniblog.comment.model.Comment;
 import org.springframework.stereotype.Component;
 
+import java.util.UUID;
+
 @Component
 public class CommentMapper {
     public Comment createToEntity(String userUuid, CommentCreatedRequestDTO commentRequestDTO) {
         return Comment.builder()
-                .postUuid(commentRequestDTO.postUuid())
-                .userUuid(userUuid)
+                .postUuid(UUID.fromString(commentRequestDTO.postUuid()))
+                .userUuid(UUID.fromString(userUuid))
                 .nickname(commentRequestDTO.nickname())
                 .content(commentRequestDTO.content())
                 .build();

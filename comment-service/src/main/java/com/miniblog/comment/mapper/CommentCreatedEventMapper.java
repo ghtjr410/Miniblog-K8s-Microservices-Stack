@@ -8,9 +8,9 @@ import org.springframework.stereotype.Component;
 public class CommentCreatedEventMapper {
     public CommentCreatedEvent toEntity(Comment comment) {
         CommentCreatedEvent commentCreatedEvent = new CommentCreatedEvent();
-        commentCreatedEvent.setCommentUuid(comment.getCommentUuid());
-        commentCreatedEvent.setPostUuid(comment.getPostUuid());
-        commentCreatedEvent.setUserUuid(comment.getUserUuid());
+        commentCreatedEvent.setCommentUuid(comment.getCommentUuid().toString());
+        commentCreatedEvent.setPostUuid(comment.getPostUuid().toString());
+        commentCreatedEvent.setUserUuid(comment.getUserUuid().toString());
         commentCreatedEvent.setNickname(comment.getNickname());
         commentCreatedEvent.setContent(comment.getContent());
         commentCreatedEvent.setCreatedDate(comment.getCreatedDate().toEpochMilli());
