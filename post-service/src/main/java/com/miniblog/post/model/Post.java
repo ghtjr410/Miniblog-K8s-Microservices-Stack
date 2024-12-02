@@ -45,10 +45,10 @@ public class Post {
     @Column(name = "content", columnDefinition = "LONGTEXT", nullable = false)
     private String content;
 
-    @Column(name = "create_date", nullable = false)
+    @Column(name = "created_date", nullable = false)
     private Instant createdDate;
 
-    @Column(name = "update_date", nullable = false)
+    @Column(name = "updated_date", nullable = false)
     private Instant updatedDate;
 
     @Version

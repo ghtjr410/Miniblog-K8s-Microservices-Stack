@@ -17,7 +17,8 @@ public class EventProducerHandlerRegistry {
             handlerMap.put(handler.getEventType(), handler);
         }
     }
-    public EventProducerHandler getHandler(ProducedEventType producedEventType) {
-        return handlerMap.get(producedEventType);
+    
+    public EventProducerHandler getHandler(ProducedEventType eventType) {
+        return handlerMap.get(eventType);
     }
 }

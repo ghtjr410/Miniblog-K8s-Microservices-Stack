@@ -2,6 +2,7 @@ package com.miniblog.post.mapper;
 
 import com.miniblog.post.model.OutboxEvent;
 import com.miniblog.post.model.Post;
+import com.miniblog.post.serializer.AvroJsonSerializer;
 import com.miniblog.post.util.ProducedEventType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

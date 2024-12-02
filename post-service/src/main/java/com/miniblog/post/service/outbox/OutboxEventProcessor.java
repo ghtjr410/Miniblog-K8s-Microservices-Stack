@@ -1,24 +1,12 @@
 package com.miniblog.post.service.outbox;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.miniblog.post.avro.PostCreatedEvent;
-import com.miniblog.post.avro.PostDeletedEvent;
-import com.miniblog.post.avro.PostUpdatedEvent;
 import com.miniblog.post.handler.produce.EventProducerHandler;
 import com.miniblog.post.handler.produce.EventProducerHandlerRegistry;
 import com.miniblog.post.model.OutboxEvent;
-import com.miniblog.post.producer.EventProducer;
-import com.miniblog.post.tracing.SpanFactory;
-import com.miniblog.post.util.ProducedEventType;
 import com.miniblog.post.util.SagaStatus;
-import io.micrometer.tracing.Span;
 
-import io.micrometer.tracing.Tracer;
-import io.micrometer.tracing.Tracer.SpanInScope;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.avro.specific.SpecificRecordBase;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -46,7 +34,6 @@ public class OutboxEventProcessor {
             handler.handleEvent(outboxEvent);
             // 4. 완료 상태 업데이트 및 processed 필드 저장
             outboxEventService.markEventAsCompleted(outboxEvent);
-            log.info("Event publish Success");
         } catch (Exception ex) {
             outboxEventService.markEventAsFailed(outboxEvent);
             log.error("Error processing OutboxEvent: {}", ex.getMessage(), ex);
