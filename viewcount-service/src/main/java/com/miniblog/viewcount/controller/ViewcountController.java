@@ -1,6 +1,6 @@
 package com.miniblog.viewcount.controller;
 
-import com.miniblog.viewcount.service.ViewcountService;
+import com.miniblog.viewcount.service.viewcount.ViewcountService;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
