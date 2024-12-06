@@ -1,8 +1,8 @@
 package com.miniblog.comment.mapper;
 
-import com.miniblog.comment.dto.CommentCreatedRequestDTO;
-import com.miniblog.comment.dto.CommentResponseDTO;
-import com.miniblog.comment.dto.CommentUpdatedRequestDTO;
+import com.miniblog.comment.dto.request.CommentCreatedRequestDTO;
+import com.miniblog.comment.dto.response.CommentResponseDTO;
+import com.miniblog.comment.dto.request.CommentUpdatedRequestDTO;
 import com.miniblog.comment.model.Comment;
 import org.springframework.stereotype.Component;
 
@@ -10,10 +10,10 @@ import java.util.UUID;
 
 @Component
 public class CommentMapper {
-    public Comment createToEntity(String userUuid, CommentCreatedRequestDTO commentRequestDTO) {
+    public Comment createToEntity(UUID userUuid, CommentCreatedRequestDTO commentRequestDTO) {
         return Comment.builder()
                 .postUuid(UUID.fromString(commentRequestDTO.postUuid()))
-                .userUuid(UUID.fromString(userUuid))
+                .userUuid(userUuid)
                 .nickname(commentRequestDTO.nickname())
                 .content(commentRequestDTO.content())
                 .build();

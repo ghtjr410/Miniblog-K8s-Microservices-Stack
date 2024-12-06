@@ -8,8 +8,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface CommentRepository extends JpaRepository<Comment, Long> {
+public interface CommentRepository extends JpaRepository<Comment, UUID> {
     void deleteByUserUuid(UUID userUuid);
     void deleteByPostUuid(UUID postUuid);
-    Optional<Comment> findByCommentUuidAndUserUuid(String commentUuid, String userUuid);
+    Optional<Comment> findByCommentUuidAndUserUuid(UUID commentUuid, UUID userUuid);
 }

@@ -31,7 +31,7 @@ public class Comment {
     @Column(name = "post_uuid", nullable = false, length = 36)
     private UUID postUuid;
 
-    @JdbcTypeCode(SqlTypes.VARCHAR)
+    @JdbcTypeCode(SqlTypes.VARCHAR) // todo: 인덱싱해야한다.
     @Column(name = "user_uuid", nullable = false, length = 36)
     private UUID userUuid;
 
@@ -44,7 +44,7 @@ public class Comment {
 
     @Column(name = "created_date", nullable = false)
     private Instant createdDate;
+
     @Column(name = "updated_Date", nullable = false)
     private Instant updatedDate;
-
 }
