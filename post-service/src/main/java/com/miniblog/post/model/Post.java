@@ -50,7 +50,4 @@ public class Post {
 
     @Column(name = "updated_date", nullable = false)
     private Instant updatedDate;
-
-    @Version
-    private Long version;
 }
