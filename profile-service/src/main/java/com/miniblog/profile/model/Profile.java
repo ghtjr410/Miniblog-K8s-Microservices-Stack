@@ -1,43 +1,44 @@
 package com.miniblog.profile.model;
 
+import com.miniblog.profile.listener.ProfileListener;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.UuidGenerator;
+import org.hibernate.type.SqlTypes;
 
 import java.util.UUID;
 
-@Data
+@ToString
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity
-@Table(name = "profile")
 @Builder
+@Entity
+@EntityListeners(ProfileListener.class)
+@Table(name = "profile")
 public class Profile {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @JdbcTypeCode(SqlTypes.VARCHAR)
+    @UuidGenerator
+    @Column(name = "profile_uuid", nullable = false, length = 36)
+    private UUID profileUuid;
 
-    @Column(unique = true, nullable = false)
-    private String profileUuid;
+    // 이거 인덱싱해야하고
+    @JdbcTypeCode(SqlTypes.VARCHAR)
+    @Column(name = "user_uuid", unique = true, nullable = false, length = 36)
+    private UUID userUuid;
 
-    @Column(unique = true, nullable = false)
-    private String userUuid;
-
-    @Column(nullable = false)
+    @Column(name = "nickname", nullable = false)
     private String nickname;
 
-    @Column(nullable = false)
+    @Column(name = "email", nullable = false)
     private String email;
 
+    @Column(name = "title")
     private String title;
-    private String intro;
 
-    @PrePersist
-    public void prePersist() {
-        if (profileUuid == null) {
-            profileUuid = UUID.randomUUID().toString();
-        }
-    }
+    @Column(name = "intro")
+    private String intro;
 }
