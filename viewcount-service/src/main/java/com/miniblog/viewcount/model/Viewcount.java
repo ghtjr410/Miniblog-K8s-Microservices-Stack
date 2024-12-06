@@ -17,15 +17,25 @@ import java.util.UUID;
 @Builder
 @Entity
 @EntityListeners(ViewcountListener.class)
-@Table(name = "viewcounts")
+@Table(name = "viewcount")
 public class Viewcount {
     @Id
     @JdbcTypeCode(SqlTypes.VARCHAR)
     @Column(name = "post_uuid", length = 36)
     private UUID postUuid;
 
+    @JdbcTypeCode(SqlTypes.VARCHAR)
+    @Column(name = "user_uuid", length = 36)
+    private UUID userUuid;
+
     @Column(name = "total_views", nullable = false)
     @Min(0)
     @Builder.Default
     private Long totalViews = 0L;
+
+    // 낙관적 락 버전 필드 추가
+    @Version
+    @Column(name = "version", nullable = false)
+    @Builder.Default
+    private Long version = 0L;
 }
