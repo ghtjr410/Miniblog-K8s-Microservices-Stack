@@ -32,7 +32,7 @@ public class KafkaErrorHandlerConfig { // Kafka 에러 핸들러를 설정
     }
     private void handleFailure(ConsumerRecord<?, ?> consumerRecord, Exception exception) {
         String eventId = (String) consumerRecord.key();
-        Object event = consumerRecord.value();
+        Object event = consumerRecord.value();  // todo: SpecificRecordBase로 바꿔야함
         log.error("최종 재시도 실패 : eventId={}, eventType={}, error={}",
                 eventId, event != null ? event.getClass().getSimpleName() : "null", exception.getMessage());
     }
