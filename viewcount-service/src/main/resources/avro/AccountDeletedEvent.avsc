@@ -1,0 +1,8 @@
+{
+  "namespace": "com.miniblog.account.avro",
+  "type": "record",
+  "name": "AccountDeletedEvent",
+  "fields": [
+    {"name": "userUuid", "type": "string"}
+  ]
+}

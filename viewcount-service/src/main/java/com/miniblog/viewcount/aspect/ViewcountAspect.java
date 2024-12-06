@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class ViewcountAspect {
 
-    @Pointcut("execution(* com.miniblog.viewcount.service.ViewcountService.*(..))")
+    @Pointcut("execution(* com.miniblog.viewcount.service.viewcount.ViewcountService.*(..))")
     public void viewcountServiceMethods() {
     }
 

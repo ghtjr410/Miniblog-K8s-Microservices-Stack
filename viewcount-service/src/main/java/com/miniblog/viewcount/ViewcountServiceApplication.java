@@ -11,5 +11,4 @@ public class ViewcountServiceApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(ViewcountServiceApplication.class, args);
 	}
-
 }
