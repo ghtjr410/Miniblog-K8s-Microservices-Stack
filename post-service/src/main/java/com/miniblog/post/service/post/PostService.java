@@ -30,7 +30,6 @@ public class PostService {
             PostCreateRequestDTO postRequestDTO) {
         Post post = postMapper.createToEntity(userUuid, postRequestDTO);
         postRepository.save(post);
-        log.info(String.valueOf(post));
         outboxEventService.createOutboxEvent(post, ProducedEventType.POST_CREATE);
         return postMapper.toResponseDTO(post);
     }

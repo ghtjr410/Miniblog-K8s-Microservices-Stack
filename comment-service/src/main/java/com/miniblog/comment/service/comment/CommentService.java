@@ -4,7 +4,7 @@ import com.miniblog.comment.dto.CommentCreatedRequestDTO;
 import com.miniblog.comment.dto.CommentDeletedRequestDTO;
 import com.miniblog.comment.dto.CommentResponseDTO;
 import com.miniblog.comment.dto.CommentUpdatedRequestDTO;
-import com.miniblog.comment.exception.CommentNotFoundException;
+import com.miniblog.comment.exception.NotFoundException;
 import com.miniblog.comment.mapper.CommentMapper;
 import com.miniblog.comment.model.Comment;
 import com.miniblog.comment.repository.comment.CommentRepository;
@@ -42,7 +42,7 @@ public class CommentService {
 
         String commentUuid = commentUpdatedRequestDTO.commentUuid();
         Comment comment = commentRepository.findByCommentUuidAndUserUuid(commentUuid, userUuid)
-                .orElseThrow(() -> new CommentNotFoundException("Comment not found or user not authorized: commentUuid = " + commentUuid + ", userUuid = " + userUuid));
+                .orElseThrow(() -> new NotFoundException("Comment not found or user not authorized: commentUuid = " + commentUuid + ", userUuid = " + userUuid));
         commentMapper.updateToEntity(comment, commentUpdatedRequestDTO);
         commentRepository.save(comment);
         outboxEventService.createOutboxEvent(comment, ProducedEventType.COMMENT_UPDATED);
@@ -57,7 +57,7 @@ public class CommentService {
 
         String commentUuid = commentDeletedRequestDTO.commentUuid();
         Comment comment = commentRepository.findByCommentUuidAndUserUuid(commentUuid, userUuid)
-                .orElseThrow(() -> new CommentNotFoundException("Comment not found or user not authorized: commentUuid = " + commentUuid + ", userUuid = " + userUuid));
+                .orElseThrow(() -> new NotFoundException("Comment not found or user not authorized: commentUuid = " + commentUuid + ", userUuid = " + userUuid));
         commentRepository.delete(comment);
 
         outboxEventService.createOutboxEvent(comment, ProducedEventType.COMMENT_DELETED);
