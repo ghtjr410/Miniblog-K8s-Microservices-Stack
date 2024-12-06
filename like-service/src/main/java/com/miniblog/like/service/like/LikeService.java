@@ -1,6 +1,5 @@
 package com.miniblog.like.service.like;
 
-import com.miniblog.like.dto.LikeRequestDTO;
 import com.miniblog.like.dto.LikeResponseDTO;
 import com.miniblog.like.dto.ToggleLikeResult;
 import com.miniblog.like.mapper.LikeMapper;
@@ -25,11 +24,11 @@ public class LikeService {
     private final OutboxEventService outboxEventService;
 
     @Transactional
-    public ToggleLikeResult toggleLike(String userUuid, LikeRequestDTO likeRequestDTO) {
+    public ToggleLikeResult toggleLike(String userUuid, String postUuid) {
         try {
-            UUID postUuid = UUID.fromString(likeRequestDTO.postUuid());
+            UUID postUuidAsUUID = UUID.fromString(postUuid);
             UUID userUuidAsUUID = UUID.fromString(userUuid);
-            Optional<Like> optionalLike = likeRepository.findByPostUuidAndUserUuid(postUuid, userUuidAsUUID);
+            Optional<Like> optionalLike = likeRepository.findByPostUuidAndUserUuid(postUuidAsUUID, userUuidAsUUID);
             if(optionalLike.isPresent()) {
                 // 좋아요 삭제
                 Like exsistingLike = optionalLike.get();
@@ -40,7 +39,7 @@ public class LikeService {
                 return new ToggleLikeResult(likeResponseDTO, false);
             } else {
                 // 좋아요 추가
-                Like newLike = likeMapper.createToEntity(userUuidAsUUID, postUuid);
+                Like newLike = likeMapper.createToEntity(userUuidAsUUID, postUuidAsUUID);
                 likeRepository.save(newLike);
                 outboxEventService.createOutboxEvent(newLike, ProducedEventType.LIKE_CREATED);
 

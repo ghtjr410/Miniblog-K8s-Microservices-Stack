@@ -24,14 +24,14 @@ public class Like {
     @Id
     @JdbcTypeCode(SqlTypes.VARCHAR)
     @UuidGenerator
-    @Column(name = "post_uuid", length = 36)
+    @Column(name = "like_uuid", length = 36)
     private UUID likeUuid;
 
-    @JdbcTypeCode(SqlTypes.VARCHAR)
+    @JdbcTypeCode(SqlTypes.VARCHAR) // todo: 인덱싱해야댐
     @Column(name = "post_uuid", nullable = false, length = 36)
     private UUID postUuid;
 
-    @JdbcTypeCode(SqlTypes.VARCHAR)
+    @JdbcTypeCode(SqlTypes.VARCHAR) // todo: 인덱싱해야댐
     @Column(name = "user_uuid", nullable = false, length = 36)
     private UUID userUuid;
 

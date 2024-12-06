@@ -1,6 +1,5 @@
 package com.miniblog.like.mapper;
 
-import com.miniblog.like.dto.LikeRequestDTO;
 import com.miniblog.like.dto.LikeResponseDTO;
 import com.miniblog.like.model.Like;
 import org.springframework.stereotype.Component;
