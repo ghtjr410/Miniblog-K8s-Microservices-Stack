@@ -12,12 +12,17 @@ import java.util.UUID;
 @ToString
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-@Entity
 @EntityListeners(ViewcountListener.class)
-@Table(name = "viewcount")
+@Entity
+@Table(
+        name = "viewcount",
+        indexes = {
+                @Index(name = "idx_user_uuid", columnList = "user_uuid")
+        }
+)
 public class Viewcount {
     @Id
     @JdbcTypeCode(SqlTypes.VARCHAR)

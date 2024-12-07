@@ -24,7 +24,7 @@ public class ViewcountService {
         UUID postUuidAsUUID = UUID.fromString(postUuid);
 
         Viewcount viewcount = viewcountRepository.findById(postUuidAsUUID)
-                .orElseThrow(() -> new NotFoundException("Post UUID not found: " + postUuid));
+                .orElseThrow(() -> new NotFoundException("게시글을 찾을 수 없습니다: postUuid = " + postUuid));
 
         // totalViews 증가
         viewcount.setTotalViews(viewcount.getTotalViews() + 1);
