@@ -5,7 +5,7 @@ import com.miniblog.post.dto.PostResponseDTO;
 import com.miniblog.post.dto.PostUpdateRequestDTO;
 import com.miniblog.post.exception.NotFoundException;
 import com.miniblog.post.exception.UnauthorizedException;
-import com.miniblog.post.mapper.PostMapper;
+import com.miniblog.post.mapper.post.PostMapper;
 import com.miniblog.post.model.Post;
 import com.miniblog.post.repository.post.PostRepository;
 import com.miniblog.post.service.outbox.OutboxEventService;
