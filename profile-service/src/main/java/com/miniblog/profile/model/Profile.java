@@ -12,17 +12,17 @@ import java.util.UUID;
 @ToString
 @Getter
 @Setter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-@Entity
 @EntityListeners(ProfileListener.class)
+@Entity
 @Table(name = "profile")
 public class Profile {
     @Id
     @JdbcTypeCode(SqlTypes.VARCHAR)
     @UuidGenerator
-    @Column(name = "profile_uuid", nullable = false, length = 36)
+    @Column(name = "profile_uuid", length = 36)
     private UUID profileUuid;
 
     // 이거 인덱싱해야하고
@@ -33,7 +33,7 @@ public class Profile {
     @Column(name = "nickname", nullable = false)
     private String nickname;
 
-    @Column(name = "email", nullable = false)
+    @Column(name = "email", unique = true, nullable = false)
     private String email;
 
     @Column(name = "title")

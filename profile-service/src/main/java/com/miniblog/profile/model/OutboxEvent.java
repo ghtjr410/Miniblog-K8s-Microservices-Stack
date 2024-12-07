@@ -16,15 +16,16 @@ import java.util.UUID;
 @ToString
 @Getter
 @Setter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-@Entity
 @EntityListeners(OutboxEventListener.class)
+@Entity
 @Table(
         name = "outbox_event",
         indexes = {
-                @Index(name = "idx_saga_status_processed", columnList = "sagaStatus, processed")
+                @Index(name = "idx_saga_processed", columnList = "saga_status, processed"),
+                @Index(name = "idx_event_saga", columnList = "event_uuid, saga_status")
         }
 )
 public class OutboxEvent {
@@ -38,19 +39,19 @@ public class OutboxEvent {
     private String traceId;
 
     @JdbcTypeCode(SqlTypes.VARCHAR)
-    @Column(name = "post_uuid", nullable = false, length = 36)
-    private UUID postUuid;
+    @Column(name = "profile_uuid", nullable = false, length = 36)
+    private UUID profileUuid;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "event_type", nullable = false, length = 30)
     private ProducedEventType eventType;
 
     @Lob
-    @Column(name = "payload", columnDefinition = "LONGTEXT", nullable = false)
+    @Column(name = "payload", columnDefinition = "TEXT", nullable = false)
     private String payload;
 
     @CreationTimestamp
-    @Column(name = "created_date", nullable = false)
+    @Column(name = "created_date", nullable = false, updatable = false)
     private Instant createdDate;
 
     @Enumerated(EnumType.STRING)
