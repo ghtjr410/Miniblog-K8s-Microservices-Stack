@@ -14,12 +14,18 @@ import java.util.UUID;
 @ToString
 @Getter
 @Setter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-@Entity
 @EntityListeners(CommentListener.class)
-@Table(name = "comment")
+@Entity
+@Table(
+        name = "comment",
+        indexes = {
+                @Index(name = "idx_post_uuid", columnList = "post_uuid"), // postUuid에 대한 인덱스 추가
+                @Index(name = "idx_user_uuid", columnList = "user_uuid"), // userUuid에 대한 인덱스 추가
+        }
+)
 public class Comment {
     @Id
     @JdbcTypeCode(SqlTypes.VARCHAR)
@@ -31,7 +37,7 @@ public class Comment {
     @Column(name = "post_uuid", nullable = false, length = 36)
     private UUID postUuid;
 
-    @JdbcTypeCode(SqlTypes.VARCHAR) // todo: 인덱싱해야한다.
+    @JdbcTypeCode(SqlTypes.VARCHAR)
     @Column(name = "user_uuid", nullable = false, length = 36)
     private UUID userUuid;
 
@@ -42,9 +48,9 @@ public class Comment {
     @Column(name = "content", columnDefinition = "TEXT", nullable = false)
     private String content;
 
-    @Column(name = "created_date", nullable = false)
+    @Column(name = "created_date", nullable = false, updatable = false)
     private Instant createdDate;
 
-    @Column(name = "updated_Date", nullable = false)
+    @Column(name = "updated_date", nullable = false)
     private Instant updatedDate;
 }
