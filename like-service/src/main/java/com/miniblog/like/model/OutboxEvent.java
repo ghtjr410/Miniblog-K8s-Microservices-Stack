@@ -17,15 +17,16 @@ import java.util.UUID;
 @ToString
 @Getter
 @Setter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-@Entity
 @EntityListeners(OutboxEventListener.class)
+@Entity
 @Table(
         name = "outbox_event",
         indexes = {
-                @Index(name = "idx_saga_processed", columnList = "sagaStatus, processed")
+                @Index(name = "idx_saga_processed", columnList = "saga_status, processed"),
+                @Index(name = "idx_event_saga", columnList = "event_uuid, saga_status")
         }
 )
 public class OutboxEvent {
@@ -51,7 +52,7 @@ public class OutboxEvent {
     private String payload;
 
     @CreationTimestamp
-    @Column(name = "created_date", nullable = false)
+    @Column(name = "created_date", nullable = false, updatable = false)
     private Instant createdDate;
 
     @Enumerated(EnumType.STRING)

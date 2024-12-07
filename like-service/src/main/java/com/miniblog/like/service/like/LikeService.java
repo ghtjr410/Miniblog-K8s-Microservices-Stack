@@ -31,20 +31,18 @@ public class LikeService {
             Optional<Like> optionalLike = likeRepository.findByPostUuidAndUserUuid(postUuidAsUUID, userUuidAsUUID);
             if(optionalLike.isPresent()) {
                 // 좋아요 삭제
-                Like exsistingLike = optionalLike.get();
-                likeRepository.delete(exsistingLike);
-                outboxEventService.createOutboxEvent(exsistingLike, ProducedEventType.LIKE_DELETED);
+                Like existingLike = optionalLike.get();
+                likeRepository.delete(existingLike);
+                outboxEventService.createOutboxEvent(existingLike, ProducedEventType.LIKE_DELETED);
 
-                LikeResponseDTO likeResponseDTO = likeMapper.toResponseDTO(exsistingLike);
-                return new ToggleLikeResult(likeResponseDTO, false);
+                return buildToggleLikeResult(existingLike, false);
             } else {
                 // 좋아요 추가
                 Like newLike = likeMapper.createToEntity(userUuidAsUUID, postUuidAsUUID);
                 likeRepository.save(newLike);
                 outboxEventService.createOutboxEvent(newLike, ProducedEventType.LIKE_CREATED);
 
-                LikeResponseDTO likeResponseDTO = likeMapper.toResponseDTO(newLike);
-                return new ToggleLikeResult(likeResponseDTO, true);
+                return buildToggleLikeResult(newLike, true);
             }
         } catch (DataIntegrityViolationException ex) {
             throw new RuntimeException("좋아요 토글 중 중복 삽입이 발생했습니다. 다시 시도해주세요.", ex);
@@ -52,5 +50,10 @@ public class LikeService {
             // 기타 예외 처리
             throw new RuntimeException("좋아요 토글 중 예상치 못한 오류가 발생했습니다. 관리자에게 문의해주세요.", ex);
         }
+    }
+
+    private ToggleLikeResult buildToggleLikeResult(Like like, boolean isLiked) {
+        LikeResponseDTO likeResponseDTO = likeMapper.toResponseDTO(like);
+        return new ToggleLikeResult(likeResponseDTO, isLiked);
     }
 }
