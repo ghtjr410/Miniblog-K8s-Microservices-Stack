@@ -15,15 +15,17 @@ import java.util.UUID;
 @ToString
 @Getter
 @Setter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity
 @EntityListeners(PostListener.class)
+@Entity
 @Table(
         name = "post",
-        indexes = @Index(name = "idx_user_uuid", columnList = "user_uuid") // userUuid에 대한 인덱스 추가
+        indexes = {
+                @Index(name = "idx_user_uuid", columnList = "user_uuid"), // userUuid에 대한 인덱스 추가
+        }
 )
-@Builder
 public class Post {
     @Id
     @JdbcTypeCode(SqlTypes.VARCHAR)
@@ -45,7 +47,7 @@ public class Post {
     @Column(name = "content", columnDefinition = "LONGTEXT", nullable = false)
     private String content;
 
-    @Column(name = "created_date", nullable = false)
+    @Column(name = "created_date", nullable = false, updatable = false)
     private Instant createdDate;
 
     @Column(name = "updated_date", nullable = false)
