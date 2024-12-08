@@ -8,13 +8,11 @@ import com.miniblog.post.serializer.AvroJsonSerializer;
 import com.miniblog.post.util.ProducedEventType;
 import com.miniblog.post.util.TracerUtility;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.specific.SpecificRecordBase;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-@Slf4j
 public class OutboxMapper {
     private final TracerUtility tracerUtility;
     private final EventMapperFactory eventMapperFactory;

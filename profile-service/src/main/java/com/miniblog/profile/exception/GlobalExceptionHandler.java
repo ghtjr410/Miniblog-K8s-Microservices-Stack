@@ -2,6 +2,7 @@ package com.miniblog.profile.exception;
 
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -24,7 +25,7 @@ public class GlobalExceptionHandler {
             String errorMessage = violation.getMessage();
             errors.put(fieldName, errorMessage);
         });
-        log.warn("ConstraintViolationException 발생: {}", errors);
+        log.warn("ConstraintViolation Exception: {}", errors);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorMessage.VALIDATION_ERROR.getMessage());
     }
 
@@ -35,7 +36,7 @@ public class GlobalExceptionHandler {
         ex.getBindingResult().getFieldErrors().forEach(error -> {
             errors.put(error.getField(), error.getDefaultMessage());
         });
-        log.warn("MethodArgumentNotValidException 발생: {}", errors);
+        log.warn("MethodArgumentNotValid Exception: {}", errors);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorMessage.REQUEST_BODY_VALIDATION_ERROR.getMessage());
     }
 
@@ -43,5 +44,11 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleRuntimeException(RuntimeException ex) {
         log.error("예상치 못한 오류 발생: ", ex);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ErrorMessage.UNEXPECTED_ERROR.getMessage());
+    }
+
+    @ExceptionHandler(DataAccessException.class)
+    public ResponseEntity<String> handleDataAccessException(DataAccessException ex) {
+        log.error("Database access error: {}", ex.getMessage(), ex);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ErrorMessage.DATABASE_ACCESS_ERROR.getMessage());
     }
 }

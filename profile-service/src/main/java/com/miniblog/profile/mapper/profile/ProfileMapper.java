@@ -1,4 +1,4 @@
-package com.miniblog.profile.mapper;
+package com.miniblog.profile.mapper.profile;
 
 import com.miniblog.profile.dto.request.ProfileRequestDTO;
 import com.miniblog.profile.dto.response.ProfileResponseDTO;

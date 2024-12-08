@@ -1,17 +1,17 @@
 package com.miniblog.profile.service.profile;
 
 import com.miniblog.profile.dto.request.ProfileRequestDTO;
-import com.miniblog.profile.dto.response.ProfileResponseDTO;
 import com.miniblog.profile.dto.response.ProfileResult;
-import com.miniblog.profile.mapper.ProfileMapper;
+import com.miniblog.profile.mapper.profile.ProfileMapper;
 import com.miniblog.profile.model.Profile;
 import com.miniblog.profile.repository.profile.ProfileRepository;
 import com.miniblog.profile.service.outbox.OutboxEventService;
 import com.miniblog.profile.util.ProducedEventType;
-import jakarta.transaction.Transactional;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 import java.util.UUID;

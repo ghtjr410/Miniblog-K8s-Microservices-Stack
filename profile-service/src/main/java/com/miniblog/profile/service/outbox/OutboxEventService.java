@@ -1,12 +1,11 @@
 package com.miniblog.profile.service.outbox;
 
-import com.miniblog.profile.mapper.OutboxMapper;
+import com.miniblog.profile.mapper.outbox.OutboxMapper;
 import com.miniblog.profile.model.OutboxEvent;
 import com.miniblog.profile.model.Profile;
 import com.miniblog.profile.repository.outbox.OutboxEventRepository;
 import com.miniblog.profile.util.ProducedEventType;
 import com.miniblog.profile.util.SagaStatus;
-import com.miniblog.profile.util.TracerUtility;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -21,12 +20,9 @@ import java.util.UUID;
 public class OutboxEventService {
     private final OutboxEventRepository outboxEventRepository;
     private final OutboxMapper outboxMapper;
-    private final TracerUtility tracerUtility;
 
     public void createEntity(Profile profile, ProducedEventType eventType) {
-        String traceId = tracerUtility.getTraceId();
         OutboxEvent outboxEvent = outboxMapper.toOutboxEvent(profile, eventType);
-        outboxEvent.setTraceId(traceId);
         outboxEventRepository.save(outboxEvent);
     }
 
