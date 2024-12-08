@@ -1,4 +1,4 @@
-package com.miniblog.like.mapper;
+package com.miniblog.like.mapper.like;
 
 import com.miniblog.like.dto.LikeResponseDTO;
 import com.miniblog.like.model.Like;
@@ -17,7 +17,8 @@ public class LikeMapper {
 
     public LikeResponseDTO toResponseDTO(Like like) {
         return new LikeResponseDTO(
-                like.getLikeUuid(),
-                like.getPostUuid());
+                // todo: 이 정보를 제공해야할 이유가 없어보이긴한데. 추후에 noContent로 주는것도 생각해놓자
+                like.getLikeUuid().toString(),
+                like.getPostUuid().toString());
     }
 }

@@ -25,7 +25,7 @@ public class LikeController {
             @PathVariable @ValidUuid String postUuid) {
         ToggleLikeResult result = likeService.toggleLike(userUuid, postUuid);
         if (result.created()) {
-            return ResponseEntity.status(HttpStatus.CREATED).body(result.likeResponseDTO());
+            return ResponseEntity.status(HttpStatus.CREATED).body(result.likeResponseDTO()); // todo: noContent도 생각해봐야함 제공해야할게 없어보여서
         } else {
             return ResponseEntity.noContent().build();
         }

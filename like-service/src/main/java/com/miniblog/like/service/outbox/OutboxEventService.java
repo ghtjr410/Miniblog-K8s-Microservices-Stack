@@ -1,6 +1,6 @@
 package com.miniblog.like.service.outbox;
 
-import com.miniblog.like.mapper.OutboxMapper;
+import com.miniblog.like.mapper.outbox.OutboxMapper;
 import com.miniblog.like.model.Like;
 import com.miniblog.like.model.OutboxEvent;
 import com.miniblog.like.repository.outbox.OutboxEventRepository;
