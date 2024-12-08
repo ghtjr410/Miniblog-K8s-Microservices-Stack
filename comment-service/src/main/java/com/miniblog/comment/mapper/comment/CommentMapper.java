@@ -1,4 +1,4 @@
-package com.miniblog.comment.mapper;
+package com.miniblog.comment.mapper.comment;
 
 import com.miniblog.comment.dto.request.CommentCreatedRequestDTO;
 import com.miniblog.comment.dto.response.CommentResponseDTO;

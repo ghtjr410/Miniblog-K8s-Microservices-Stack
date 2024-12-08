@@ -14,9 +14,9 @@ import java.util.UUID;
 @ToString
 @Getter
 @Setter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 @Entity
 @Table(
         name = "consumed_event",

@@ -5,7 +5,7 @@ import com.miniblog.comment.dto.response.CommentResponseDTO;
 import com.miniblog.comment.dto.request.CommentUpdatedRequestDTO;
 import com.miniblog.comment.exception.NotFoundException;
 import com.miniblog.comment.exception.UnauthorizedException;
-import com.miniblog.comment.mapper.CommentMapper;
+import com.miniblog.comment.mapper.comment.CommentMapper;
 import com.miniblog.comment.model.Comment;
 import com.miniblog.comment.repository.comment.CommentRepository;
 import com.miniblog.comment.service.outbox.OutboxEventService;

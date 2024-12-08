@@ -1,17 +1,18 @@
 package com.miniblog.comment.service.outbox;
 
-import com.miniblog.comment.mapper.OutboxMapper;
+import com.miniblog.comment.mapper.outbox.OutboxMapper;
 import com.miniblog.comment.model.Comment;
 import com.miniblog.comment.model.OutboxEvent;
 import com.miniblog.comment.repository.outbox.OutboxEventRepository;
 import com.miniblog.comment.util.ProducedEventType;
 import com.miniblog.comment.util.SagaStatus;
-import com.miniblog.comment.util.TracerUtility;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -19,17 +20,14 @@ import org.springframework.transaction.annotation.Transactional;
 public class OutboxEventService {
     private final OutboxEventRepository outboxEventRepository;
     private final OutboxMapper outboxMapper;
-    private final TracerUtility tracerUtility;
 
     public void createOutboxEvent(Comment comment, ProducedEventType eventType) {
-        String traceId = tracerUtility.getTraceId();
         OutboxEvent outboxEvent = outboxMapper.toOutboxEvent(comment, eventType);
-        outboxEvent.setTraceId(traceId);
         outboxEventRepository.save(outboxEvent);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public boolean updateStatus(String eventUuid, SagaStatus expectedStatus, SagaStatus newStatus, Boolean processed) {
+    public boolean updateStatus(UUID eventUuid, SagaStatus expectedStatus, SagaStatus newStatus, Boolean processed) {
         boolean updated = outboxEventRepository.updateSagaStatus(eventUuid, new SagaStatus[]{expectedStatus}, newStatus, processed);
         if(!updated) {
             log.info("상태 업데이트 실패");
