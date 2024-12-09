@@ -27,20 +27,20 @@ public class LikeService {
         UUID postUuidAsUUID = UUID.fromString(postUuid);
         UUID userUuidAsUUID = UUID.fromString(userUuid);
         Optional<Like> optionalLike = likeRepository.findByPostUuidAndUserUuid(postUuidAsUUID, userUuidAsUUID);
-        if(optionalLike.isPresent()) {
-            // 좋아요 삭제
-            Like existingLike = optionalLike.get();
-            likeRepository.delete(existingLike);
-            outboxEventService.createOutboxEvent(existingLike, ProducedEventType.LIKE_DELETED);
-
-            return buildToggleLikeResult(existingLike, false);
-        } else {
+        if(optionalLike.isEmpty()) {
             // 좋아요 추가
             Like newLike = likeMapper.createToEntity(userUuidAsUUID, postUuidAsUUID);
             likeRepository.save(newLike);
             outboxEventService.createOutboxEvent(newLike, ProducedEventType.LIKE_CREATED);
 
             return buildToggleLikeResult(newLike, true);
+        } else {
+            // 좋아요 삭제
+            Like existingLike = optionalLike.get();
+            likeRepository.delete(existingLike);
+            outboxEventService.createOutboxEvent(existingLike, ProducedEventType.LIKE_DELETED);
+
+            return buildToggleLikeResult(existingLike, false);
         }
     }
 

@@ -31,7 +31,14 @@ public class ProfileService {
         UUID userUuidAsUUID = UUID.fromString(userUuid);
         Optional<Profile> optionalProfile = profileRepository.findByUserUuid(userUuidAsUUID);
 
-        if (optionalProfile.isPresent()) {
+        if (optionalProfile.isEmpty()) {
+            // 프로필 생성
+            Profile newProfile = profileMapper.createToEntity(userUuidAsUUID, profileRequestDTO);
+            profileRepository.save(newProfile);
+            outboxEventService.createEntity(newProfile, ProducedEventType.PROFILE_CREATED);
+
+            return profileMapper.toResponseDTO(newProfile, true);
+        } else {
             // 프로필 수정
             Profile exsistingProfile = optionalProfile.get();
             profileMapper.updateToEntity(exsistingProfile, profileRequestDTO);
@@ -39,13 +46,6 @@ public class ProfileService {
             outboxEventService.createEntity(exsistingProfile, ProducedEventType.PROFILE_UPDATED);
 
             return profileMapper.toResponseDTO(exsistingProfile, false);
-        } else {
-            // 프로필 생성
-            Profile newProfile = profileMapper.createToEntity(userUuidAsUUID, profileRequestDTO);
-            profileRepository.save(newProfile);
-            outboxEventService.createEntity(newProfile, ProducedEventType.PROFILE_CREATED);
-
-            return profileMapper.toResponseDTO(newProfile, true);
         }
     }
 }
