@@ -4,6 +4,6 @@ import com.miniblog.comment.util.ConsumedEventType;
 import org.apache.avro.specific.SpecificRecordBase;
 
 public interface EventConsumerHandler {
-    void handlerEvent(SpecificRecordBase event);
+    void handleEvent(SpecificRecordBase event);
     ConsumedEventType getEventType();
 }
