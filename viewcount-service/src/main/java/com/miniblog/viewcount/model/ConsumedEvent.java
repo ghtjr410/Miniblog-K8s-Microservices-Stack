@@ -34,6 +34,9 @@ public class ConsumedEvent {
     @Column(name = "event_uuid", length = 36)
     private UUID eventUuid;
 
+    @Column(name = "trace_id", nullable = false, length = 32)
+    private String traceId;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "event_type", nullable = false, length = 30)
     private ConsumedEventType eventType;
@@ -43,7 +46,7 @@ public class ConsumedEvent {
     private SagaStatus sagaStatus; // CREATED, PROCESSING, COMPLETED, FAILED
 
     @CreationTimestamp
-    @Column(name = "created_date", nullable = false)
+    @Column(name = "created_date", nullable = false, updatable = false)
     private Instant createdDate;
 
     @Column(name = "processed", nullable = false)

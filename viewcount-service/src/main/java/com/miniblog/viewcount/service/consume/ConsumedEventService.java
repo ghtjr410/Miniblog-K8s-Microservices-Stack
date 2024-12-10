@@ -1,6 +1,6 @@
 package com.miniblog.viewcount.service.consume;
 
-import com.miniblog.viewcount.mapper.ConsumedEventMapper;
+import com.miniblog.viewcount.mapper.consume.ConsumedMapper;
 import com.miniblog.viewcount.model.ConsumedEvent;
 import com.miniblog.viewcount.repository.consume.ConsumedEventRepository;
 import com.miniblog.viewcount.util.ConsumedEventType;
@@ -19,34 +19,43 @@ import java.util.UUID;
 @Slf4j
 public class ConsumedEventService {
     private final ConsumedEventRepository consumedEventRepository;
-    private final ConsumedEventMapper consumedEventMapper;
+    private final ConsumedMapper consumedEventMapper;
 
-    public ConsumedEvent handleIdempotencyAndUpdateStatus(UUID eventUuid, ConsumedEventType eventType) {
+    public ConsumedEvent findOrInitializeEvent(UUID eventUuid, ConsumedEventType eventType) {
         // 여기서 eventUuid를 기준으로 processed가 false인것을 가져와야한다
         Optional<ConsumedEvent> optionalConsumedEvent = consumedEventRepository.findByProcessedFalseAndEventUuid(eventUuid);
-        if(optionalConsumedEvent.isPresent()){
-            ConsumedEvent consumedEvent = optionalConsumedEvent.get();
-            // 1. 처리중이거나 처리시도가된적있는 이벤트
-            // 1-1 처리중인 이벤트
-            if (consumedEvent.getSagaStatus() != SagaStatus.FAILED) {
-                log.info("처리 중인 이벤트: eventUuid={}", eventUuid);
-                return null;
-            }
-            // 1-2 처리시도가 된적있는 이벤트
-            log.info("이번에 실패한 이벤트. 재처리 시도: eventUuid={}", eventUuid);
-            updateStatus(eventUuid, new SagaStatus[]{SagaStatus.FAILED}, SagaStatus.RETRYING, null);
-            return consumedEvent;
 
+        if (optionalConsumedEvent.isEmpty()) {
+            // 신규 이벤트 생성 후 바로 PROCESSING 상태 (동기적이기 때문)
+            log.info("새로운 이벤트 생성: eventUuid={}, eventType={}", eventUuid, eventType);
+            return createNewEvent(eventUuid, eventType);
+        }
+
+        ConsumedEvent existingEvent = optionalConsumedEvent.get();
+        if (existingEvent.getSagaStatus() == SagaStatus.FAILED) {
+            // 실패한 이벤트 -> 재처리할 수 있도록 반환
+            log.info("재처리 시도: eventUuid={}, eventType={}", eventUuid, eventType);
+            updateStatus(eventUuid, new SagaStatus[]{SagaStatus.FAILED}, SagaStatus.RETRYING, null);
+            return existingEvent;
         } else {
-            // 2. 한번도 시도된적없는 이벤트
-            log.info("새로운 객체 생성: eventUuid={}", eventUuid);
-            return createToEntity(eventUuid, eventType);
+            // PROCESSING, RETRYING, COMPLETED 상태는 모두 이미 처리 중이거나 처리 완료된 이벤트
+            // 멱등성 상 재처리 불필요
+            log.info("멱등성 상 재처리 불필요: eventUuid={}", eventUuid);
+            return null;
         }
     }
 
+    public void markEventAsCompleted(UUID eventUuid) {
+        updateStatus(eventUuid, new SagaStatus[]{SagaStatus.PROCESSING, SagaStatus.RETRYING}, SagaStatus.COMPLETED, true);
+    }
+
+    public void markEventAsFailed(UUID eventUuid) {
+        updateStatus(eventUuid, new SagaStatus[]{SagaStatus.PROCESSING, SagaStatus.RETRYING}, SagaStatus.FAILED, null);
+    }
+
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public ConsumedEvent createToEntity(UUID eventUuid, ConsumedEventType eventType) {
-        ConsumedEvent consumedEvent = consumedEventMapper.toEntity(eventUuid, eventType);
+    public ConsumedEvent createNewEvent(UUID eventUuid, ConsumedEventType eventType) {
+        ConsumedEvent consumedEvent = consumedEventMapper.createToEntity(eventUuid, eventType);
         consumedEventRepository.save(consumedEvent);
         return consumedEvent;
     }
@@ -54,11 +63,7 @@ public class ConsumedEventService {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public boolean updateStatus(UUID eventUuid, SagaStatus[] expectedStatus, SagaStatus newStatus, Boolean processed) {
         boolean updated = consumedEventRepository.updateSagaStatus(eventUuid, expectedStatus, newStatus, processed);
-        if (!updated) {
-            log.info("상태 업데이트 실패");
-        } else {
-            log.info("상태 업데이트 성공");
-        }
+        log.info(updated ? "상태 업데이트 성공" : "상태 업데이트 실패");
         return updated;
     }
 }

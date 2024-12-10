@@ -1,7 +1,6 @@
 package com.miniblog.viewcount.config.consume;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.errors.SerializationException;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,7 +19,12 @@ public class KafkaErrorHandlerConfig { // Kafka 에러 핸들러를 설정
         backOff.setMaxInterval(10000L);
 
         DefaultErrorHandler defaultErrorHandler = new DefaultErrorHandler(
-                (consumerRecord, exception) -> handleFailure(consumerRecord, exception),
+                (consumerRecord, exception) -> {
+                    log.error("최종 재시도 실패 : eventId={}, eventType={}, error={}",
+                            consumerRecord.key(),
+                            consumerRecord.value().getClass().getSimpleName(),
+                            exception.getMessage());
+                },
                 backOff
         );
         defaultErrorHandler.addNotRetryableExceptions(SerializationException.class);
@@ -28,12 +32,5 @@ public class KafkaErrorHandlerConfig { // Kafka 에러 핸들러를 설정
             log.warn("재시도 중 : 시도 횟수 = {}, 예외 = {} ", deliveryAttempt, ex.getMessage());
         });
         return defaultErrorHandler;
-    }
-
-    private void handleFailure(ConsumerRecord<?, ?> consumerRecord, Exception exception) {
-        String eventUuid = (String) consumerRecord.key();
-        Object event = consumerRecord.value(); // todo: SpecificRecordBase로 바꿔야함
-        log.error("최종 재시도 실패 : eventId={}, eventType={}, error={}",
-                eventUuid, event != null ? event.getClass().getSimpleName() : "null", exception.getMessage());
     }
 }

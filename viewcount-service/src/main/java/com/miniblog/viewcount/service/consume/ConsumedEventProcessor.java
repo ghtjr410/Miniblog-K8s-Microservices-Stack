@@ -4,7 +4,6 @@ import com.miniblog.viewcount.handler.consume.EventConsumerHandler;
 import com.miniblog.viewcount.handler.consume.EventConsumerHandlerRegistry;
 import com.miniblog.viewcount.model.ConsumedEvent;
 import com.miniblog.viewcount.util.ConsumedEventType;
-import com.miniblog.viewcount.util.SagaStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.specific.SpecificRecordBase;
@@ -21,8 +20,10 @@ public class ConsumedEventProcessor {
 
     public void processEvent(UUID eventUuid, SpecificRecordBase event, ConsumedEventType eventType) {
         try {
-            ConsumedEvent consumedEvent = consumedEventService.handleIdempotencyAndUpdateStatus(eventUuid, eventType);
-            // 이미 처리된 이벤트인 경우 처리 종료
+            // 이벤트 검색/초기화
+            ConsumedEvent consumedEvent = consumedEventService.findOrInitializeEvent(eventUuid, eventType);
+
+            // 멱등성 (처리중인 이벤트, 처리된 이벤트)
             if(consumedEvent == null) {
                 return;
             }
@@ -32,15 +33,16 @@ public class ConsumedEventProcessor {
             if (handler == null) {
                 throw new IllegalArgumentException("Unsupported event type: " + eventType);
             }
+
+            // 이벤트 처리 (비즈니스 로직)
             handler.handleEvent(event);
-            consumedEventService.updateStatus(eventUuid, new SagaStatus[]{SagaStatus.PROCESSING, SagaStatus.RETRYING}, SagaStatus.COMPLETED, true);
+
+            // 완료 상태 업데이트
+            consumedEventService.markEventAsCompleted(eventUuid);
         } catch (Exception ex) {
             log.error("이벤트 처리 중 예외 발생: eventUuid={}, error={}", eventUuid, ex.getMessage());
-
-            boolean statusUpdated = consumedEventService.updateStatus(eventUuid, new SagaStatus[]{SagaStatus.PROCESSING, SagaStatus.RETRYING}, SagaStatus.FAILED, null);
-            if (!statusUpdated) {
-                log.error("상태를 FAILED로 업데이트하는 데 실패했습니다: eventUuid={}", eventUuid);
-            }
+            // 실패 상태 업데이트
+            consumedEventService.markEventAsFailed(eventUuid);
             throw  ex;
         }
     }
