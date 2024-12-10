@@ -16,7 +16,6 @@ public class OutboxEventProcessor {
     private final EventProducerHandlerRegistry handlerRegistry;
     private final OutboxEventService outboxEventService;
 
-
     public void processEvent(OutboxEvent outboxEvent) {
         try {
             // 1. PROCESSING 상태로 업데이트
@@ -32,9 +31,10 @@ public class OutboxEventProcessor {
             }
             // 3. 이벤트 처리
             handler.handleEvent(outboxEvent);
-            // 4. 완료 상태 업데이트 및 processed 필드 저장
+            // 4. COMPLETED 상태 업데이트 및 processed 필드 저장
             outboxEventService.markEventAsCompleted(outboxEvent);
         } catch (Exception ex) {
+            // 5. FAILED 상태 업데이트
             outboxEventService.markEventAsFailed(outboxEvent);
             log.error("Error processing OutboxEvent: {}", ex.getMessage(), ex);
         }

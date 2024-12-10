@@ -21,8 +21,8 @@ public class OutboxEventService {
     private final OutboxEventRepository outboxEventRepository;
     private final OutboxMapper outboxMapper;
 
-    public void createOutboxEvent(Post post, ProducedEventType eventType) {
-        OutboxEvent outboxEvent = outboxMapper.toOutboxEvent(post, eventType);
+    public void saveOutboxEvent(Post post, ProducedEventType eventType) {
+        OutboxEvent outboxEvent = outboxMapper.createToEntity(post, eventType);
         outboxEventRepository.save(outboxEvent);
     }
 

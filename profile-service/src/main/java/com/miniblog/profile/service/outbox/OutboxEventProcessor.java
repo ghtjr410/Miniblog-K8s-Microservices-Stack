@@ -1,26 +1,12 @@
 package com.miniblog.profile.service.outbox;
 
-import brave.propagation.TraceContext;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.miniblog.profile.avro.ProfileCreatedEvent;
-import com.miniblog.profile.avro.ProfileUpdatedEvent;
 import com.miniblog.profile.handler.produce.EventProducerHandler;
 import com.miniblog.profile.handler.produce.EventProducerHandlerRegistry;
 import com.miniblog.profile.model.OutboxEvent;
-import com.miniblog.profile.producer.EventProducer;
-import com.miniblog.profile.repository.outbox.OutboxEventRepository;
 import com.miniblog.profile.util.SagaStatus;
-import io.micrometer.tracing.Span;
-import io.micrometer.tracing.Tracer;
-import io.micrometer.tracing.Tracer.SpanInScope;
-import io.micrometer.tracing.brave.bridge.BraveSpan;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
-import java.math.BigInteger;
-import java.util.concurrent.ThreadLocalRandom;
 
 @Service
 @RequiredArgsConstructor
@@ -45,9 +31,10 @@ public class OutboxEventProcessor {
             }
             // 3. 이벤트 처리
             handler.handleEvent(outboxEvent);
-            // 4. 완료 상태 업데이트 및 processed 필드 저장
+            // 4. COMPLETED 상태 업데이트 및 processed 필드 저장
             outboxEventService.markEventAsCompleted(outboxEvent);
         } catch (Exception ex) {
+            // 5. FAILED 상태 업데이트
             outboxEventService.markEventAsFailed(outboxEvent);
             log.error("Error processing OutboxEvent: {}", ex.getMessage(), ex);
         }
