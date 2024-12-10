@@ -9,9 +9,9 @@ import com.miniblog.profile.util.ProducedEventType;
 import io.micrometer.tracing.Tracer;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
-@Component
+@Service
 public class ProfileCreatedHandler extends AbstractEventProducerHandler<ProfileCreatedEvent> {
 
     @Value("${profile.created.event.topic.name}")

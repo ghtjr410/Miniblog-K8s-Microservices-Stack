@@ -35,7 +35,7 @@ public class ProfileService {
             // 프로필 생성
             Profile newProfile = profileMapper.createToEntity(userUuidAsUUID, profileRequestDTO);
             profileRepository.save(newProfile);
-            outboxEventService.createEntity(newProfile, ProducedEventType.PROFILE_CREATED);
+            outboxEventService.createOutboxEvent(newProfile, ProducedEventType.PROFILE_CREATED);
 
             return profileMapper.toResponseDTO(newProfile, true);
         } else {
@@ -43,7 +43,7 @@ public class ProfileService {
             Profile exsistingProfile = optionalProfile.get();
             profileMapper.updateToEntity(exsistingProfile, profileRequestDTO);
             profileRepository.save(exsistingProfile);
-            outboxEventService.createEntity(exsistingProfile, ProducedEventType.PROFILE_UPDATED);
+            outboxEventService.createOutboxEvent(exsistingProfile, ProducedEventType.PROFILE_UPDATED);
 
             return profileMapper.toResponseDTO(exsistingProfile, false);
         }
