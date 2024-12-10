@@ -18,7 +18,7 @@ public class OutboxMapper {
     private final EventMapperFactory eventMapperFactory;
     private final AvroJsonSerializer avroJsonSerializer;
 
-    public OutboxEvent toOutboxEvent(Viewcount viewcount, ProducedEventType eventType) {
+    public OutboxEvent createToEntity(Viewcount viewcount, ProducedEventType eventType) {
         String traceId = tracerUtility.getTraceId();
         EventMapper mapper = eventMapperFactory.getMapper(eventType);
         SpecificRecordBase event = mapper.createToEvent(viewcount);

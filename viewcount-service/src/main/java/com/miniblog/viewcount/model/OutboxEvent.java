@@ -46,8 +46,7 @@ public class OutboxEvent {
     @Column(name = "event_type", nullable = false, length = 30)
     private ProducedEventType eventType;
 
-    @Lob
-    @Column(name = "payload", columnDefinition = "TEXT", nullable = false)
+    @Column(name = "payload", nullable = false, length = 255)
     private String payload;
 
     @CreationTimestamp

@@ -9,9 +9,9 @@ import com.miniblog.viewcount.util.ProducedEventType;
 import io.micrometer.tracing.Tracer;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
-@Component
+@Service
 public class ViewcountUpdatedHandler extends AbstractEventProducerHandler<ViewcountUpdatedEvent> {
 
     @Value("${viewcount.updated.event.topic.name}")
