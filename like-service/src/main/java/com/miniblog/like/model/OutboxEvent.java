@@ -5,7 +5,6 @@ import com.miniblog.like.util.ProducedEventType;
 import com.miniblog.like.util.SagaStatus;
 import jakarta.persistence.*;
 import lombok.*;
-import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UuidGenerator;
@@ -47,8 +46,7 @@ public class OutboxEvent {
     @Column(name = "event_type", nullable = false, length = 30)
     private ProducedEventType eventType;
 
-    @Lob
-    @Column(name = "payload", columnDefinition = "TEXT", nullable = false)
+    @Column(name = "payload", nullable = false, length = 255)
     private String payload;
 
     @CreationTimestamp
