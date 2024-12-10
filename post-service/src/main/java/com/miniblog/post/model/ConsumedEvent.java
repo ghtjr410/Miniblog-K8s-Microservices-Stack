@@ -18,8 +18,8 @@ import java.util.UUID;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity
 @EntityListeners(ConsumedEventListener.class)
+@Entity
 @Table(
         name = "consumed_event",
         indexes = {

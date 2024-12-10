@@ -22,7 +22,7 @@ public class OutboxEventService {
     private final OutboxMapper outboxMapper;
 
     public void createOutboxEvent(Comment comment, ProducedEventType eventType) {
-        OutboxEvent outboxEvent = outboxMapper.toOutboxEvent(comment, eventType);
+        OutboxEvent outboxEvent = outboxMapper.createToEntity(comment, eventType);
         outboxEventRepository.save(outboxEvent);
     }
 
