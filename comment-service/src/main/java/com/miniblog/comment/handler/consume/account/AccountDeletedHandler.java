@@ -18,7 +18,7 @@ public class AccountDeletedHandler extends AbstractEventConsumerHandler<AccountD
     private final CommentRepository commentRepository;
 
     @Override
-    public void processEvent(SpecificRecordBase event) {
+    protected void processEvent(SpecificRecordBase event) {
         AccountDeletedEvent accountDeletedEvent = (AccountDeletedEvent) event;
         UUID userUuid = UUID.fromString(accountDeletedEvent.getUserUuid().toString());
         // 댓글 삭제

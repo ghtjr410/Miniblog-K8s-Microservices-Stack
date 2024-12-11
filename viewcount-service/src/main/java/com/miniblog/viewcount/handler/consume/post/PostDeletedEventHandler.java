@@ -18,7 +18,7 @@ public class PostDeletedEventHandler extends AbstractEventConsumerHandler<PostDe
     private final ViewcountRepository viewcountRepository;
 
     @Override
-    public void processEvent(SpecificRecordBase event) {
+    protected void processEvent(SpecificRecordBase event) {
         PostDeletedEvent postDeletedEvent = (PostDeletedEvent) event;
         UUID postUuid = UUID.fromString(postDeletedEvent.getPostUuid().toString());
         viewcountRepository.deleteById(postUuid);

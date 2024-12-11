@@ -18,7 +18,7 @@ public class AccountDeleteHandler extends AbstractEventConsumerHandler<AccountDe
     private final LikeRepository likeRepository;
 
     @Override
-    public void processEvent(SpecificRecordBase event) {
+    protected void processEvent(SpecificRecordBase event) {
         AccountDeletedEvent accountDeletedEvent = (AccountDeletedEvent) event;
         UUID userUuid = UUID.fromString(accountDeletedEvent.getUserUuid().toString());
         // 좋아요 삭제

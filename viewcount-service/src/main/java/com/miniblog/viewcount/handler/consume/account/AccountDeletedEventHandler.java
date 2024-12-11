@@ -18,7 +18,7 @@ public class AccountDeletedEventHandler extends AbstractEventConsumerHandler<Acc
     private final ViewcountRepository viewcountRepository;
 
     @Override
-    public void processEvent(SpecificRecordBase event) {
+    protected void processEvent(SpecificRecordBase event) {
         AccountDeletedEvent accountDeletedEvent = (AccountDeletedEvent) event;
         UUID userUuid = UUID.fromString(accountDeletedEvent.getUserUuid().toString());
         viewcountRepository.deleteByUserUuid(userUuid);

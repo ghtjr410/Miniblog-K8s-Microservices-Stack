@@ -18,7 +18,7 @@ public class AccountDeletedHandler extends AbstractEventConsumerHandler<AccountD
     private final ProfileRepository profileRepository;
 
     @Override
-    public void processEvent(SpecificRecordBase event) {
+    protected void processEvent(SpecificRecordBase event) {
         AccountDeletedEvent accountDeletedEvent = (AccountDeletedEvent) event;
         UUID userUuid = UUID.fromString(accountDeletedEvent.getUserUuid().toString());
         // 프로필 삭제

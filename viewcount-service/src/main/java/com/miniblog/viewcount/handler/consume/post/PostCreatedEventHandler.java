@@ -22,7 +22,7 @@ public class PostCreatedEventHandler extends AbstractEventConsumerHandler<PostCr
     private final ViewcountRepository viewcountRepository;
 
     @Override
-    public void processEvent(SpecificRecordBase event) {
+    protected void processEvent(SpecificRecordBase event) {
         PostCreatedEvent postCreatedEvent = (PostCreatedEvent) event;
         UUID postUuid = UUID.fromString(postCreatedEvent.getPostUuid().toString());
         UUID userUuid = UUID.fromString(postCreatedEvent.getUserUuid().toString());
