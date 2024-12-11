@@ -24,9 +24,9 @@ import java.util.stream.Collectors;
 public class SecurityConfig {
     // 인증 필요 없는 URL
     private final String[] freeResourceUrls = {"/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**",
-            "/swagger-resources/**", "/api-docs/**", "/aggregate/**", "/actuator/health", "/actuator/prometheus", "/api/v1/posts/**"};
-    private final String[] userOnlyResourceUrls = {"/api/v1/images/**", "/api/v1/post/**", "/api/v1/profiles/**"};
-    private final String[] adminOnlyResourceUrls = {"/api/v1/admin/**"};
+            "/swagger-resources/**", "/api-docs/**", "/aggregate/**", "/actuator/health", "/actuator/prometheus", "/api/v1/query-service/**"};
+    private final String[] userOnlyResourceUrls = {"/api/v1/image-service/**", "/api/v1/post-service/**", "/api/v1/like-service/**", "/api/v1/profile-service/**", "/api/v1/viewcount-service/**"};
+    private final String[] adminOnlyResourceUrls = {"/api/v1/admin-service/**"};
 
     private final CustomHeaderRemovalFilter customHeaderRemovalFilter;
 
