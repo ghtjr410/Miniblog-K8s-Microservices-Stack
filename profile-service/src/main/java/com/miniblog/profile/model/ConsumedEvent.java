@@ -23,7 +23,8 @@ import java.util.UUID;
 @Table(
         name = "consumed_event",
         indexes = {
-                @Index(name = "idx_event_saga", columnList = "eventUuid, sagaStatus")
+                @Index(name = "idx_processed_event", columnList = "processed, event_uuid"),
+                @Index(name = "idx_event_saga", columnList = "event_uuid, saga_status")
         }
 )
 public class ConsumedEvent {
