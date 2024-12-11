@@ -13,7 +13,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/profile-service/profile")
+@RequestMapping("/api/v1/profile-service/profiles")
 @RequiredArgsConstructor
 @Validated
 public class ProfileController {

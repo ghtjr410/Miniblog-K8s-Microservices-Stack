@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 public class ViewcountController {
     private final ViewcountService viewcountService;
 
-    @PostMapping("/{postUuid}")
+    @PostMapping("/{postUuid}/total-views/increment")
     public ResponseEntity<Void> incrementViewcount(
             @PathVariable @ValidUuid String postUuid) {
         viewcountService.incrementViewcount(postUuid);
