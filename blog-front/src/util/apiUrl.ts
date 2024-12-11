@@ -1,16 +1,79 @@
-// Local
-export const KEYCLOAK_URL = `http://localhost:8181/`;
-export const API_GATEWAY_URL = `http://localhost:4040`;
+// common
+export const API_VERSION = `/api/v1`;
+export const SERVICE_ROUTES = {
+    IMAGE: '/image-service',
+    POST: '/post-service',
+    COMMENT: '/comment-service',
+    LIKE: '/like-service',
+    PROFILE: '/profile-service',
+    VIEWCOUNT: '/viewcount-service',
+    ACCOUNT: '/account-service',
+    QUERY: '/query-service',
+  };
 
-// EKS
-/**
- * export const KEYCLOAK_URL = 
- * export const API_GATEWAY_URL = 
- */
+// Dev
+export const HTTP = `http://`;
+export const LOCALHOST = 'localhost:';
+export const PORT_NUMBER = {
+    KEYCLOAK: '8181',
+    BLOG: '3000',
+    API_GATEWAY: '4040'
+}
+
+export const KEYCLOAK_URL = `${HTTP}${LOCALHOST}${PORT_NUMBER.KEYCLOAK}/`;
+export const BLOG_URL = `${HTTP}${LOCALHOST}${PORT_NUMBER.BLOG}`;
+export const API_GATEWAY_URL = `${HTTP}${LOCALHOST}${PORT_NUMBER.API_GATEWAY}`;
+
+// Prod
+// export const HTTPS = `https://`;
+// export const ROOT_DOMAIN = `.ghtjr.com`;
+// export const SUB_DOMAINS = {
+//     KEYCLOAK: 'keycloak',
+//     BLOG: 'blog',
+//     API_GATEWAY: 'api'
+// }
+// export const KEYCLOAK_URL = `${HTTPS}${SUB_DOMAINS.KEYCLOAK}${ROOT_DOMAIN}/`;
+// export const BLOG_URL = `${HTTPS}${SUB_DOMAINS.BLOG}${ROOT_DOMAIN}`;
+// export const API_GATEWAY_URL = `${HTTPS}${SUB_DOMAINS.API_GATEWAY}${ROOT_DOMAIN}`;
+ 
 
 // Image Service
 export const CLOUD_FRONT_URL = `https://images.ghtjr.com/`;
-export const API_IMAGE_PRESIGNED_URL = `${API_GATEWAY_URL}/api/v1/images/presigned-url`;
+export const API_IMAGE_URL = `${API_GATEWAY_URL}${API_VERSION}${SERVICE_ROUTES.IMAGE}`;
+export const API_IMAGE_PRESIGNED_URL = `${API_IMAGE_URL}/presigned-url`;
 
 // Post Service
-export const API_POST_CREATE_URL = `${API_GATEWAY_URL}/api/v1/posts`;
+export const API_POST_URL = `${API_GATEWAY_URL}${API_VERSION}${SERVICE_ROUTES.POST}`;
+
+export const API_POST_CREATE_URL = () => `${API_POST_URL}/posts`;
+export const API_POST_UPDATE_URL = (postUuid: string) =>`${API_POST_URL}/posts/${postUuid}`;
+export const API_POST_DELETE_URL = (postUuid: string) =>`${API_POST_URL}/posts/${postUuid}`;
+
+// Comment Service
+export const API_COMMENT_URL = `${API_GATEWAY_URL}${API_VERSION}${SERVICE_ROUTES.COMMENT}`;
+
+export const API_COMMENT_CREATE_URL = () => `${API_COMMENT_URL}/comments`;
+export const API_COMMENT_UPDATE_URL = (commentUuid: string) => `${API_COMMENT_URL}/comments/${commentUuid}`;
+export const API_COMMENT_DELETE_URL = (commentUuid: string) => `${API_COMMENT_URL}/comments/${commentUuid}`;
+
+// Like Service
+export const API_LIKE_URL = `${API_GATEWAY_URL}${API_VERSION}${SERVICE_ROUTES.LIKE}`;
+
+export const API_LIKE_TOGGLE_URL = (postUuid: string) => `${API_LIKE_URL}/posts/${postUuid}/likes/toggle`;
+
+// Profile Service
+export const API_PROFILE_URL = `${API_GATEWAY_URL}${API_VERSION}${SERVICE_ROUTES.PROFILE}`
+
+export const API_PROFILE_CREATE_OR_UPDATE_URL = () =>`${API_PROFILE_URL}/profiles`
+
+// Viewcount Service
+export const API_VIEWCOUNT_URL = `${API_GATEWAY_URL}${API_VERSION}${SERVICE_ROUTES.VIEWCOUNT}`
+
+export const API_VIEWCOUNT_INCREMENT_URL = (postUuid: string) => `${API_VIEWCOUNT_URL}/posts/${postUuid}/total-views/increment`
+
+// Account Service
+export const API_ACCOUNT_URL = `${API_GATEWAY_URL}${API_VERSION}${SERVICE_ROUTES.ACCOUNT}`
+
+// Query Service
+export const API_QUERY_URL = `${API_GATEWAY_URL}${API_VERSION}${SERVICE_ROUTES.QUERY}`
+
