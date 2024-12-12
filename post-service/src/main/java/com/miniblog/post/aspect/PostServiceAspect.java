@@ -15,10 +15,9 @@ import org.springframework.stereotype.Component;
 public class PostServiceAspect {
 
     @Pointcut("execution(* com.miniblog.post.service.post.PostService.*(..))")
-    public void postServiceMethods() {
-    }
+    public void postServiceMethods() {}
 
-    @After("postServiceMethods()")
+    @AfterReturning("postServiceMethods()")
     public void logPostService(JoinPoint joinPoint) {
         log.info("Successfully executed: {}", joinPoint.getSignature());
     }

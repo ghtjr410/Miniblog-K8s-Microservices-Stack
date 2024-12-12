@@ -18,7 +18,7 @@ public class ViewcountAspect {
     public void viewcountServiceMethods() {
     }
 
-    @After("viewcountServiceMethods()")
+    @AfterReturning("viewcountServiceMethods()")
     public void logViewcountService(JoinPoint joinPoint) {
         log.info("Successfully executed: {}", joinPoint.getSignature());
     }
