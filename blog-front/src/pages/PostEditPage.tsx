@@ -6,8 +6,9 @@ import TestHeader from "../components/header/TestHeader";
 import { useNavigation } from "../util/navigation";
 import { ROUTES } from "../constants/routes";
 import '../styles/quillStyle.css'
-import { API_IMAGE_PRESIGNED_URL, API_POST_URL, CLOUD_FRONT_URL } from "../util/apiUrl";
+import { API_IMAGE_PRESIGNED_URL, API_POST_CREATE_URL, API_POST_URL, CLOUD_FRONT_URL } from "../util/apiUrl";
 import axios from "axios";
+import { createPost } from "../service/postService";
 
 interface Props{
     keycloak: Keycloak | null;
@@ -136,34 +137,32 @@ const PostEditPage: React.FC<Props> = ({keycloak}) => {
       };
 
     // ---------------------------------------------------------
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         console.log("Title:", title);
         console.log("Content:", content);
         const token = keycloak?.token;
         const nickname = userInfo?.nickname;
 
-        axios.post(
-            API_POST_URL,
-            {
+        if (!token || !nickname) {
+            console.error("Token or nickname is missing");
+            return;
+          }
+        try {
+            await createPost(
+              {
                 nickname: nickname,
                 title: title,
                 content: content,
-            },
-            {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                },
-            }
-        )
-        .then(response => {
-            console.log('Post creation successful:', response.data);
-        })
-        .catch(error => {
-            console.error('Error creating post:', error.response ? error.response.data : error.message);
-        });
-
-      };
+              },
+              token
+            );
+      
+            console.log("Post created successfully");
+            // 성공 시 최종적일관성을위해 결과페이지로
+          } catch (error) {
+            console.error("Error creating post:", error);
+          }
+    };
 
     // ---------------------------------------------------------
     if(!keycloak?.authenticated) {
