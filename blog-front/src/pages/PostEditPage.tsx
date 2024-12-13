@@ -6,7 +6,7 @@ import TestHeader from "../components/header/TestHeader";
 import { useNavigation } from "../util/navigation";
 import { ROUTES } from "../constants/routes";
 import '../styles/quillStyle.css'
-import { API_IMAGE_PRESIGNED_URL, API_POST_CREATE_URL, CLOUD_FRONT_URL } from "../util/apiUrl";
+import { API_IMAGE_PRESIGNED_URL, API_POST_URL, CLOUD_FRONT_URL } from "../util/apiUrl";
 import axios from "axios";
 
 interface Props{
@@ -21,16 +21,6 @@ const PostEditPage: React.FC<Props> = ({keycloak}) => {
     const quillRef = useRef<ReactQuill>(null);
 
     const { navigateTo } = useNavigation();
-
-    // ---------------------------------------------------------
-    // useEffect(() => {
-    //     // 키클락 객체상태 분기점
-    //     console.log(`keycloak 객체 상태 : ${keycloak}`)
-    //     if (!keycloak?.authenticated) {
-    //         keycloak?.login();
-            
-    //     } 
-    // })
 
     useEffect(() => {
         // 키클락 객체상태 분기점
@@ -153,11 +143,11 @@ const PostEditPage: React.FC<Props> = ({keycloak}) => {
         const nickname = userInfo?.nickname;
 
         axios.post(
-            API_POST_CREATE_URL,
+            API_POST_URL,
             {
+                nickname: nickname,
                 title: title,
                 content: content,
-                nickname: nickname,
             },
             {
                 headers: {
