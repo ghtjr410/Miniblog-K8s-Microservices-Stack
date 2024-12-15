@@ -3,17 +3,17 @@ import Keycloak from 'keycloak-js';
 import { CiBellOn } from "react-icons/ci";
 import { CiSearch } from "react-icons/ci";
 import { CiUser } from "react-icons/ci";
-import { useNavigation } from "../../util/navigation";
-import { ROUTES } from "../../constants/routes";
+import useNavigationHelper from "../../util/navigationUtil";
 
 interface Props{
     keycloak: Keycloak | null;
+    nickname: string | null | undefined;
 }
 
-const TestHeader: React.FC<Props> = ({keycloak}) => {
+const TestHeader: React.FC<Props> = ({keycloak, nickname}) => {
     const [dropdownVisible, setDropdownVisible] = useState<boolean>(false);
+    const { toHome, toPostWrite, toSetting} = useNavigationHelper();
 
-    const { navigateTo } = useNavigation();
 
 
     const handleKeycloak = () => {
@@ -57,9 +57,17 @@ const TestHeader: React.FC<Props> = ({keycloak}) => {
         {/* Header 영역 */}
         <div className="bg-slate-100 shadow-md flex justify-center">
             <div className="bg-slate-200 h-16 max-w-screen-2xl w-full flex items-center justify-between">
-                <div className="bg-slate-300 text-2xl font-bold cursor-pointer">
+                <div 
+                    className="bg-slate-300 text-2xl font-bold cursor-pointer"
+                    onClick={toHome}
+                >
                     MiniBlog
                 </div>
+                {nickname && (
+                    <div className="bg-slate-300 text-2xl font-bold cursor-pointer">
+                        {nickname}
+                    </div>
+                )}
                 <div className="bg-slate-300 flex flex-row gap-4 items-center">
                     <div 
                         className="bg-slate-400 text-3xl cursor-pointer rounded-full p-1"
@@ -87,14 +95,17 @@ const TestHeader: React.FC<Props> = ({keycloak}) => {
                                         </div>
                                         <div 
                                             className="bg-slate-300 px-3 py-4 font-semibold hover:bg-slate-400 hover:text-blue-500"
-                                            onClick={() => navigateTo(ROUTES.POST_EDIT)}
+                                            onClick={toPostWrite}
                                         >
                                             게시글 작성
                                         </div>
                                         <div className="bg-slate-300 px-3 py-4 font-semibold hover:bg-slate-400 hover:text-blue-500">
                                             읽기 목록
                                         </div>
-                                        <div className="bg-slate-300 px-3 py-4 font-semibold hover:bg-slate-400 hover:text-blue-500">
+                                        <div 
+                                            className="bg-slate-300 px-3 py-4 font-semibold hover:bg-slate-400 hover:text-blue-500"
+                                            onClick={toSetting}
+                                        >
                                             설정
                                         </div>
                                         <div 
