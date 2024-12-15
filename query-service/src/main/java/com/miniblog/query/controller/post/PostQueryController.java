@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/v1/query")
+@RequestMapping("/api/v1/query-service")
 @RequiredArgsConstructor
 @Slf4j
 public class PostQueryController {

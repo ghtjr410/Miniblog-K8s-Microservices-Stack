@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/v1/query")
+@RequestMapping("/api/v1/query-service")
 @RequiredArgsConstructor
 @Slf4j
 public class UserQueryController {
