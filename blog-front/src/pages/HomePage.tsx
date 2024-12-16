@@ -2,12 +2,13 @@ import React, { useEffect, useRef, useState } from "react";
 import TestHeader from "../components/header/TestHeader";
 import Keycloak from "keycloak-js";
 import { CiWavePulse1, CiClock2, CiHeart } from "react-icons/ci";
-import axios from "axios";
-import { API_QUERY_URL } from "../util/apiUrl";
 import DOMPurify from 'dompurify';
 import { getLatestPosts, getMostLikedPosts, getMostViewedPosts } from "../service/queryService.public";
 import './../styles/image-hidden.css';
 import { formatDate } from "../util/dateUtil";
+import { useNavigate } from "react-router-dom";
+import { ROUTES } from "../constants/routes";
+import useNavigationHelper from "../util/navigationUtil";
 
 interface Props{
     keycloak: Keycloak | null;
@@ -36,6 +37,8 @@ const HomePage: React.FC<Props> = ({ keycloak }) => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [hasError, setHasError] = useState<boolean>(false);
     const sentinelRef = useRef<HTMLDivElement | null>(null);
+
+    const { toPostDetail } = useNavigationHelper();
 
     const handleSortChange = (option: SortOption) => {
         setSelectedSort(option);
@@ -113,9 +116,12 @@ const HomePage: React.FC<Props> = ({ keycloak }) => {
 
 
 
+
+
+
     return (
         <div className="flex flex-col h-full">
-            <TestHeader keycloak={keycloak} />
+            <TestHeader keycloak={keycloak} nickname={null}/>
 
             <div className="flex flex-row min-h-0 gap-2 max-w-screen-2xl mx-auto w-full shadow-custom-default text-lg font-bold items-center p-4">
                 <div className={getButtonClasses('views')} onClick={() => handleSortChange('views')}>
@@ -157,7 +163,7 @@ const HomePage: React.FC<Props> = ({ keycloak }) => {
                             {imageUrl && (
                                 <div 
                                     className="w-full h-40 overflow-hidden cursor-pointer"
-                                    onClick={() => alert(`Post UUID: ${item.postUuid}`)}
+                                    onClick={() => toPostDetail(item.nickname, item.postUuid)}
                                 >
                                     <img
                                         src={imageUrl}
@@ -168,7 +174,7 @@ const HomePage: React.FC<Props> = ({ keycloak }) => {
                             )}
                             <div 
                                 className="m-4 cursor-pointer"
-                                onClick={() => alert(`Post UUID: ${item.postUuid}`)}
+                                onClick={() => toPostDetail(item.nickname, item.postUuid)}
                             >
                                 <div className="mb-1 text-base font-bold truncate">
                                     {item.title}

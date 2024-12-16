@@ -4,39 +4,112 @@ import ReactQuill from "react-quill-new";
 import 'react-quill-new/dist/quill.snow.css';
 import TestHeader from "../components/header/TestHeader";
 import { useNavigation } from "../util/navigation";
-import { ROUTES } from "../constants/routes";
 import '../styles/quillStyle.css'
-import { API_IMAGE_PRESIGNED_URL, API_POST_CREATE_URL, API_POST_URL, CLOUD_FRONT_URL } from "../util/apiUrl";
+import { API_IMAGE_PRESIGNED_URL, CLOUD_FRONT_URL } from "../util/apiUrl";
 import axios from "axios";
-import { createPost } from "../service/postService";
+import { createPost, updatePost } from "../service/postService";
+import useNavigationHelper from "../util/navigationUtil";
+import { useLocation, useParams, useSearchParams } from "react-router-dom";
+import { getPostDetail } from "../service/queryService.public";
+
 
 interface Props{
     keycloak: Keycloak | null;
+    keycloakStatus: "loading" | "authenticated" | "unauthenticated";
 }
 
-const PostEditPage: React.FC<Props> = ({keycloak}) => {
+interface PostDetailData{
+  postUuid: string;
+  userUuid: string;
+  nickname: string;
+  title: string;
+  content: string;
+  createdDate: string;
+  updatedDate: string;
+  viewcount: number;
+  likeCount: number;
+  commentCount: number;
+}
+
+interface PostEditData{
+  userUuid: string;
+  title: string;
+  content: string;
+}
+
+
+const initialPostEditData: PostEditData = {
+  userUuid: "",
+  title: "",
+  content: "",
+}
+
+const PostEditPage: React.FC<Props> = ({keycloak, keycloakStatus}) => {
+    const { toHome } = useNavigationHelper();
+    const [searchParams] = useSearchParams();
+    const postUuid = searchParams.get("id");
+    const { toPostDetailPreRead } = useNavigationHelper();
     const [userInfo, setUserInfo] = useState<null | Record<string, any>>(null);
+    const [isUserInfoLoaded, setIsUserInfoLoaded] = useState<boolean>(false);
     const [title, setTitle] = useState<string>(''); 
     const titleRef = useRef<HTMLTextAreaElement>(null);
     const [content, setContent] = useState<string>('');
     const quillRef = useRef<ReactQuill>(null);
-
-    const { navigateTo } = useNavigation();
+    const [postEditData, setPostEditData] = useState<PostEditData>(initialPostEditData);
 
     useEffect(() => {
         // 키클락 객체상태 분기점
-        console.log(`keycloak 객체 상태 : ${keycloak}`)
+        console.log(`keycloak 객체 상태 : ${keycloak} : ${keycloakStatus}` )
+        if(keycloakStatus === "unauthenticated") {
+          alert("인증필요");
+          toHome();
+          return;
+        }
         if (keycloak && keycloak.authenticated) {
             // 사용자 정보 로드
             keycloak.loadUserInfo().then((userInfo) => {
                 setUserInfo(userInfo);
+                setIsUserInfoLoaded(true);
                 console.log(JSON.stringify(userInfo));
-                
             });
-        } else {
-            keycloak?.login();
         }
-    }, [keycloak]);
+
+    }, [keycloak, keycloakStatus]);
+
+    const fetchPostDetail = (postUuid: string) => {
+        getPostDetail(postUuid)
+        .then((response) => {
+            console.log(response);
+            setPostEditData(response.post);
+        })
+        .catch((error) => {
+            console.error("데이터가져오는데 실패", error);
+            toHome();
+        })
+    }
+
+    useEffect(() => {
+      console.log("postuuid 있니?" + postUuid);
+      console.log(`isUserInfoLoaded 상태 : ${isUserInfoLoaded}`);
+        if (postUuid && isUserInfoLoaded) {
+            fetchPostDetail(postUuid);
+        }
+    }, [postUuid, isUserInfoLoaded]);
+
+    useEffect(() => {
+        // postEditData가 업데이트되면 title과 content에 값을 설정
+        if (postEditData.userUuid) {
+            console.log(postEditData.userUuid + " - " + userInfo?.sub)
+            if (postEditData.userUuid !== userInfo?.sub) {
+              alert("자신의 게시글이 아닙니다")
+              toHome();
+              return;
+            }
+            setTitle(postEditData.title);
+            setContent(postEditData.content);
+            autoResizeTitle(); 
+        }
+    }, [postEditData]);
 
 
     // ---------------------------------------------------------
@@ -45,14 +118,14 @@ const PostEditPage: React.FC<Props> = ({keycloak}) => {
         autoResizeTitle();
     };
     const autoResizeTitle = () => {
-        if (titleRef.current) {
-            titleRef.current.style.height = 'auto'; // 초기화
-            titleRef.current.style.height = `${titleRef.current.scrollHeight}px`; // 스크롤 높이로 설정
-        }
+      requestAnimationFrame(() => {
+        titleRef.current!.style.height = 'auto'; // 초기화
+        titleRef.current!.style.height = `${titleRef.current!.scrollHeight}px`; // 스크롤 높이로 설정
+    });
     };
     // ---------------------------------------------------------
 
-    const imageHandler = useCallback(async ()=> {
+    const imageHandler = useCallback(async ()=> { 
         const input = document.createElement('input');
         input.setAttribute('type', 'file');
         input.setAttribute('accept', 'image/*');
@@ -146,22 +219,74 @@ const PostEditPage: React.FC<Props> = ({keycloak}) => {
         if (!token || !nickname) {
             console.error("Token or nickname is missing");
             return;
+        }
+
+        if (postUuid) {
+          if (postEditData.userUuid !== userInfo?.sub) {
+            alert("자신의 게시글이 아닙니다")
+            toHome();
+            return;
           }
-        try {
-            await createPost(
-              {
-                nickname: nickname,
-                title: title,
-                content: content,
-              },
-              token
-            );
-      
+          updatePost(
+            {
+              title: title,
+              content: content,
+            },
+            postUuid,
+            token
+          )
+          .then((response) => {
+            const newPostDetailData: PostDetailData = {
+              postUuid: response.postUuid,
+              userUuid: userInfo?.sub || "", // Keycloak에서 사용자 UUID 가져오기
+              nickname: response.nickname,
+              title: response.title,
+              content: response.content,
+              createdDate: response.createdDate,
+              updatedDate: response.updatedDate,
+              viewcount: 0,
+              likeCount: 0,
+              commentCount: 0,
+            };
+            console.log("Post updated successfully");
+            // 사전 읽기 네비게이션 호출
+            toPostDetailPreRead(nickname, response.postUuid, newPostDetailData);
+  
+          })
+          .catch((error) => {
+            console.error("Error updating post:", error);
+          })
+        } else {
+          createPost(
+            {
+              nickname: nickname,
+              title: title,
+              content: content,
+            },
+            token
+          )
+          .then((response) => {
+            const newPostDetailData: PostDetailData = {
+              postUuid: response.postUuid,
+              userUuid: userInfo?.sub || "", // Keycloak에서 사용자 UUID 가져오기
+              nickname: response.nickname,
+              title: response.title,
+              content: response.content,
+              createdDate: response.createdDate,
+              updatedDate: response.updatedDate,
+              viewcount: 0,
+              likeCount: 0,
+              commentCount: 0,
+            };
             console.log("Post created successfully");
-            // 성공 시 최종적일관성을위해 결과페이지로
-          } catch (error) {
+            // 사전 읽기 네비게이션 호출
+            toPostDetailPreRead(nickname, response.postUuid, newPostDetailData);
+  
+          })
+          .catch((error) => {
             console.error("Error creating post:", error);
-          }
+          })
+        }
     };
 
     // ---------------------------------------------------------
@@ -177,7 +302,7 @@ const PostEditPage: React.FC<Props> = ({keycloak}) => {
     return (
         <div className="flex flex-col h-full overflow-hidden ">
             {/* 헤더 */}
-            <TestHeader keycloak={keycloak}/>
+            <TestHeader keycloak={keycloak} nickname={null}/>
             {/* 본문 */}
             <div className="flex-1 flex flex-col min-h-0 gap-2 pt-4 max-w-screen-2xl mx-auto w-full shadow-custom-default">
                 {/* 타이틀 */}

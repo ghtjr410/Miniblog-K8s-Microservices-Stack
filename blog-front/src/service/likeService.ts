@@ -5,6 +5,7 @@ export const toggleLike = async (postUuid: string, token: string) => {
     try {
         const response = await axios.post(
             API_LIKE_TOGGLE_URL(postUuid),
+            {},
             {
                 headers: {
                     Authorization: `Bearer ${token}`,

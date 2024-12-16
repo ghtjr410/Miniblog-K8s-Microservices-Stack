@@ -12,7 +12,7 @@ export const ROUTES = {
 
 export const DYNAMIC_ROUTES = {
     POST_DETAIL: (nickname: string = ":nickname", postUuid: string = ":postUuid") => `/user/${nickname}/posts/${postUuid}`,
-    POST_REWRITE: (id: string = ":id") => `/write?id=${id}`,
+    POST_REWRITE: (postUuid: string = ":id") => `/write?id=${postUuid}`,
     USER_BLOG: (nickname: string = ":nickname") => `/${nickname}/posts`
 }
 
