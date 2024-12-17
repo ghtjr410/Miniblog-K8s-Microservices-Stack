@@ -24,8 +24,8 @@ import java.util.stream.Collectors;
 public class SecurityConfig {
     // 인증 필요 없는 URL
     private final String[] freeResourceUrls = {"/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**",
-            "/swagger-resources/**", "/api-docs/**", "/aggregate/**", "/actuator/health", "/actuator/prometheus", "/api/v1/query-service/**"};
-    private final String[] userOnlyResourceUrls = {"/api/v1/image-service/**", "/api/v1/post-service/**", "/api/v1/like-service/**", "/api/v1/profile-service/**", "/api/v1/viewcount-service/**"};
+            "/swagger-resources/**", "/api-docs/**", "/aggregate/**", "/actuator/health", "/actuator/prometheus", "/api/v1/query-service/**", "/api/v1/viewcount-service/**"};
+    private final String[] userOnlyResourceUrls = {"/api/v1/image-service/**", "/api/v1/post-service/**", "/api/v1/like-service/**", "/api/v1/profile-service/**"};
     private final String[] adminOnlyResourceUrls = {"/api/v1/admin-service/**"};
 
     private final CustomHeaderRemovalFilter customHeaderRemovalFilter;
@@ -33,6 +33,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
+                .csrf(csrf -> csrf.ignoringRequestMatchers("/api/v1/viewcount-service/**")) // 특정 경로에서만 CSRF 보호 비활성화
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(freeResourceUrls).permitAll()
                         .requestMatchers(userOnlyResourceUrls).hasRole("user")
