@@ -16,7 +16,7 @@ import java.time.Instant;
 @CompoundIndexes({
         @CompoundIndex(name = "post_created_idx", def = "{'postUuid': 1, 'createdDate': -1}")
 })
-@Document(collection = "comment")
+@Document(collection = "comments")
 public class Comment {
     @Id
     private String commentUuid;

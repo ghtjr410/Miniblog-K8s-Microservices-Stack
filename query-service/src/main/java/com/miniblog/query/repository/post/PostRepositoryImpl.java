@@ -1,6 +1,5 @@
 package com.miniblog.query.repository.post;
 
-import com.miniblog.query.model.Comment;
 import com.miniblog.query.model.Post;
 import com.mongodb.client.result.UpdateResult;
 import lombok.RequiredArgsConstructor;
@@ -16,8 +15,8 @@ public class PostRepositoryImpl implements PostIncrementOperations, PostDecremen
     private final MongoOperations mongoOperations;
 
     @Override
-    public boolean incrementViewcount(String postUuid) {
-        return modifyField(postUuid, "viewcount", 1);
+    public boolean incrementTotalViews(String postUuid) {
+        return modifyField(postUuid, "TotalViews", 1);
     }
 
     @Override
@@ -59,7 +58,7 @@ public class PostRepositoryImpl implements PostIncrementOperations, PostDecremen
     }
 
     private boolean modifyFieldWithLimit(String postUuid, String fieldName, int delta, int minValue) {
-        Query query = new Query(Criteria.where("postUuid").is(postUuid).and(fieldName).gt(minValue - delta));
+        Query query = new Query(Criteria.where("postUuid").is(postUuid).and(fieldName).gte(minValue - delta));
         Update update = new Update().inc(fieldName, delta);
         UpdateResult result = mongoOperations.updateFirst(query, update, Post.class);
         return result.getModifiedCount() > 0;

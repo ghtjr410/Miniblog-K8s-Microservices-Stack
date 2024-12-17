@@ -56,9 +56,9 @@ public class UserQueryService {
         return postRepository.findByUserUuidOrderByLikeCountDesc(userUuid, pageable);
     }
     //6. 사용자 UUID를 기준으로 작성한 게시글 조회수순으로 20개씩 가져오기
-    public Page<Post> getPostsByUserOrderByViewCountDesc(String userUuid, int page, int size) {
+    public Page<Post> getPostsByUserOrderByTotalViewsDesc(String userUuid, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        return postRepository.findByUserUuidOrderByViewCountDesc(userUuid, pageable);
+        return postRepository.findByUserUuidOrderByTotalViewsDesc(userUuid, pageable);
     }
     //7. 사용자 UUID를 기준으로 프로필 정보 가져오기
     public Optional<Profile> getProfileByUserUuid(String userUuid) {

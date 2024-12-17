@@ -10,11 +10,11 @@ import java.time.Instant;
 
 @Data
 @Builder
-@Document(collection = "post")
+@Document(collection = "posts")
 @CompoundIndexes({
         @CompoundIndex(name = "user_createdDate_idx", def = "{'userUuid': 1, 'createdDate': -1}"),
         @CompoundIndex(name = "user_likeCount_idx", def = "{'userUuid': 1, 'likeCount': -1}"),
-        @CompoundIndex(name = "user_viewCount_idx", def = "{'userUuid': 1, 'viewCount': -1}")
+        @CompoundIndex(name = "user_totalViews_idx", def = "{'userUuid': 1, 'totalViews': -1}")
 })
 public class Post {
     @Id
@@ -34,6 +34,6 @@ public class Post {
 
     // 집계 필드
     private Integer likeCount;
-    private Integer viewCount;
+    private Integer totalViews;
     private Integer commentCount;
 }

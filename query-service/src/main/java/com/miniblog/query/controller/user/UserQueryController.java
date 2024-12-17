@@ -53,11 +53,11 @@ public class UserQueryController {
     }
     // 6. 사용자 UUID를 기준으로 작성한 게시글 조회수순으로 20개씩 가져오기
     @GetMapping("/user/{userUuid}/posts/most-viewed")
-    public Page<Post> getPostsByUserOrderByViewCountDesc(
+    public Page<Post> getPostsByUserOrderByTotalViewsDesc(
             @PathVariable String userUuid,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
-        return userService.getPostsByUserOrderByViewCountDesc(userUuid, page, size);
+        return userService.getPostsByUserOrderByTotalViewsDesc(userUuid, page, size);
     }
     // 7. 사용자 UUID를 기준으로 프로필 정보 가져오기
     @GetMapping("/user/{userUuid}/profile")

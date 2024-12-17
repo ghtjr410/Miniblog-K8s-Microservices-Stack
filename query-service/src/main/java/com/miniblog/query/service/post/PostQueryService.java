@@ -31,9 +31,9 @@ public class PostQueryService {
         return postRepository.findAllByOrderByLikeCountDesc(pageable);
     }
     // 12. 전체 게시글 조회수순으로 40개씩 가져오기
-    public Page<Post> getAllPostsOrderByViewCountDesc(int page, int size) {
+    public Page<Post> getAllPostsOrderByTotalViewsDesc(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        return postRepository.findAllByOrderByViewCountDesc(pageable);
+        return postRepository.findAllByOrderByTotalViewsDesc(pageable);
     }
     // 13. 전체 범위 제목으로 검색하기
     public Page<Post> searchAllPostsByTitle(String title, int page, int size) {

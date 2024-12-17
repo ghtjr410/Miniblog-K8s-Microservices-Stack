@@ -8,7 +8,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
 @Builder
-@Document(collection = "profile")
+@Document(collection = "profiles")
 public class Profile {
     @Id
     private String profileUuid;

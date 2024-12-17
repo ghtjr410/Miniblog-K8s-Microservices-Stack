@@ -18,7 +18,7 @@ public class LikeCreatedConsumer extends GenericConsumer<LikeCreatedEvent> {
 
     @Override
     protected ConsumedEventType getConsumedEventType() {
-        return ConsumedEventType.COMMENT_CREATE;
+        return ConsumedEventType.LIKE_CREATE;
     }
 
     @Override

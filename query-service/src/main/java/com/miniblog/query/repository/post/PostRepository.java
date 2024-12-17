@@ -8,7 +8,6 @@ import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface PostRepository extends MongoRepository<Post, String>, PostIncrementOperations, PostDecrementOperations, PostUpdateOperations {
@@ -16,13 +15,13 @@ public interface PostRepository extends MongoRepository<Post, String>, PostIncre
     List<Post> findByUserUuid(String userUuid);
     Page<Post> findByUserUuidOrderByCreatedDateDesc(String userUuid, Pageable pageable);
     Page<Post> findByUserUuidOrderByLikeCountDesc(String userUuid, Pageable pageable);
-    Page<Post> findByUserUuidOrderByViewCountDesc(String userUuid, Pageable pageable);
+    Page<Post> findByUserUuidOrderByTotalViewsDesc(String userUuid, Pageable pageable);
     Page<Post> findByUserUuidAndTitleContaining(String userUuid, String title, Pageable pageable);
     Page<Post> findByUserUuidAndContentContaining(String userUuid, String content, Pageable pageable);
 
     Page<Post> findAllByOrderByCreatedDateDesc(Pageable pageable);
     Page<Post> findAllByOrderByLikeCountDesc(Pageable pageable);
-    Page<Post> findAllByOrderByViewCountDesc(Pageable pageable);
+    Page<Post> findAllByOrderByTotalViewsDesc(Pageable pageable);
     Page<Post> findByTitleContaining(String title, Pageable pageable);
     Page<Post> findByContentContaining(String content, Pageable pageable);
     void deleteByUserUuid(String userUuid);

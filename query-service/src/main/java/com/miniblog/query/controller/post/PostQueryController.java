@@ -34,10 +34,10 @@ public class PostQueryController {
     }
     // 12. 전체 게시글 조회수순으로 40개씩 가져오기
     @GetMapping("/posts/most-viewed")
-    public Page<Post> getAllPostsOrderByViewCountDesc(
+    public Page<Post> getAllPostsOrderByTotalViewsDesc(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "40") int size) {
-        return basicService.getAllPostsOrderByViewCountDesc(page, size);
+        return basicService.getAllPostsOrderByTotalViewsDesc(page, size);
     }
     // 13. 전체 범위 제목으로 검색하기
     @GetMapping("/posts/search/title")

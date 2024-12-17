@@ -20,7 +20,7 @@ public class PostMapper {
                 .createdDate(Instant.ofEpochMilli(postCreatedEvent.getCreatedDate()))
                 .updatedDate(Instant.ofEpochMilli(postCreatedEvent.getUpdatedDate()))
                 .likeCount(0)
-                .viewCount(0)
+                .totalViews(0)
                 .commentCount(0)
                 .build();
     }
