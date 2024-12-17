@@ -22,7 +22,7 @@ public class PostCreatedConsumer extends GenericConsumer<PostCreatedEvent> {
     }
 
     @Override
-    protected String topicName() {
+    public String topicName() {
         return topicName;
     }
 }

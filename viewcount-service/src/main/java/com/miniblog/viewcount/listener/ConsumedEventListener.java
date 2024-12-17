@@ -11,16 +11,16 @@ import java.time.Instant;
 public class ConsumedEventListener {
 
     @PrePersist
-    public void prePersist(ConsumedEvent kafkaProcessedEvent) {
-        if (kafkaProcessedEvent.getSagaStatus() == null) {
-            kafkaProcessedEvent.setSagaStatus(SagaStatus.PROCESSING);
+    public void prePersist(ConsumedEvent consumedEvent) {
+        if (consumedEvent.getSagaStatus() == null) {
+            consumedEvent.setSagaStatus(SagaStatus.PROCESSING);
         }
-        if (kafkaProcessedEvent.getCreatedDate() == null) {
-            kafkaProcessedEvent.setCreatedDate(Instant.now());
+        if (consumedEvent.getCreatedDate() == null) {
+            consumedEvent.setCreatedDate(Instant.now());
         }
-        if (kafkaProcessedEvent.getProcessed() == null) {
-            kafkaProcessedEvent.setProcessed(false);
+        if (consumedEvent.getProcessed() == null) {
+            consumedEvent.setProcessed(false);
         }
-        log.info("KafkaProcessed is about to be created = {}", kafkaProcessedEvent);
+        log.info("ConsumedEvent is about to be created = {}", consumedEvent);
     }
 }

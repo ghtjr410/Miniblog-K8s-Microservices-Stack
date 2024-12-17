@@ -8,6 +8,7 @@ import org.apache.avro.specific.SpecificRecordBase;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
@@ -23,6 +24,7 @@ public abstract class GenericConsumer<T extends SpecificRecordBase> {
             topics = "#{__listener.topicName()}",
             groupId = "${viewcount.consumer.group-id}",
             containerFactory = "kafkaListenerContainerFactory")
+    @Transactional
     public void consume(ConsumerRecord<String, T> record, Acknowledgment ack) {
         log.info("Received {}: topic={}, key={}, value={}", getConsumedEventType(), record.topic(), record.key(), record.value());
         UUID eventUuid = UUID.fromString(record.key());

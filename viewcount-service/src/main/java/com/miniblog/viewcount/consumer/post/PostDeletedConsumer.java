@@ -22,7 +22,7 @@ public class PostDeletedConsumer extends GenericConsumer<PostDeletedEvent> {
     }
 
     @Override
-    protected String topicName() {
+    public String topicName() {
         return topicName;
     }
 }

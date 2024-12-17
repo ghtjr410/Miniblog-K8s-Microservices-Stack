@@ -10,7 +10,7 @@ public class ViewcountMapper {
     public Viewcount createToEntity(UUID postUuid, UUID userUuid) {
         return Viewcount.builder()
                 .postUuid(postUuid)
-                .userUuid()
+                .userUuid(userUuid)
                 .build();
     }
 }
