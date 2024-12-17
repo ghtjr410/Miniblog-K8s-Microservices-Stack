@@ -12,6 +12,7 @@ import { incrementViewcount } from "../service/viewcountService";
 import { getUserLikedPosts } from "../service/queryService.auth";
 import { toggleLike } from "../service/likeService";
 import { FaHeart } from "react-icons/fa";
+import { BsList, BsX, BsXCircle } from "react-icons/bs";
 
 interface Props{
     keycloak: Keycloak | null;
@@ -74,10 +75,11 @@ const PostDetailPage: React.FC<Props> = ({ keycloak, keycloakStatus }) => {
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const { toHome, toPostRewrite } = useNavigationHelper();
     const location = useLocation();
-    
-    const [isLikeBtnVisible, setIsLikeBtnVisible] = useState(true);
-    const likeBtnRef = useRef<HTMLButtonElement>(null);
+
     const [likeBtnPosition, setLikeBtnPosition] = useState("50%");
+
+    const [isSideVisible, setIsSideVisible] = useState<boolean>(true);
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
 
     // 1번
     useEffect(() => {
@@ -136,27 +138,17 @@ const PostDetailPage: React.FC<Props> = ({ keycloak, keycloakStatus }) => {
         }
     }, [isUserInfoLoaded]);
 
-
     useEffect(() => {
-        const observer = new IntersectionObserver(
-            ([entry]) => {
-                const visibility = entry.isIntersecting;
-                console.log(`Button visibility changed: ${visibility}`);
-                setIsLikeBtnVisible(entry.isIntersecting);
-            },
-            { threshold: 0 }
-        );
-    
-        if (likeBtnRef.current) {
-            console.log("Observing the button...");
-            observer.observe(likeBtnRef.current);
-        }
-    
+        // 브라우저 너비에 따른 콘솔 출력 함수
+        // 컴포넌트가 마운트될 때 한 번 실행
+        handleResize();
+
+        // 이벤트 리스너 등록
+        window.addEventListener("resize", handleResize);
+
+        // 컴포넌트가 언마운트될 때 이벤트 리스너 해제
         return () => {
-            if (likeBtnRef.current) {
-                console.log("Stopping observation of the button...");
-                observer.unobserve(likeBtnRef.current);
-            }
+            window.removeEventListener("resize", handleResize);
         };
     }, []);
 
@@ -208,6 +200,16 @@ const PostDetailPage: React.FC<Props> = ({ keycloak, keycloakStatus }) => {
             setLikeBtnPosition("20%");
         } else {
             setLikeBtnPosition("50%");
+        }
+    };
+    const handleResize = () => {
+        if (window.innerWidth <= 1080) {
+            console.log("현재 브라우저 너비는 1080px 이하입니다.");
+            setIsSideVisible(false);
+        } else {
+            console.log("현재 브라우저 너비는 1080px 초과입니다.");
+            setIsSideVisible(true);
+            setIsMobileMenuOpen(false); // 화면 크기가 커지면 모바일 메뉴 닫기
         }
     };
 
@@ -429,193 +431,247 @@ const PostDetailPage: React.FC<Props> = ({ keycloak, keycloakStatus }) => {
     return (
         <div className="flex flex-col ">
             <TestHeader keycloak={keycloak} nickname={nickname} />
-            <div className="flex-1 flex flex-col min-h-0 gap-2 pt-4 max-w-screen-md mx-auto w-full shadow-custom-default px-3">
-                {/* 제목 */}
-                <div className="mt-20 text-5xl font-bold bg-slate-100 leading-snug">
-                    {postDetailData.title}
-                </div>
-                {/* 게시글 정보 */}
-                <div className="flex mt-8 justify-between">
-                    <div className="flex text-base gap-2">
-                        <div className="font-bold">
-                            {postDetailData.nickname}
+            <div className="flex justify-center min-h-screen bg-gray-50">
+                <div className="flex w-full max-w-screen-lg">
+                    {/* 왼쪽 목록 영역 */}
+                    {(isSideVisible || isMobileMenuOpen) && (
+                    <div
+                        className={`w-80 p-4 bg-gray-100 h-screen overflow-y-auto 
+                        ${isMobileMenuOpen && 'fixed left-0 top-0 translate-x-0 shadow-custom-default'}`
+                    }>
+
+                        <div className="flex justify-between mb-4">
+                            <div className="text-xl font-bold ">게시글 목록</div>
+                            {isMobileMenuOpen && (
+                                <button className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-full hover:bg-gray-200 ">
+                                    <BsX size={35} onClick={() => setIsMobileMenuOpen(false)}/>
+                                </button>
+                            )}
+                            
                         </div>
-                        <div>·</div>
-                        <div>
-                            {formatDate(postDetailData.createdDate)}
-                        </div>
+                        <ul className="space-y-2">
+                            <li className="p-2 bg-white shadow rounded cursor-pointer hover:bg-gray-200">
+                                게시글 타이틀 1
+                            </li>
+                            <li className="p-2 bg-white shadow rounded cursor-pointer hover:bg-gray-200">
+                                게시글 타이틀 2
+                            </li>
+                            <li className="p-2 bg-white shadow rounded cursor-pointer hover:bg-gray-200">
+                                게시글 타이틀 3
+                            </li>
+                            <li className="p-2 bg-white shadow rounded cursor-pointer hover:bg-gray-200">
+                                게시글 타이틀 4
+                            </li>
+                            <li className="p-2 bg-white shadow rounded cursor-pointer hover:bg-gray-200">
+                                게시글 타이틀 5
+                            </li>
+                        </ul>
                     </div>
-                    {postDetailData.userUuid === userInfo?.sub &&(
-                        <div className="flex gap-2 text-gray-500">
-                            <div 
-                                className="cursor-pointer hover:text-black"
-                                onClick={() => toPostRewrite(postDetailData.postUuid)}
-                            >
-                                수정
-                            </div>
-                            <div 
-                                className="cursor-pointer hover:text-black"
-                                onClick={() => handleDeletePost(postDetailData.userUuid, postDetailData.postUuid)}
-                            >
-                                삭제
-                            </div>
-                        </div>
                     )}
-                </div>
-                {/* 내용 */}
-                <div 
-                    className="mt-4"
-                    dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(postDetailData.content) }}
-                >
-                    {/* {postDetailData.content} */}
-                </div>
-                {/* 댓글 작성 */}
-                <div className="bg-slate-100 flex-col border-t">
-                    <div className="mt-2 font-bold text-lg">
-                        {postDetailData.commentCount}개의 댓글
-                    </div>
-                    <textarea
-                        className="p-3 mt-2 w-full focus:outline-none border border-gray-300 rounded-md resize-none"
-                        onChange={handleTitleChange}
-                        placeholder="댓글을 입력하세요"
-                        style={{ minHeight: "100px", overflow: "hidden" }}
-                        onInput={(e) => {
-                            const target = e.target as HTMLTextAreaElement;
-                            target.style.height = "auto"; // 높이 초기화
-                            target.style.height = `${target.scrollHeight}px`; // 높이를 내용에 맞게 조정
-                        }}
-                    />
-                    <div className="mt-4 flex justify-end">
-                        <button 
-                            className="bg-blue-500 text-white px-6 py-2 rounded cursor-pointer hover:bg-blue-600"
-                            onClick={handleCommentSumit}
-                        >
-                            댓글 작성
-                        </button>
-                    </div>
-                </div>
-                {/* 댓글 리스트 */}
-                <div className="mt-4 bg-slate-200 flex flex-col">
-                {comments.length > 0 ? (
-                    comments.map((comment) => (
-                        <div key={comment.commentUuid} className="py-6 bg-slate-300 flex flex-col border-t border-black">
-                            <div className="flex justify-between">
+
+                    <div className="flex-1 flex flex-col min-h-0 gap-2 pt-4 max-w-screen-md mx-auto w-full shadow-custom-default px-3">
+                        {/* 제목 */}
+                        <div className="mt-20 text-5xl font-bold bg-slate-100 leading-snug">
+                            {postDetailData.title}
+                        </div>
+                        {/* 게시글 정보 */}
+                        <div className="flex mt-8 justify-between">
+                            <div className="flex text-base gap-2">
+                                <div className="font-bold">
+                                    {postDetailData.nickname}
+                                </div>
+                                <div>·</div>
                                 <div>
-                                    <div className="text-lg font-bold">{comment.nickname}</div>
-                                    <div className="text-gray-500">{formatDate(comment.createdDate)}</div>
+                                    {formatDate(postDetailData.createdDate)}
                                 </div>
-                                {comment.userUuid === userInfo?.sub && (
-                                    <div className="flex gap-2 text-gray-500">
-                                        {editCommentId !== comment.commentUuid && (
-                                            <div 
-                                                className="cursor-pointer hover:text-black"
-                                                onClick={() => handleEditClick(comment)}
-                                            >
-                                                수정
-                                            </div>    
-                                        )}
-                                        
-                                        <div 
-                                            className="cursor-pointer hover:text-black"
-                                            onClick={() => handleDeleteComment(comment.userUuid, comment.commentUuid)}
-                                        >
-                                            삭제
-                                        </div>
-                                    </div>
-                                )}
                             </div>
-                            {editCommentId === comment.commentUuid ? (
-                                // 수정 모드
-                                <div className="mt-4">
-                                    <textarea
-                                        ref={textareaRef}
-                                        className="p-3 w-full focus:outline-none border border-gray-300 rounded-md resize-none"
-                                        value={editContent}
-                                        onChange={(e) => setEditContent(e.target.value)}
-                                        style={{ minHeight: "100px", overflow: "hidden" }}
-                                        onInput={(e) => {
-                                            const target = e.target as HTMLTextAreaElement;
-                                            target.style.height = "auto"; // 높이 초기화
-                                            target.style.height = `${target.scrollHeight}px`; // 높이를 내용에 맞게 조정
-                                        }}
-                                    />
-                                    <div className="mt-4 flex justify-end">
-                                        <div className="flex gap-2">
-                                            <button
-                                                className="bg-blue-500 text-white px-6 py-2 rounded cursor-pointer hover:bg-blue-600"
-                                                onClick={handleEditCancel}
-                                            >
-                                                취소
-                                            </button>
-                                            <button
-                                                className="bg-blue-500 text-white px-6 py-2 rounded cursor-pointer hover:bg-blue-600"
-                                                onClick={handleEditSubmit}
-                                            >
-                                                댓글 수정
-                                            </button>
-                                        </div>
+                            {postDetailData.userUuid === userInfo?.sub &&(
+                                <div className="flex gap-2 text-gray-500">
+                                    <div 
+                                        className="cursor-pointer hover:text-black"
+                                        onClick={() => toPostRewrite(postDetailData.postUuid)}
+                                    >
+                                        수정
                                     </div>
-                                </div>
-                            ) : (
-                                // 기본 모드
-                                <div 
-                                    className="mt-4 leading-loose"
-                                    dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(comment.content.replace(/\n/g, '<br>')) }}
-                                >
+                                    <div 
+                                        className="cursor-pointer hover:text-black"
+                                        onClick={() => handleDeletePost(postDetailData.userUuid, postDetailData.postUuid)}
+                                    >
+                                        삭제
+                                    </div>
                                 </div>
                             )}
                         </div>
-                    ))
-                ) : (
-                    <div className="py-6 text-center text-gray-500">댓글이 없습니다.</div>
-                )}
+                        {/* 내용 */}
+                        <div 
+                            className="mt-4"
+                            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(postDetailData.content) }}
+                        >
+                            {/* {postDetailData.content} */}
+                        </div>
+                        {/* 댓글 작성 */}
+                        <div className="bg-slate-100 flex-col border-t">
+                            <div className="mt-2 font-bold text-lg">
+                                {postDetailData.commentCount}개의 댓글
+                            </div>
+                            <textarea
+                                className="p-3 mt-2 w-full focus:outline-none border border-gray-300 rounded-md resize-none"
+                                onChange={handleTitleChange}
+                                placeholder="댓글을 입력하세요"
+                                style={{ minHeight: "100px", overflow: "hidden" }}
+                                onInput={(e) => {
+                                    const target = e.target as HTMLTextAreaElement;
+                                    target.style.height = "auto"; // 높이 초기화
+                                    target.style.height = `${target.scrollHeight}px`; // 높이를 내용에 맞게 조정
+                                }}
+                            />
+                            <div className="mt-4 flex justify-end">
+                                <button 
+                                    className="bg-blue-500 text-white px-6 py-2 rounded cursor-pointer hover:bg-blue-600"
+                                    onClick={handleCommentSumit}
+                                >
+                                    댓글 작성
+                                </button>
+                            </div>
+                        </div>
+                        {/* 댓글 리스트 */}
+                        <div className="mt-4 bg-slate-200 flex flex-col">
+                        {comments.length > 0 ? (
+                            comments.map((comment) => (
+                                <div key={comment.commentUuid} className="py-6 bg-slate-300 flex flex-col border-t border-black">
+                                    <div className="flex justify-between">
+                                        <div>
+                                            <div className="text-lg font-bold">{comment.nickname}</div>
+                                            <div className="text-gray-500">{formatDate(comment.createdDate)}</div>
+                                        </div>
+                                        {comment.userUuid === userInfo?.sub && (
+                                            <div className="flex gap-2 text-gray-500">
+                                                {editCommentId !== comment.commentUuid && (
+                                                    <div 
+                                                        className="cursor-pointer hover:text-black"
+                                                        onClick={() => handleEditClick(comment)}
+                                                    >
+                                                        수정
+                                                    </div>    
+                                                )}
+                                                
+                                                <div 
+                                                    className="cursor-pointer hover:text-black"
+                                                    onClick={() => handleDeleteComment(comment.userUuid, comment.commentUuid)}
+                                                >
+                                                    삭제
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                    {editCommentId === comment.commentUuid ? (
+                                        // 수정 모드
+                                        <div className="mt-4">
+                                            <textarea
+                                                ref={textareaRef}
+                                                className="p-3 w-full focus:outline-none border border-gray-300 rounded-md resize-none"
+                                                value={editContent}
+                                                onChange={(e) => setEditContent(e.target.value)}
+                                                style={{ minHeight: "100px", overflow: "hidden" }}
+                                                onInput={(e) => {
+                                                    const target = e.target as HTMLTextAreaElement;
+                                                    target.style.height = "auto"; // 높이 초기화
+                                                    target.style.height = `${target.scrollHeight}px`; // 높이를 내용에 맞게 조정
+                                                }}
+                                            />
+                                            <div className="mt-4 flex justify-end">
+                                                <div className="flex gap-2">
+                                                    <button
+                                                        className="bg-blue-500 text-white px-6 py-2 rounded cursor-pointer hover:bg-blue-600"
+                                                        onClick={handleEditCancel}
+                                                    >
+                                                        취소
+                                                    </button>
+                                                    <button
+                                                        className="bg-blue-500 text-white px-6 py-2 rounded cursor-pointer hover:bg-blue-600"
+                                                        onClick={handleEditSubmit}
+                                                    >
+                                                        댓글 수정
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        // 기본 모드
+                                        <div 
+                                            className="mt-4 leading-loose"
+                                            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(comment.content.replace(/\n/g, '<br>')) }}
+                                        >
+                                        </div>
+                                    )}
+                                </div>
+                            ))
+                        ) : (
+                            <div className="py-6 text-center text-gray-500">댓글이 없습니다.</div>
+                        )}
+                        </div>
+                    </div>
                 </div>
             </div>
+
             {/* ♥ 버튼 */}
-            
-            <button
-                ref={likeBtnRef}
-                className="fixed right-8 p-4 rounded-full shadow-lg bg-gray-100"
-                style={{ 
-                    top: likeBtnPosition, 
-                    right: "calc(50% - 500px)", // 본문 너비에 맞춘 오른쪽 여백 설정
-                    transition: "top 0.3s ease" }}
-            >
-                {isLike ? (
-                    // 좋아요를 누른 상태 (빨간색 배경에 비어있는 하트)
-                    <div
-                        className="w-10 h-10 flex items-center justify-center rounded-full bg-red-500 hover:bg-red-600 text-white"
-                        onClick={handleLikeToggle}
-                    >
-                        <FaHeart size={17}/>
-                    </div>
-                ) : (
-                    // 좋아요를 누르지 않은 상태 (검은색 테두리에 검은색 하트)
-                    <div
-                        className="w-10 h-10 flex items-center justify-center rounded-full border-2 border-black text-black hover:bg-gray-200"
-                        onClick={handleLikeToggle}
-                    >
-                        <FaHeart size={17}/>
-                    </div>
-                )}
-                <div>{likeCount}</div>
-            </button>
+            {isSideVisible && (
+                <button
+                    className="fixed right-8 p-4 rounded-full shadow-lg bg-gray-100"
+                    style={{ 
+                        top: likeBtnPosition, 
+                        right: "calc(50% - 610px)", // 본문 너비에 맞춘 오른쪽 여백 설정
+                        transition: "top 0.3s ease" }}
+                >
+                    {isLike ? (
+                        // 좋아요를 누른 상태 (빨간색 배경에 비어있는 하트)
+                        <div
+                            className="w-10 h-10 flex items-center justify-center rounded-full bg-red-500 hover:bg-red-600 text-white"
+                            onClick={handleLikeToggle}
+                        >
+                            <FaHeart size={17}/>
+                        </div>
+                    ) : (
+                        // 좋아요를 누르지 않은 상태 (검은색 테두리에 검은색 하트)
+                        <div
+                            className="w-10 h-10 flex items-center justify-center rounded-full border-2 border-black text-black hover:bg-gray-200"
+                            onClick={handleLikeToggle}
+                        >
+                            <FaHeart size={17}/>
+                        </div>
+                    )}
+                    <div>{likeCount}</div>
+                </button>
+            )}
+
             {/* 헤더 아래에 ♥ 버튼 */}
-            {!isLikeBtnVisible && (
+            {!isSideVisible && (
                 <div className="fixed top-20 right-5">
                     <button
                         className="p-4 rounded-full shadow-lg bg-gray-100"
                         onClick={handleLikeToggle}
                     >
                         {isLike ? (
-                            <div className="w-10 h-10 flex items-center justify-center rounded-full bg-red-500 text-white">
+                            <div className="w-10 h-10 flex items-center justify-center rounded-full bg-red-500 hover:bg-red-600 text-white">
                                 <FaHeart size={17} />
                             </div>
                         ) : (
-                            <div className="w-10 h-10 flex items-center justify-center rounded-full border-2 border-black text-black">
+                            <div className="w-10 h-10 flex items-center justify-center rounded-full border-2 border-black text-black hover:bg-gray-200">
                                 <FaHeart size={17} />
                             </div>
                         )}
+                    </button>
+                </div>
+            )}
+            {!isSideVisible && !isMobileMenuOpen && (
+                <div className="fixed top-20 left-5">
+                    <button
+                        className="p-4 rounded-full shadow-lg bg-gray-100"
+                        onClick={() => setIsMobileMenuOpen(true)}
+                    >
+                        <div className="w-10 h-10 flex items-center justify-center rounded-full   text-black hover:bg-gray-200">
+                            <BsList size={40} />
+                        </div>
                     </button>
                 </div>
             )}
