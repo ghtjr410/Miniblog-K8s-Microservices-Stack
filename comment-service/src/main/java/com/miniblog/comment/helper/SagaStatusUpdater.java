@@ -4,10 +4,12 @@ import com.miniblog.comment.util.SagaStatus;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 import java.util.UUID;
 
+@Component
 @RequiredArgsConstructor
 public class SagaStatusUpdater {
     private final EntityManager entityManager;

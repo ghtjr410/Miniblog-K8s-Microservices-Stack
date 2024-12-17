@@ -25,7 +25,11 @@ public class CommentMapper {
 
     public CommentResponseDTO toResponseDTO(Comment comment) {
         return new CommentResponseDTO(
+                comment.getCommentUuid().toString(),
+                comment.getPostUuid().toString(),
                 comment.getNickname(),
-                comment.getContent());
+                comment.getContent(),
+                comment.getCreatedDate().toString(),
+                comment.getUpdatedDate().toString());
     }
 }
