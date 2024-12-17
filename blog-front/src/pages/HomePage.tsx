@@ -6,8 +6,9 @@ import DOMPurify from 'dompurify';
 import { getLatestPosts, getMostLikedPosts, getMostViewedPosts } from "../service/queryService.public";
 import './../styles/image-hidden.css';
 import { formatDate } from "../util/dateUtil";
-import { useNavigate } from "react-router-dom";
-import { ROUTES } from "../constants/routes";
+import { PiEyeLight } from "react-icons/pi";
+import { FaHeart } from "react-icons/fa";
+import { FaRegComment } from 'react-icons/fa'; // Comment Icon
 import useNavigationHelper from "../util/navigationUtil";
 
 interface Props{
@@ -26,6 +27,7 @@ interface ContentData {
     userUuid: string;
     commentCount: number;
     likeCount:number;
+    totalViews:number;
 }
 
 
@@ -187,10 +189,16 @@ const HomePage: React.FC<Props> = ({ keycloak }) => {
                             </div>
                             <div className="mt-auto ">
                                 <div>
-                                    <div className="mt-auto flex px-4 py-2.5 text-xs gap-1">
+                                    <div className="mt-auto flex px-4 py-2.5 text-xs gap-2">
                                         <div>{formatDate(item.createdDate)}</div>
-                                        <div>·</div>
-                                        <div>{item.commentCount}개의 댓글</div>
+                                        <div className="flex items-center">
+                                            <FaRegComment size={15} />
+                                            <div className="pl-0.5">{item.commentCount}</div>
+                                        </div>
+                                        <div className="flex items-center">
+                                            <PiEyeLight size={17}/> 
+                                            <div className="pl-0.5">{item.totalViews}</div>
+                                        </div>
                                     </div>
                                 </div>
                                 <div className="border-t">
@@ -201,7 +209,10 @@ const HomePage: React.FC<Props> = ({ keycloak }) => {
                                         >
                                             {item.nickname}
                                         </div>
-                                        <div>♥ {item.likeCount}</div>
+                                        <div className="flex items-center">
+                                            <FaHeart size={14}/>
+                                            <div className="pl-0.5">{item.likeCount}</div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

@@ -11,6 +11,7 @@ import { deletePost } from "../service/postService";
 import { incrementViewcount } from "../service/viewcountService";
 import { getUserLikedPosts } from "../service/queryService.auth";
 import { toggleLike } from "../service/likeService";
+import { FaHeart } from "react-icons/fa";
 
 interface Props{
     keycloak: Keycloak | null;
@@ -58,9 +59,11 @@ const initialPostDetailData: PostDetailData = {
 const PostDetailPage: React.FC<Props> = ({ keycloak, keycloakStatus }) => {
     const [kecloakLoading, isKecloakLoading] = useState<boolean>(true);
     const [isUserInfoLoaded, setIsUserInfoLoaded] = useState<boolean>(false);
+    const [likeCount, setLikeCount] = useState<number>(0);
     const { nickname, postUuid} = useParams();
     const { toHome, toPostRewrite } = useNavigationHelper();
     const [postDetailData, setPostDetailData] = useState<PostDetailData>(initialPostDetailData);
+    const [isLike, setIsLike] = useState<boolean>(false);
     const [comments, setComments] = useState<CommentData[]>([]);
     const [content, setContent] = useState<string>('');
     const [editCommentId, setEditCommentId] = useState<string | null>(null);
@@ -207,6 +210,7 @@ const PostDetailPage: React.FC<Props> = ({ keycloak, keycloakStatus }) => {
             console.log(response);
             setPostDetailData(response.post);
             setComments(response.comments);
+            setLikeCount(response.post.likeCount);
         })
         .catch((error) => {
             console.error("데이터가져오는데 실패", error);
@@ -219,8 +223,15 @@ const PostDetailPage: React.FC<Props> = ({ keycloak, keycloakStatus }) => {
         if(userInfo){
             getUserLikedPosts(userInfo.sub)
             .then((response) => {
-                console.log("나의 좋아요 목록")
-                console.log(response);
+                const isLiked = response.some((likedPost: any) => likedPost.postUuid === postUuid);
+
+                console.log(`${postUuid}가 좋아요 목록에 있는지 확인 중...`);
+                
+                if (isLiked) {
+                    setIsLike(true);
+                } else {
+                    setIsLike(false);
+                }
             })
             .catch((error) => {
                 console.error("데이터가져오는데 실패", error);
@@ -372,13 +383,18 @@ const PostDetailPage: React.FC<Props> = ({ keycloak, keycloakStatus }) => {
             postDetailData.postUuid,
             token,
         )   
-        .then((response) => {
-            console.log(response);
+        .then(() => {
+            // 좋아요 상태 토글
+            setIsLike((prevIsLike) => {
+                const newIsLike = !prevIsLike;
+                // likeCount 업데이트
+                setLikeCount((prevCount) => newIsLike ? prevCount + 1 : prevCount - 1);
+                return newIsLike;
+            });
         })
         .catch((error) => {
             console.error("Error creating comment:", error);
         })
-
     }
 
 
@@ -552,13 +568,24 @@ const PostDetailPage: React.FC<Props> = ({ keycloak, keycloakStatus }) => {
                     right: "calc(50% - 500px)", // 본문 너비에 맞춘 오른쪽 여백 설정
                     transition: "top 0.3s ease" }}
             >
-                <div 
-                    className="w-10 h-10 flex items-center justify-center rounded-full bg-red-500 hover:bg-red-600 text-white"
-                    onClick={handleLikeToggle}
-                >
-                    ♥
-                </div>
-                <div>{postDetailData.likeCount}</div>
+                {isLike ? (
+                    // 좋아요를 누른 상태 (빨간색 배경에 비어있는 하트)
+                    <div
+                        className="w-10 h-10 flex items-center justify-center rounded-full bg-red-500 hover:bg-red-600 text-white"
+                        onClick={handleLikeToggle}
+                    >
+                        <FaHeart size={17}/>
+                    </div>
+                ) : (
+                    // 좋아요를 누르지 않은 상태 (검은색 테두리에 검은색 하트)
+                    <div
+                        className="w-10 h-10 flex items-center justify-center rounded-full border-2 border-black text-black hover:bg-gray-200"
+                        onClick={handleLikeToggle}
+                    >
+                        <FaHeart size={17}/>
+                    </div>
+                )}
+                <div>{likeCount}</div>
             </button>
         </div>
     );
