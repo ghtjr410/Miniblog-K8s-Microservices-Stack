@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class LikeCreatedEventMapper implements EventMapper {
+
     @Override
     public LikeCreatedEvent createToEvent(Like like) {
         LikeCreatedEvent likeCreatedEvent = new LikeCreatedEvent();

@@ -29,7 +29,7 @@ public class AbstractEventProducerHandler <T extends SpecificRecordBase> impleme
         Span newSpan = spanFactory.createSpanFromTraceId(outboxEvent.getTraceId());
         // 3. 이벤트 발행
         try (Tracer.SpanInScope ws = tracer.withSpan(newSpan)) {
-            eventProducer.publishEvent(topicName, outboxEvent.getEventType().toString(), event, newSpan);
+            eventProducer.publishEvent(topicName, outboxEvent.getEventUuid().toString(), event, newSpan);
         } finally {
             newSpan.end();
         }

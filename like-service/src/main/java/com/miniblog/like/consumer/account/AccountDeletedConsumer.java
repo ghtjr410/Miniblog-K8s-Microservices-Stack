@@ -22,7 +22,7 @@ public class AccountDeletedConsumer extends GenericConsumer<AccountDeletedEvent>
     }
 
     @Override
-    protected String topicName() {
+    public String topicName() {
         return topicName;
     }
 }
