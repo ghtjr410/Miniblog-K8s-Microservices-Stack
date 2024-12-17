@@ -57,25 +57,27 @@ const initialPostDetailData: PostDetailData = {
 
 
 const PostDetailPage: React.FC<Props> = ({ keycloak, keycloakStatus }) => {
+    const { nickname, postUuid} = useParams();
     const [kecloakLoading, isKecloakLoading] = useState<boolean>(true);
     const [isUserInfoLoaded, setIsUserInfoLoaded] = useState<boolean>(false);
-    const [likeCount, setLikeCount] = useState<number>(0);
-    const { nickname, postUuid} = useParams();
-    const { toHome, toPostRewrite } = useNavigationHelper();
+    const [userInfo, setUserInfo] = useState<null | Record<string, any>>(null);
     const [postDetailData, setPostDetailData] = useState<PostDetailData>(initialPostDetailData);
-    const [isLike, setIsLike] = useState<boolean>(false);
-    const [comments, setComments] = useState<CommentData[]>([]);
     const [content, setContent] = useState<string>('');
+    const [comments, setComments] = useState<CommentData[]>([]);
+    const [isLike, setIsLike] = useState<boolean>(false);
+    const [likeCount, setLikeCount] = useState<number>(0);
+
     const [editCommentId, setEditCommentId] = useState<string | null>(null);
     const [editUserId, setEditUserId] = useState<string | null>(null);
     const [editContent, setEditContent] = useState<string>("");
-    const [userInfo, setUserInfo] = useState<null | Record<string, any>>(null);
-    
+
     const textareaRef = useRef<HTMLTextAreaElement>(null);
-
+    const { toHome, toPostRewrite } = useNavigationHelper();
     const location = useLocation();
-
-    const [buttonPosition, setButtonPosition] = useState("50%");
+    
+    const [isLikeBtnVisible, setIsLikeBtnVisible] = useState(true);
+    const likeBtnRef = useRef<HTMLButtonElement>(null);
+    const [likeBtnPosition, setLikeBtnPosition] = useState("50%");
 
     // 1번
     useEffect(() => {
@@ -133,77 +135,37 @@ const PostDetailPage: React.FC<Props> = ({ keycloak, keycloakStatus }) => {
             fetchLikeList();
         }
     }, [isUserInfoLoaded]);
+
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                const visibility = entry.isIntersecting;
+                console.log(`Button visibility changed: ${visibility}`);
+                setIsLikeBtnVisible(entry.isIntersecting);
+            },
+            { threshold: 0 }
+        );
     
-
-
-    const autoResizeTextarea = () => {
-        if (textareaRef.current) {
-            textareaRef.current.style.height = 'auto'; // 높이 초기화
-            textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`; // 내용에 맞게 높이 조정
+        if (likeBtnRef.current) {
+            console.log("Observing the button...");
+            observer.observe(likeBtnRef.current);
         }
-    };
+    
+        return () => {
+            if (likeBtnRef.current) {
+                console.log("Stopping observation of the button...");
+                observer.unobserve(likeBtnRef.current);
+            }
+        };
+    }, []);
+
     useEffect(() => {
         if (editCommentId && textareaRef.current) {
             autoResizeTextarea();
         }
     }, [editContent, editCommentId]);
-
-
-    const handleScroll = () => {
-        const scrollY = window.scrollY;
-
-        // 스크롤이 200px을 넘으면 버튼을 위쪽에 고정
-        if (scrollY > 200) {
-            setButtonPosition("20%");
-        } else {
-            setButtonPosition("50%");
-        }
-    };
-
-    const handleTitleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-        setContent(e.target.value);
-    }
-
-    const handleCommentSumit = async () => {
-        const token = keycloak?.token;
-        const nickname = userInfo?.nickname;
-
-
-        if (!token || !nickname) {
-            console.error("Token or nickname is missing");
-            return;
-        }
-
-        createComment(
-            {
-                postUuid: postDetailData.postUuid,
-                nickname: nickname,
-                content: content,
-            },
-            token
-        )
-        .then((response) => {
-            console.log("Comment created successfully:", response);
-            setContent(''); // 입력 필드 초기화
-            setComments((prevComments) => [
-                ...prevComments,
-                {
-                    commentUuid: response.commentUuid, // 응답에서 반환된 UUID
-                    postUuid: response.postUuid,
-                    userUuid: userInfo?.sub, // Keycloak에서 userUuid를 가져옵니다.
-                    nickname: response.nickname,
-                    content: response.content,
-                    createdDate: response.createdDate,
-                    updatedDate: response.updatedDate,
-                },
-            ]);
-        })
-        .catch((error) => {
-            console.error("Error creating comment:", error);
-        });
-    }
-
-
+    
     const fetchPostDetail = (postUuid: string) => {
         getPostDetail(postUuid)
         .then((response) => {
@@ -237,6 +199,65 @@ const PostDetailPage: React.FC<Props> = ({ keycloak, keycloakStatus }) => {
                 console.error("데이터가져오는데 실패", error);
             })
         }
+    }
+    const handleScroll = () => {
+        const scrollY = window.scrollY;
+
+        // 스크롤이 200px을 넘으면 버튼을 위쪽에 고정
+        if (scrollY > 200) {
+            setLikeBtnPosition("20%");
+        } else {
+            setLikeBtnPosition("50%");
+        }
+    };
+
+    const autoResizeTextarea = () => {
+        if (textareaRef.current) {
+            textareaRef.current.style.height = 'auto'; // 높이 초기화
+            textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`; // 내용에 맞게 높이 조정
+        }
+    };
+
+    const handleTitleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        setContent(e.target.value);
+    }
+
+    const handleCommentSumit = async () => {
+        const token = keycloak?.token;
+        const nickname = userInfo?.nickname;
+
+        if (!token || !nickname) {
+            console.error("Token or nickname is missing");
+            return;
+        }
+
+        createComment(
+            {
+                postUuid: postDetailData.postUuid,
+                nickname: nickname,
+                content: content,
+            },
+            token
+        )
+        .then((response) => {
+            console.log("Comment created successfully:", response);
+            setContent(''); // 입력 필드 초기화
+            setComments((prevComments) => [
+                ...prevComments,
+                {
+                    commentUuid: response.commentUuid, // 응답에서 반환된 UUID
+                    postUuid: response.postUuid,
+                    userUuid: userInfo?.sub, // Keycloak에서 userUuid를 가져옵니다.
+                    nickname: response.nickname,
+                    content: response.content,
+                    createdDate: response.createdDate,
+                    updatedDate: response.updatedDate,
+                },
+            ]);
+        })
+        .catch((error) => {
+            console.error("Error creating comment:", error);
+        });
     }
 
     const handleEditClick = (comment: CommentData) => {
@@ -397,11 +418,6 @@ const PostDetailPage: React.FC<Props> = ({ keycloak, keycloakStatus }) => {
         })
     }
 
-
-
-
-
-
     if (!postUuid) {
         return (
             <div className="flex flex-col h-full">
@@ -548,11 +564,6 @@ const PostDetailPage: React.FC<Props> = ({ keycloak, keycloakStatus }) => {
                                 >
                                 </div>
                             )}
-
-
-
-
-
                         </div>
                     ))
                 ) : (
@@ -561,10 +572,12 @@ const PostDetailPage: React.FC<Props> = ({ keycloak, keycloakStatus }) => {
                 </div>
             </div>
             {/* ♥ 버튼 */}
+            
             <button
+                ref={likeBtnRef}
                 className="fixed right-8 p-4 rounded-full shadow-lg bg-gray-100"
                 style={{ 
-                    top: buttonPosition, 
+                    top: likeBtnPosition, 
                     right: "calc(50% - 500px)", // 본문 너비에 맞춘 오른쪽 여백 설정
                     transition: "top 0.3s ease" }}
             >
@@ -587,6 +600,26 @@ const PostDetailPage: React.FC<Props> = ({ keycloak, keycloakStatus }) => {
                 )}
                 <div>{likeCount}</div>
             </button>
+            {/* 헤더 아래에 ♥ 버튼 */}
+            {!isLikeBtnVisible && (
+                <div className="fixed top-20 right-5">
+                    <button
+                        className="p-4 rounded-full shadow-lg bg-gray-100"
+                        onClick={handleLikeToggle}
+                    >
+                        {isLike ? (
+                            <div className="w-10 h-10 flex items-center justify-center rounded-full bg-red-500 text-white">
+                                <FaHeart size={17} />
+                            </div>
+                        ) : (
+                            <div className="w-10 h-10 flex items-center justify-center rounded-full border-2 border-black text-black">
+                                <FaHeart size={17} />
+                            </div>
+                        )}
+                    </button>
+                </div>
+            )}
+            
         </div>
     );
 }
