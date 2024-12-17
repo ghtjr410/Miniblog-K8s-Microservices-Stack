@@ -4,13 +4,14 @@ import com.miniblog.post.util.ConsumedEventType;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.specific.SpecificRecordBase;
 import org.springframework.dao.DataAccessException;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 public abstract class AbstractEventConsumerHandler<T extends SpecificRecordBase> implements EventConsumerHandler {
 
     @Override
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void handleEvent(SpecificRecordBase event) {
         try {
             processEvent(event);

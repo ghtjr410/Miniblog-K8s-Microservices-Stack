@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 
 public record PostUpdateRequestDTO(
         @NotBlank(message = "Title is required.")
-        String Title,
+        String title,
 
         @NotBlank(message = "Content is required")
         String content

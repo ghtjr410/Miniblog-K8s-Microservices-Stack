@@ -19,14 +19,17 @@ public class PostMapper {
                 .build();
     }
     public void updateToEntity(Post post, PostUpdateRequestDTO postUpdateRequestDTO) {
-        post.setTitle(postUpdateRequestDTO.Title());
+        post.setTitle(postUpdateRequestDTO.title());
         post.setContent(postUpdateRequestDTO.content());
     }
 
     public PostResponseDTO toResponseDTO(Post post) {
         return new PostResponseDTO(
+                post.getPostUuid().toString(),
                 post.getNickname(),
                 post.getTitle(),
-                post.getContent());
+                post.getContent(),
+                post.getCreatedDate().toString(),
+                post.getUpdatedDate().toString());
     }
 }
