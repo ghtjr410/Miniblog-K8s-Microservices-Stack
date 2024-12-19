@@ -6,4 +6,21 @@ html, body, #root {
     height: 100%;
     margin: 0;
     padding: 0;
+}
+
+@keyframes text-blink {
+  0%, 100% {
+    color: black;
   }
+  50% {
+    color: gray;
+  }
+}
+
+.hover-text-blink {
+  transition: color 0.5s ease-in-out; /* 색상 변경을 부드럽게 */
+}
+
+.hover-text-blink:hover {
+  animation: text-blink 1s ease-in-out infinite;
+}
