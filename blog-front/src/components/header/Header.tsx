@@ -1,11 +1,13 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Keycloak from 'keycloak-js';
 import { CiBellOn } from "react-icons/ci";
 import { CiSearch } from "react-icons/ci";
 import { CiUser } from "react-icons/ci";
-import { Outlet } from "react-router-dom";
-import { useNavigation } from "../../util/navigation";
-import { ROUTES } from "../../constants/routes";
+import { IoMdSearch } from "react-icons/io";
+import { FaRegUserCircle } from "react-icons/fa";
+import { FiUser } from "react-icons/fi";
+import { TbUserDown } from "react-icons/tb";
+import useNavigationHelper from "../../util/navigationUtil";
 
 interface Props{
     keycloak: Keycloak | null;
@@ -13,40 +15,70 @@ interface Props{
 
 const Header: React.FC<Props> = ({keycloak}) => {
     const [dropdownVisible, setDropdownVisible] = useState<boolean>(false);
+    const [isVisible, setIsVisible] = useState<boolean>(true);
+    const { toHome, toPostWrite, toSetting} = useNavigationHelper();
 
-    const { navigateTo } = useNavigation();
+    let lastScrollY = window.scrollY;
+    useEffect(() => {
+        // 스크롤 이벤트 리스너 추가
+        window.addEventListener("scroll", handleScroll);
 
+        // 컴포넌트 언마운트 시 리스너 제거
+        return () => {
+            window.removeEventListener("scroll", handleScroll);
+        };
+    }, []);
 
-    const handleKeycloak = () => {
-        console.log(keycloak);
+      // 드롭다운 외부 클릭 감지
+    useEffect(() => {
+        document.addEventListener("click", handleClickOutside);
+
+        return () => {
+        document.removeEventListener("click", handleClickOutside);
+        };
+    }, []);
+
+    const handleScroll = () => {
+        if (window.scrollY > lastScrollY) {
+            // 스크롤을 내리는 중: 헤더 숨기기
+            setIsVisible(false);
+        } else {
+            // 스크롤을 올리는 중: 헤더 보이기
+            setIsVisible(true);
+        }
+        lastScrollY = window.scrollY;
     };
-    const handleToken = () => { 
-        console.log(keycloak?.token);
+
+    const handleClickOutside = (e: MouseEvent) => {
+        if (!(e.target as HTMLElement).closest(".dropdown-container")) {
+            setDropdownVisible(false);
+        }
     };
+
     const handleSignin = () => {
         keycloak?.login();
     };
-
     const toggleDropdown = () => {
         setDropdownVisible(!dropdownVisible);
         console.log(`드랍다운 상태 : ${dropdownVisible}`)
     }
-
     const handleLogout = () => {
         keycloak?.logout();
     };
+
     if (!keycloak) {
         // 로딩 중일 때 보여줄 스켈레톤 UI
         return (
-            <div className="bg-slate-100 shadow-md flex justify-center">
-                <div className="bg-slate-200 h-16 max-w-screen-2xl w-full flex items-center justify-between px-4">
-                    <div className="bg-slate-300 text-2xl font-bold">
-                        MiniBlog
+            <div className={`fixed top-0 z-10 w-full flex justify-center shadow-md bg-green-500
+                            transition-transform duration-300 
+                            ${isVisible ? "translate-y-0" : "-translate-y-full"}`}>
+                <div className="max-w-1728 2xl:max-w-1376 xl:max-w-1024 w-full h-16 flex items-center justify-between bg-yellow-400 ">
+                    <div className="text-2xl font-bold cursor-pointer bg-red-400">
+                        Miniblog
                     </div>
-                    <div className="bg-slate-300 flex flex-row gap-4 items-center">
-                        <div className="bg-slate-400 rounded-full h-10 w-10 animate-pulse" />
-                        <div className="bg-slate-400 rounded-full h-10 w-10 animate-pulse" />
-                        <div className="bg-slate-400 rounded-full h-10 w-10 animate-pulse" />
+                    <div className="bg-white flex flex-row gap-4 items-center">
+                        <div className="bg-gray-300 rounded-full h-12 w-12 animate-pulse" />
+                        <div className="bg-gray-300 rounded-full h-12 w-12 animate-pulse" />
                     </div>
                 </div>
             </div>
@@ -54,75 +86,74 @@ const Header: React.FC<Props> = ({keycloak}) => {
     }
 
     return (
-    <div className="flex flex-col">
-        {/* Header 영역 */}
-        <div className="bg-slate-100 shadow-md flex justify-center">
-            <div className="bg-slate-200 h-16 max-w-screen-2xl w-full flex items-center justify-between">
-                <div className="bg-slate-300 text-2xl font-bold cursor-pointer">
-                    MiniBlog
+        <div className={`fixed top-0 z-10 w-full flex justify-center shadow-md bg-green-500
+            transition-transform duration-300 
+            ${isVisible ? "translate-y-0" : "-translate-y-full"}`}>
+            <div className="max-w-1728 2xl:max-w-1376 xl:max-w-1024 w-full h-16 flex items-center justify-between bg-yellow-400 ">
+                <div 
+                    className="text-2xl md:text-xl font-bold cursor-pointer bg-red-400 "
+                    onClick={toHome}
+                >
+                    Miniblog
                 </div>
-                <div className="bg-slate-300 flex flex-row gap-4 items-center">
+                <div className="bg-white flex flex-row gap-2 items-center">
                     <div 
-                        className="bg-slate-400 text-3xl cursor-pointer rounded-full p-1"
-                        onClick={handleKeycloak}
+                        className="bg-white rounded-full cursor-pointer hover:bg-gray-200 p-2"
                     >
-                        <CiBellOn />
+                        <IoMdSearch size={32}/>
                     </div>
-                    <div 
-                        className="bg-slate-400 text-3xl cursor-pointer rounded-full p-1"
-                        onClick={handleToken}
-                    >
-                        <CiSearch />
-                    </div>
+                    {/* 로그인 상태 분기점 */}
                     {keycloak?.authenticated ? (
-                            <div 
-                                className="bg-slate-400 flex items-center cursor-pointer group relative"
-                                onClick={toggleDropdown}
-                            >
-                                <CiUser className="text-4xl" />
-                                <div className="text-xs text-gray-500 group-hover:text-black">▼</div>
-                                {dropdownVisible && (
-                                    <div className="absolute top-14 right-0 w-48 bg-slate-200 shadow-[0_6px_6px_-1px_rgba(0,0,0,0.1),_0_2px_4px_-1px_rgba(0,0,0,0.06)]">
-                                        <div className="bg-slate-300 px-3 py-4 font-semibold hover:bg-slate-400 hover:text-blue-500">
-                                            내 블로그
-                                        </div>
-                                        <div 
-                                            className="bg-slate-300 px-3 py-4 font-semibold hover:bg-slate-400 hover:text-blue-500"
-                                            onClick={() => navigateTo(ROUTES.POST_EDIT)}
-                                        >
-                                            게시글 작성
-                                        </div>
-                                        <div className="bg-slate-300 px-3 py-4 font-semibold hover:bg-slate-400 hover:text-blue-500">
-                                            읽기 목록
-                                        </div>
-                                        <div className="bg-slate-300 px-3 py-4 font-semibold hover:bg-slate-400 hover:text-blue-500">
-                                            설정
-                                        </div>
-                                        <div 
-                                            className="bg-slate-300 px-3 py-4 font-semibold hover:bg-slate-400 hover:text-blue-500"
-                                            onClick={handleLogout}
-                                        >
-                                            로그아웃
-                                        </div>
+                        <div 
+                            className="bg-white rounded-full cursor-pointer  flex justify-center items-center group relative dropdown-container"
+                            onClick={toggleDropdown}
+                        >
+                            <FiUser size={32}/>
+                            <div className="text-xs text-gray-400 group-hover:text-black">▼</div>
+                            {/* (로그인) 드랍다운 */}
+                            {dropdownVisible && (
+                                <div className="absolute top-14 right-0 w-48 bg-gray-200 shadow-[0_6px_6px_-1px_rgba(0,0,0,0.1),_0_2px_4px_-1px_rgba(0,0,0,0.06)] z-10 rounded-md overflow-hidden">
+                                    <div className="bg-gray-300 px-3 py-4 font-semibold hover:bg-gray-400 hover:text-blue-500">
+                                        내 블로그
                                     </div>
-                                )}
-                            </div>
-                        ) : (
-                            <div
-                                className="bg-black font-bold text-white text-lg rounded-2xl px-4 py-1 cursor-pointer"
-                                onClick={handleSignin}
-                            >
-                                로그인
-                            </div>
-                        )}
+                                    <div 
+                                        className="bg-gray-300 px-3 py-4 font-semibold hover:bg-gray-400 hover:text-blue-500"
+                                        onClick={toPostWrite}
+                                    >
+                                        게시글 작성
+                                    </div>
+                                    <div 
+                                        className="bg-gray-300 px-3 py-4 font-semibold hover:bg-gray-400 hover:text-blue-500"
+                                        onClick={() => {alert("히스토리로가자")}}
+                                    >
+                                        히스토리
+                                    </div>
+                                    <div 
+                                        className="bg-gray-300 px-3 py-4 font-semibold hover:bg-gray-400 hover:text-blue-500"
+                                        onClick={toSetting}
+                                    >
+                                        설정
+                                    </div>
+                                    <div 
+                                        className="bg-gray-300 px-3 py-4 font-semibold hover:bg-gray-400 hover:text-blue-500"
+                                        onClick={handleLogout}
+                                    >
+                                        로그아웃
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    ) : (
+                        <div
+                            className="px-4 h-8 rounded-2xl border border-black text-lg flex items-center bg-white hover:bg-black text-black hover:text-white font-bold cursor-pointer transition-colors duration-300 ease-in-out"
+                            onClick={handleSignin}
+                        >
+                            로그인
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
-        {/* Outlet 영역 */}
-        <div className="pt-6 flex-1  bg-slate-600">
-            <Outlet />
-        </div>
-    </div>
     );
 }
 
