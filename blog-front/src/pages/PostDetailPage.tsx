@@ -2,14 +2,14 @@ import React, { useEffect, useRef, useState } from "react";
 import Keycloak from "keycloak-js";
 import { useLocation, useParams } from "react-router-dom";
 import useNavigationHelper from "../util/navigationUtil";
-import TestHeader from "../components/header/TestHeader";
+import Header from "../components/header/Header";
 import { createComment, deleteComment, updateComment } from "../service/commentService";
 import { getPostDetail } from "../service/queryService.public";
 import { formatDate } from "../util/dateUtil";
 import DOMPurify from "dompurify";
 import { deletePost } from "../service/postService";
 import { incrementViewcount } from "../service/viewcountService";
-import { getUserLikedPosts } from "../service/queryService.auth";
+import { getNicknamePosts, getNicknameProfile, getUserLikedPosts } from "../service/queryService.auth";
 import { toggleLike } from "../service/likeService";
 import { FaHeart } from "react-icons/fa";
 import { BsList, BsX, BsXCircle } from "react-icons/bs";
@@ -28,6 +28,13 @@ interface CommentData {
     content: string;
     createdDate: string;
     updatedDate: string;
+}
+
+interface NicknamePostsData{
+    postUuid: string;
+    userUuid: string;
+    nickname: string;
+    title: string;
 }
 
 interface PostDetailData{
@@ -67,6 +74,9 @@ const PostDetailPage: React.FC<Props> = ({ keycloak, keycloakStatus }) => {
     const [comments, setComments] = useState<CommentData[]>([]);
     const [isLike, setIsLike] = useState<boolean>(false);
     const [likeCount, setLikeCount] = useState<number>(0);
+    const [blogPosts, setBlogPosts] = useState<NicknamePostsData[]>([]);
+    const [blogTitle, setBlogTitle] = useState<string>('');
+    const [blogIntro, setBlogIntro] = useState<string>('');
 
     const [editCommentId, setEditCommentId] = useState<string | null>(null);
     const [editUserId, setEditUserId] = useState<string | null>(null);
@@ -88,6 +98,7 @@ const PostDetailPage: React.FC<Props> = ({ keycloak, keycloakStatus }) => {
         if (keycloakStatus !== "loading") {
             if(keycloakStatus === "unauthenticated") {
                 console.log(`@@@ ${keycloakStatus}`)
+                isKecloakLoading(false);
             }
             if(keycloakStatus === "authenticated") {
                 console.log(`@@@ ${keycloakStatus}`)
@@ -109,19 +120,20 @@ const PostDetailPage: React.FC<Props> = ({ keycloak, keycloakStatus }) => {
     // 2번
     useEffect(() => {
         console.log(`key클락 상태는?? : ${keycloakStatus} : ${kecloakLoading}`);
+
         if(kecloakLoading) return;
+        if(!(nickname && postUuid)) return;
         // location.state에서 사전 읽기 데이터를 확인
         if (location.state?.postDetailData) {
             setPostDetailData(location.state.postDetailData);
-        } else if (postUuid) {
+        } else {
             // 사전 읽기 데이터가 없으면 서버에서 데이터 요청
             fetchPostDetail(postUuid);
             handleIncrementViewcount(postUuid);
-
-        } else {
-            alert("해당 게시글을 찾을 수 없습니다.");
-            toHome();
         }
+
+        fetchNicknamePosts(nickname);
+        fetchNicknameProfile(nickname);
 
         console.log(postDetailData);
         window.addEventListener("scroll", handleScroll);
@@ -191,6 +203,31 @@ const PostDetailPage: React.FC<Props> = ({ keycloak, keycloakStatus }) => {
                 console.error("데이터가져오는데 실패", error);
             })
         }
+    }
+
+    const fetchNicknamePosts = (nickname: string) => {
+        getNicknamePosts(nickname)
+        .then((response) => {
+            console.log(response);
+            setBlogPosts(response);
+        })
+        .catch((error) => {
+            console.error("데이터가져오는데 실패", error);
+        })
+    }
+
+    const fetchNicknameProfile = (nickname: string) => {
+        getNicknameProfile(nickname)
+        .then((response) => {
+            console.log(response);
+            setBlogTitle(response.title);
+            setBlogIntro(response.intro);
+        })
+        .catch((error) => {
+            console.error("데이터 가져오는데 실패", error);
+            setBlogTitle(`${nickname}'s blog`);
+            setBlogIntro("");
+        })
     }
     const handleScroll = () => {
         const scrollY = window.scrollY;
@@ -423,53 +460,56 @@ const PostDetailPage: React.FC<Props> = ({ keycloak, keycloakStatus }) => {
     if (!postUuid) {
         return (
             <div className="flex flex-col h-full">
-                <TestHeader keycloak={keycloak} nickname={nickname}/>
+                <Header keycloak={keycloak}/>
                 <div>로딩 중.. (스켈레톤 UI)</div>
             </div>
     );
     }
     return (
         <div className="flex flex-col ">
-            <TestHeader keycloak={keycloak} nickname={nickname} />
-            <div className="flex justify-center min-h-screen bg-gray-50">
+            <Header keycloak={keycloak}/>
+            <div className="flex justify-center h-full bg-gray-50 ">
                 <div className="flex w-full max-w-screen-lg">
                     {/* 왼쪽 목록 영역 */}
                     {(isSideVisible || isMobileMenuOpen) && (
                     <div
-                        className={`w-80 p-4 bg-gray-100 h-screen overflow-y-auto 
-                        ${isMobileMenuOpen && 'fixed left-0 top-0 translate-x-0 shadow-custom-default'}`
+                        className={`w-80  p-4 bg-gray-100 h-screen 
+                        ${isMobileMenuOpen ? 'fixed left-0 top-0 translate-x-0 shadow-custom-default pt z-20' : 'pt-20'}`
                     }>
-
-                        <div className="flex justify-between mb-4">
-                            <div className="text-xl font-bold ">게시글 목록</div>
+                        <div className="flex items-center">
                             {isMobileMenuOpen && (
-                                <button className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-full hover:bg-gray-200 ">
+                                <button className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-full hover:bg-gray-200 ml-auto">
                                     <BsX size={35} onClick={() => setIsMobileMenuOpen(false)}/>
                                 </button>
                             )}
-                            
                         </div>
-                        <ul className="space-y-2">
-                            <li className="p-2 bg-white shadow rounded cursor-pointer hover:bg-gray-200">
-                                게시글 타이틀 1
-                            </li>
-                            <li className="p-2 bg-white shadow rounded cursor-pointer hover:bg-gray-200">
-                                게시글 타이틀 2
-                            </li>
-                            <li className="p-2 bg-white shadow rounded cursor-pointer hover:bg-gray-200">
-                                게시글 타이틀 3
-                            </li>
-                            <li className="p-2 bg-white shadow rounded cursor-pointer hover:bg-gray-200">
-                                게시글 타이틀 4
-                            </li>
-                            <li className="p-2 bg-white shadow rounded cursor-pointer hover:bg-gray-200">
-                                게시글 타이틀 5
-                            </li>
-                        </ul>
+                        <div className="flex flex-col h-full">
+                            <div className="text-center text-2xl font-bold">{blogTitle}</div>
+                            <div className="rounded-md border border-gray-300 bg-white px-1.5 py-3 mt-4 empty:hidden">
+                                {blogIntro}
+                            </div>
+
+                            <div className="flex justify-between my-4">
+                                <div className="text-lg font-bold">전체보기 ({blogPosts.length})</div>
+                            </div>
+
+                            {/* 남는 공간을 채우고 스크롤이 생기게 설정 */}
+                            <ul className="flex-grow overflow-y-auto space-y-2 p-2">
+                                {blogPosts.map((post) => (
+                                    <li
+                                        key={post.postUuid}
+                                        className="p-2 bg-white shadow rounded cursor-pointer hover:bg-gray-200 truncate"
+                                        onClick={() => console.log(`리스트, postUuid: ${post.postUuid}`)}
+                                    >
+                                        {post.title}
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
                     </div>
                     )}
 
-                    <div className="flex-1 flex flex-col min-h-0 gap-2 pt-4 max-w-screen-md mx-auto w-full shadow-custom-default px-3">
+                    <div className="flex-1 flex flex-col min-h-0 gap-2 pt-16 px-3 max-w-screen-md mx-auto w-full shadow-custom-default ">
                         {/* 제목 */}
                         <div className="mt-20 text-5xl font-bold bg-slate-100 leading-snug">
                             {postDetailData.title}
