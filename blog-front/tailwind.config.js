@@ -16,6 +16,7 @@ module.exports = {
     extend: {
       boxShadow: {
         'custom-default': 'rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 2px 6px 2px',
+        'header-dropdown-shadow': '0px 0px 10px -4px rgba(0,0,0,0.75)',
       },
       maxWidth: {
         '1728': '1728px', // 기본 max-width

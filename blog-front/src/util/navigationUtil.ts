@@ -17,9 +17,20 @@ interface PostDetailData{
 const useNavigationHelper = () => {
     const navigate = useNavigate();
     // 정적
+    // 홈
     const toHome = () => navigate(ROUTES.HOME);
+    const toHomeViews = () => navigate(ROUTES.HOME_VIEWS);
+    const toHomeLatest = () => navigate(ROUTES.HOME_LATEST);
+    const toHomeLikes = () => navigate(ROUTES.HOME_LIKES);
+
+    const toSearch = () => navigate(ROUTES.SEARCH);
     const toSetting = () => navigate(ROUTES.SETTING);
     const toPostWrite = () => navigate(ROUTES.POST_WRITE);
+    
+    // 히스토리
+    const toHistory = () => navigate(ROUTES.HISTORY);
+    const toHistoryLiked = () => navigate(ROUTES.HISTORY_LIKED);
+    const toHistoryComments = () => navigate(ROUTES.HISTORY_COMMENTS);
     
     // 동적
     const toPostDetail = (nickname: string, postUuid: string) => {
@@ -36,7 +47,7 @@ const useNavigationHelper = () => {
         navigate(DYNAMIC_ROUTES.USER_BLOG(nickname));
     }
 
-    return { toHome, toPostWrite, toSetting, toPostDetail, toPostDetailPreRead, toPostRewrite, toUserBlog }
+    return { toHome, toHomeViews, toHomeLatest, toHomeLikes, toSearch, toPostWrite, toHistory, toHistoryLiked, toHistoryComments, toSetting, toPostDetail, toPostDetailPreRead, toPostRewrite, toUserBlog }
 }
 
 export default useNavigationHelper;

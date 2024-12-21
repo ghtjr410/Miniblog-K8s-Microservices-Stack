@@ -24,3 +24,4 @@ html, body, #root {
 .hover-text-blink:hover {
   animation: text-blink 1s ease-in-out infinite;
 }
+
