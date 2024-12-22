@@ -1,11 +1,11 @@
 import React, { useEffect} from "react"; 
 import Keycloak from "keycloak-js";
-import HistoryHeader from "../components/header/history/HistroyHeader";
+import HistoryHeader from "../../components/header/history/HistroyHeader";
 import { useLocation } from "react-router-dom";
 import { FaHeart, FaRegComment } from "react-icons/fa";
 import { PiEyeLight } from "react-icons/pi";
-import SkeletonHistoryHeader from "../components/skeleton/SkeletonHistoryHeader";
-import SkeletonCardBody from "../components/skeleton/SkeletonCardBody";
+import SkeletonHistoryHeader from "../../components/skeleton/SkeletonHistoryHeader";
+import SkeletonCardBody from "../../components/skeleton/SkeletonCardBody";
 
 interface Props {
     keycloak: Keycloak | null;
