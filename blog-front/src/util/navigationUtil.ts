@@ -33,21 +33,38 @@ const useNavigationHelper = () => {
     const toHistoryComments = () => navigate(ROUTES.HISTORY_COMMENTS);
     
     // 동적
+    // 게시글 상세페이지
     const toPostDetail = (nickname: string, postUuid: string) => {
         navigate(DYNAMIC_ROUTES.POST_DETAIL(nickname, postUuid));
     }
+    // 게시글 상세페이지 (최종적 일관성)
     const toPostDetailPreRead = (nickname: string, postUuid: string, postDetailData: PostDetailData) => {
         navigate(DYNAMIC_ROUTES.POST_DETAIL(nickname, postUuid), {state: { postDetailData }});
     }
-
+    // 게시글 수정페이지
     const toPostRewrite = (postUuid: string) => {
         navigate(DYNAMIC_ROUTES.POST_REWRITE(postUuid));
     }
+    // 유저 블로그
     const toUserBlog = (nickname: string) => {
         navigate(DYNAMIC_ROUTES.USER_BLOG(nickname));
     }
+    // 유저 블로그 조회수 정렬
+    const toUserBlogViews = (nickname: string) => {
+        navigate(DYNAMIC_ROUTES.USER_BLOG_VIEWS(nickname));
+    }
+    // 유저 블로그 최신 정렬
+    const toUserBlogLatest = (nickname: string) => {
+        navigate(DYNAMIC_ROUTES.USER_BLOG_LATEST(nickname));
+    }
+    // 유저 블로그 좋아요 정렬
+    const toUserBlogLikes = (nickname: string) => {
+        navigate(DYNAMIC_ROUTES.USER_BLOG_LIKES(nickname));
+    }
 
-    return { toHome, toHomeViews, toHomeLatest, toHomeLikes, toSearch, toPostWrite, toHistory, toHistoryLiked, toHistoryComments, toSetting, toPostDetail, toPostDetailPreRead, toPostRewrite, toUserBlog }
+    return { toHome, toHomeViews, toHomeLatest, toHomeLikes, toSearch, toPostWrite, toHistory, 
+        toHistoryLiked, toHistoryComments, toSetting, toPostDetail, toPostDetailPreRead, toPostRewrite, toUserBlog,
+        toUserBlogViews, toUserBlogLatest, toUserBlogLikes }
 }
 
 export default useNavigationHelper;
