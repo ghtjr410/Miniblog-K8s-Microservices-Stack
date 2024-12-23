@@ -8,16 +8,18 @@ import { CiClock2, CiHeart, CiWavePulse1 } from "react-icons/ci";
 
 interface Props{
     keycloak: Keycloak | null;
+    keycloakStatus: "loading" | "authenticated" | "unauthenticated";
 }
 
 type SortOption = 'views' | 'latest' | 'likes';
 
-const HomeHeader: React.FC<Props> = ({keycloak}) => {
+const HomeHeader: React.FC<Props> = ({keycloak, keycloakStatus}) => {
     const location = useLocation();
     const [selectedSort, setSelectedSort] = useState<SortOption>('views');
+    const [userInfo, setUserInfo] = useState<null | Record<string, any>>(null);
     const [dropdownVisible, setDropdownVisible] = useState<boolean>(false);
     const [isVisible, setIsVisible] = useState<boolean>(true);
-    const { toHome, toHomeViews, toHomeLatest, toHomeLikes, toSearch, toHistory, toPostWrite, toSetting} = useNavigationHelper();
+    const { toHome, toUserBlog, toHomeViews, toHomeLatest, toHomeLikes, toSearch, toHistory, toPostWrite, toSetting} = useNavigationHelper();
 
     let lastScrollY = window.scrollY;
 
@@ -30,6 +32,16 @@ const HomeHeader: React.FC<Props> = ({keycloak}) => {
             setSelectedSort('views')
         }
     }, [location.pathname]);
+
+    useEffect(() => {
+        if (keycloakStatus === "authenticated" && keycloak && keycloak.authenticated) {
+            // 사용자 정보 로드
+            keycloak.loadUserInfo().then((userInfo) => {
+                setUserInfo(userInfo);
+                console.log(JSON.stringify(userInfo));
+            });
+        }
+    }, [keycloak, keycloakStatus]);
 
     // 스크롤 이벤트 (헤더)
     useEffect(() => {
@@ -135,7 +147,9 @@ const HomeHeader: React.FC<Props> = ({keycloak}) => {
                                 {/* (로그인) 드랍다운 */}
                                 {dropdownVisible && (
                                     <div className="absolute top-14 right-0 w-48 bg-white shadow-header-dropdown-shadow z-10 rounded-md overflow-hidden">
-                                        <div className="px-3 py-4 text-gray-500 hover:text-black hover:font-semibold hover:bg-gray-100">
+                                        <div 
+                                            className="px-3 py-4 text-gray-500 hover:text-black hover:font-semibold hover:bg-gray-100"
+                                            onClick={() => toUserBlog(userInfo!.nickname)}>
                                             내 블로그
                                         </div>
                                         <div 
