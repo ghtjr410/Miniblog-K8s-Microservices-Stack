@@ -27,56 +27,64 @@ public class UserQueryService {
     private final ProfileRepository profileRepository;
 
     // 1. 사용자 UUID를 기준으로 좋아요 누른 게시글 목록 가져오기
-    public List<Post> getPostsLikedByUser(String userUuid) {
+    public Page<Post> getPostsLikedByUser(String userUuid, int page, int size) {
         List<Like> likes = likeRepository.findByUserUuid(userUuid);
         List<String> postUuids = likes.stream()
                 .map(Like::getPostUuid)
                 .collect(Collectors.toList());
-        return postRepository.findAllById(postUuids);
+        Pageable pageable = PageRequest.of(page, size);
+        return postRepository.findByPostUuidInOrderByCreatedDateDesc(postUuids, pageable);
     }
 
-   // 2. 사용자 UUID를 기준으로 작성한 댓글 목록 가져오기
-    public List<Comment> getCommentsByUser(String userUuid) {
-        return commentRepository.findByUserUuid(userUuid);
+    // 2. 사용자 UUID를 기준으로 작성한 댓글 목록 가져오기
+    public Page<Post> getCommentsByUser(String userUuid, int page, int size) {
+        List<Comment> comments = commentRepository.findByUserUuid(userUuid);
+        List<String> postUuids = comments.stream()
+                .map(Comment::getPostUuid)
+                .distinct() // 같은 게시글에 여러 댓글을 달았을 수도 있으므로 중복 제거
+                .collect(Collectors.toList());
+        Pageable pageable = PageRequest.of(page, size);
+        return postRepository.findByPostUuidInOrderByCreatedDateDesc(postUuids, pageable);
     }
 
-    //3. 사용자 UUID를 기준으로 작성한 게시글 모든 목록 가져오기
-    public List<Post> getPostsByUser(String userUuid) {
-        return postRepository.findByUserUuid(userUuid);
+    //todo: 3. 닉네임을 기준으로 최신순 게시글 가져오기
+    public List<Post> getPostsByNickname(String nickname) {
+        return postRepository.findByNicknameOrderByCreatedDateDesc(nickname);
     }
-
-    //4. 사용자 UUID를 기준으로 작성한 게시글 최신순으로 20개씩 가져오기
-    public Page<Post> getPostsByUserOrderByCreatedDateDesc(String userUuid, int page, int size) {
+    //todo: 4. 사용자 UUID를 기준으로 작성한 게시글 최신순으로 20개씩 가져오기
+    public Page<Post> getPostsByNicknameOrderByCreatedDateDesc(String nickname, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        return postRepository.findByUserUuidOrderByCreatedDateDesc(userUuid, pageable);
+        return postRepository.findByNicknameOrderByCreatedDateDesc(nickname, pageable);
     }
-    //5. 사용자 UUID를 기준으로 작성한 게시글 좋아요순으로 20개씩 가져오기
-    public Page<Post> getPostsByUserOrderByLikeCountDesc(String userUuid, int page, int size) {
+    //todo: 5. 사용자 UUID를 기준으로 작성한 게시글 좋아요순으로 20개씩 가져오기
+    public Page<Post> getPostsByNicknameOrderByLikeCountDesc(String nickname, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        return postRepository.findByUserUuidOrderByLikeCountDesc(userUuid, pageable);
+        return postRepository.findByNicknameOrderByLikeCountDesc(nickname, pageable);
     }
-    //6. 사용자 UUID를 기준으로 작성한 게시글 조회수순으로 20개씩 가져오기
-    public Page<Post> getPostsByUserOrderByTotalViewsDesc(String userUuid, int page, int size) {
+    //todo: 6. 사용자 UUID를 기준으로 작성한 게시글 조회수순으로 20개씩 가져오기
+    public Page<Post> getPostsByNicknameOrderByTotalViewsDesc(String nickname, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        return postRepository.findByUserUuidOrderByTotalViewsDesc(userUuid, pageable);
+        return postRepository.findByNicknameOrderByTotalViewsDesc(nickname, pageable);
     }
-    //7. 사용자 UUID를 기준으로 프로필 정보 가져오기
-    public Optional<Profile> getProfileByUserUuid(String userUuid) {
-        return profileRepository.findByUserUuid(userUuid);
+    //todo: 7. 사용자 UUID를 기준으로 프로필 정보 가져오기
+    public Optional<Profile> getProfileByNickname(String nickname) {
+        return profileRepository.findByNickname(nickname);
     }
-    //8. 사용자 UUID를 기준으로 제목으로 검색하기
-    public Page<Post> searchPostsByUserAndTitle(String userUuid, String title, int page, int size) {
+    //todo: 8. 사용자 UUID를 기준으로 제목으로 검색하기
+    public Page<Post> searchPostsByNicknameAndTitle(String nickname, String title, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        return postRepository.findByUserUuidAndTitleContaining(userUuid, title, pageable);
+        return postRepository.findByNicknameAndTitleContaining(nickname, title, pageable);
     }
-    //9. 사용자 UUID를 기준으로 내용으로 검색하기
-    public Page<Post> searchPostsByUserAndContent(String userUuid, String content, int page, int size) {
+    //todo: 9. 사용자 UUID를 기준으로 내용으로 검색하기
+    public Page<Post> searchPostsByNicknameAndContent(String nickname, String content, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        return postRepository.findByUserUuidAndContentContaining(userUuid, content, pageable);
+        return postRepository.findByNicknameAndContentContaining(nickname, content, pageable);
     }
-    // 사용자 UUID를 기준으로 제목과 내용으로 텍스트 검색하기
-    public Page<Post> searchPostsByUserUuidAndText(String userUuid, String text, int page, int size) {
+    //todo:  닉네임을 기준으로 제목과 내용으로 텍스트 검색하기
+    public Page<Post> searchPostsByNicknameAndText(String nickname, String text, int page, int size) {
+        // 부분 일치(앞뒤로 아무 글자나 붙을 수 있음)를 위해 .* 패턴 사용
+        String regex = ".*" + text + ".*";
         Pageable pageable = PageRequest.of(page, size);
-        return postRepository.searchByUserUuidAndText(userUuid, text, pageable);
+        return postRepository.searchByNicknameAndText(nickname, text, pageable);
     }
 }
