@@ -38,7 +38,7 @@ public class PostController {
 
     @DeleteMapping("/{postUuid}")
     public ResponseEntity<?> deletePost(
-            @RequestHeader(value = "X-User-Sub", required = false) String userUuid,
+            @RequestHeader(value = "X-User-Sub", required = false) @ValidUuid String userUuid,
             @PathVariable @ValidUuid String postUuid) {
             postService.deletePost(userUuid, postUuid);
             return ResponseEntity.noContent().build();

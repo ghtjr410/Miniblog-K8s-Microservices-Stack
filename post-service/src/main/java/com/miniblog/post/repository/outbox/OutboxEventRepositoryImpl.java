@@ -2,12 +2,9 @@ package com.miniblog.post.repository.outbox;
 
 import com.miniblog.post.helper.SagaStatusUpdater;
 import com.miniblog.post.util.SagaStatus;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.Query;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
-import java.util.Arrays;
 import java.util.UUID;
 
 @Repository
