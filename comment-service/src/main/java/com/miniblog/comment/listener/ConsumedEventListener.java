@@ -13,7 +13,7 @@ public class ConsumedEventListener {
     @PrePersist
     public void prePersist(ConsumedEvent consumedEvent) {
         if (consumedEvent.getSagaStatus() == null) {
-            consumedEvent.setSagaStatus(SagaStatus.CREATED);
+            consumedEvent.setSagaStatus(SagaStatus.PROCESSING);
         }
         if (consumedEvent.getCreatedDate() == null) {
             consumedEvent.setCreatedDate(Instant.now());
