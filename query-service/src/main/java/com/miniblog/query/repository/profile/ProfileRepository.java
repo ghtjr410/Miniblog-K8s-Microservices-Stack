@@ -6,6 +6,6 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import java.util.Optional;
 
 public interface ProfileRepository extends MongoRepository<Profile, String>, ProfileOperations {
-    Optional<Profile> findByUserUuid(String userUuid);
+    Optional<Profile> findByNickname(String nickname);  //todo:
     void deleteByUserUuid(String userUuid);
 }
