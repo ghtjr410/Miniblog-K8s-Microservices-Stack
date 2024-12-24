@@ -40,10 +40,11 @@ public class PostRepositoryImpl implements PostIncrementOperations, PostDecremen
     }
 
     @Override
-    public boolean updatePost(String postUuid, String title, String content, Instant updatedDate) {
+    public boolean updatePost(String postUuid, String title, String plainContent, String content, Instant updatedDate) {
         Query query = new Query(Criteria.where("postUuid").is(postUuid));
         Update update = new Update()
                 .set("title", title)
+                .set("plainContent",plainContent)
                 .set("content", content)
                 .set("updatedDate", updatedDate);
         UpdateResult result = mongoOperations.updateFirst(query, update, Post.class);
