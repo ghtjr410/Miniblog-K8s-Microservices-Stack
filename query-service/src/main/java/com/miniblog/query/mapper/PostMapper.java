@@ -2,6 +2,8 @@ package com.miniblog.query.mapper;
 
 import com.miniblog.post.avro.PostCreatedEvent;
 import com.miniblog.query.model.Post;
+import com.miniblog.query.util.HtmlUtils;
+import org.jsoup.Jsoup;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
@@ -16,6 +18,7 @@ public class PostMapper {
                 .userUuid(postCreatedEvent.getUserUuid().toString())
                 .nickname(postCreatedEvent.getNickname().toString())
                 .title(postCreatedEvent.getTitle().toString())
+                .plainContent(HtmlUtils.toPlainText(postCreatedEvent.getContent().toString()))
                 .content(postCreatedEvent.getContent().toString())
                 .createdDate(Instant.ofEpochMilli(postCreatedEvent.getCreatedDate()))
                 .updatedDate(Instant.ofEpochMilli(postCreatedEvent.getUpdatedDate()))
@@ -24,4 +27,6 @@ public class PostMapper {
                 .commentCount(0)
                 .build();
     }
+
+
 }

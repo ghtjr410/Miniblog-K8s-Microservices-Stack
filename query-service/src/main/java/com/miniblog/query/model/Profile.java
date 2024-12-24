@@ -15,6 +15,7 @@ public class Profile {
 
     @Indexed
     private String userUuid;
+    @Indexed
     private String nickname;
     private String email;
     private String title;

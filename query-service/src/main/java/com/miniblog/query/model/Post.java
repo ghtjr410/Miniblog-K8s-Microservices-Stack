@@ -12,21 +12,29 @@ import java.time.Instant;
 @Builder
 @Document(collection = "posts")
 @CompoundIndexes({
-        @CompoundIndex(name = "user_createdDate_idx", def = "{'userUuid': 1, 'createdDate': -1}"),
-        @CompoundIndex(name = "user_likeCount_idx", def = "{'userUuid': 1, 'likeCount': -1}"),
-        @CompoundIndex(name = "user_totalViews_idx", def = "{'userUuid': 1, 'totalViews': -1}")
+        // 닉네임 + 작성일 내림차순 정렬용
+        @CompoundIndex(name = "nickname_createdDate_idx", def = "{'nickname': 1, 'createdDate': -1}"),
+        // 닉네임 + 좋아요수 내림차순 정렬용
+        @CompoundIndex(name = "nickname_likeCount_idx", def = "{'nickname': 1, 'likeCount': -1}"),
+        // 닉네임 + 조회수 내림차순 정렬용
+        @CompoundIndex(name = "nickname_totalViews_idx", def = "{'nickname': 1, 'totalViews': -1}")
 })
 public class Post {
     @Id
     private String postUuid;
+
     @Indexed
     private String userUuid;
 
+    @Indexed
     private String nickname;
+
     @TextIndexed
     private String title;
+
     @TextIndexed
-    private String content;
+    private String plainContent; // HTML 제거된 순수 텍스트만 저장
+    private String content;      // HTML이 포함된 원본 (에디터 렌더링용)
 
     @Indexed(direction = IndexDirection.DESCENDING)
     private Instant createdDate;
