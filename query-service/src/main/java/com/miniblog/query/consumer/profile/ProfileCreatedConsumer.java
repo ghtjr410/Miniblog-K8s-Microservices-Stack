@@ -19,7 +19,7 @@ public class ProfileCreatedConsumer extends GenericConsumer<ProfileCreatedEvent>
 
     @Override
     protected ConsumedEventType getConsumedEventType() {
-        return ConsumedEventType.COMMENT_CREATE;
+        return ConsumedEventType.PROFILE_CREATE;
     }
 
     @Override

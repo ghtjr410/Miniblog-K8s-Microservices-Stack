@@ -2,6 +2,8 @@ package com.miniblog.query.handler.account;
 
 import com.miniblog.account.avro.AccountDeletedEvent;
 import com.miniblog.query.handler.EventConsumerHandler;
+import com.miniblog.query.model.Comment;
+import com.miniblog.query.model.Like;
 import com.miniblog.query.repository.comment.CommentRepository;
 import com.miniblog.query.repository.like.LikeRepository;
 import com.miniblog.query.repository.post.PostRepository;
@@ -12,6 +14,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.specific.SpecificRecordBase;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -27,13 +31,24 @@ public class AccountDeletedHandler implements EventConsumerHandler {
         AccountDeletedEvent accountDeletedEvent = (AccountDeletedEvent) event;
         String userUuid = accountDeletedEvent.getUserUuid().toString();
         try {
-            // 게시글 삭제
+            // 1. 유저가 작성한 댓글과 좋아요를 먼저 조회한다.
+            List<Comment> userComments = commentRepository.findByUserUuid(userUuid);
+            List<Like> userLikes = likeRepository.findByUserUuid(userUuid);
+
+            // 2. 유저가 남긴 댓글을 달았던 게시글의 commentCount를 1씩 감소시킨다.
+            for (Comment comment : userComments) {
+                postRepository.decrementCommentCount(comment.getPostUuid());
+            }
+
+            // 3. 유저가 좋아요를 눌렀던 게시글의 likeCount를 1씩 감소시킨다.
+            for (Like like : userLikes) {
+                postRepository.decrementLikeCount(like.getPostUuid());
+            }
+
+            // 4. 유저가 작성한 게시글(본인 소유), 댓글, 좋아요, 프로필 정보를 모두 삭제한다
             postRepository.deleteByUserUuid(userUuid);
-            // 댓글 삭제
             commentRepository.deleteByUserUuid(userUuid);
-            // 좋아요 삭제
             likeRepository.deleteByUserUuid(userUuid);
-            // 프로필 삭제
             profileRepository.deleteByUserUuid(userUuid);
 
             log.info("게시물 및 연관 데이터 삭제 성공: userUuid={}", userUuid);
