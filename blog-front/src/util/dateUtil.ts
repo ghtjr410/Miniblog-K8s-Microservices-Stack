@@ -1,4 +1,7 @@
 export const formatDate = (isoDate: string): string => {
+    if (isoDate === "") {
+        return "";
+    }
     const targetDate = new Date(isoDate);
     const now = new Date();
     const diffInSeconds = Math.floor((now.getTime() - targetDate.getTime()) / 1000);
