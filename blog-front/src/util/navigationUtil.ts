@@ -17,6 +17,7 @@ interface PostDetailData{
 const useNavigationHelper = () => {
     const navigate = useNavigate();
     // 정적
+    const toBack = () => navigate(-1)
     // 홈
     const toHome = () => navigate(ROUTES.HOME);
     const toHomeViews = () => navigate(ROUTES.HOME_VIEWS);
@@ -62,8 +63,13 @@ const useNavigationHelper = () => {
         navigate(DYNAMIC_ROUTES.USER_BLOG_LIKES(nickname));
     }
 
-    return { toHome, toHomeViews, toHomeLatest, toHomeLikes, toSearch, toPostWrite, toHistory, 
+    const toUserBlogSearch = (nickname: string, keyword?: string) => {
+        navigate(DYNAMIC_ROUTES.USER_BLOG_SEARCH(nickname, keyword));
+    }
+
+    return { toBack, toHome, toHomeViews, toHomeLatest, toHomeLikes, toSearch, toPostWrite, toHistory, 
         toHistoryLiked, toHistoryComments, toSetting, toPostDetail, toPostDetailPreRead, toPostRewrite, toUserBlog,
+        toUserBlogSearch,
         toUserBlogViews, toUserBlogLatest, toUserBlogLikes }
 }
 
