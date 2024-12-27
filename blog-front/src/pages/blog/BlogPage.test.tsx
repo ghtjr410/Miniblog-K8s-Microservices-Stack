@@ -2,61 +2,236 @@ import React, { useEffect, useRef, useState } from "react";
 import Keycloak from "keycloak-js";
 import SkeletonBlogHeader from "../../components/skeleton/SkeletonBlogHeader";
 import BlogHeader from "../../components/header/blog/BlogHeader";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import { PiEyeLight } from "react-icons/pi";
 import { FaAlignJustify, FaAngleLeft, FaHeart, FaRegComment } from "react-icons/fa";
 import { TiArrowDownThick, TiArrowUpThick } from "react-icons/ti";
 import { BsSearch } from "react-icons/bs";
 import SkeletonBlogBody from "../../components/skeleton/SkeletonBlogBody";
+import useNavigationHelper from "../../util/navigationUtil";
+import { getNicknameLatestPosts, getNicknameMostLikedPosts, getNicknameMostViewedPosts, getNicknamePosts, getNicknameProfile } from "../../service/queryService.auth";
+import DOMPurify from "dompurify";
+import { formatDate } from "../../util/dateUtil";
 
 interface Props {
     keycloak: Keycloak | null;
     keycloakStatus: "loading" | "authenticated" | "unauthenticated";
 }
 
+type SortOption = 'views' | 'latest' | 'likes' | null;
+
+interface ContentData {
+    id: string;
+    content: string;
+    createdDate: string;
+    nickname: string;
+    postUuid: string;
+    title: string;
+    updatedDate: number;
+    userUuid: string;
+    commentCount: number;
+    likeCount:number;
+    totalViews:number;
+}
+
+interface NicknamePostsData{
+    postUuid: string;
+    userUuid: string;
+    nickname: string;
+    title: string;
+}
+
 const TestBlogPage : React.FC<Props> = ({keycloak, keycloakStatus}) => {
+    const location = useLocation();
     const { nickname } = useParams();
+    const [selectedSort, setSelectedSort] = useState<SortOption>(null);
+    const [contentData, setContentData] = useState<ContentData[]>([]);
+    const [pageEmpty, setPageEmpty] = useState<boolean>(false);
+    const [page, setPage] = useState<number>(0);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [hasError, setHasError] = useState<boolean>(false);
+    const [sentinel, setSentinel] = useState<HTMLDivElement | null>(null);
+
+    const [blogPosts, setBlogPosts] = useState<NicknamePostsData[]>([]);
+    const [blogTitle, setBlogTitle] = useState<string>('');
+    const [blogIntro, setBlogIntro] = useState<string>('');
+
+    const [keyword, setKeyword] = useState("");
+
     const [showRemote, setShowRemote] = useState<boolean>(true);
     const [showSlide, setShowSlide] = useState<boolean>(false);
 
+    const { toUserBlog, toPostDetail, toUserBlogSearch } = useNavigationHelper();
+    // 1. pathname 분기점 (pathname 변경 시)
+    useEffect(() => {
+        // 경로를 '/'로 나눠 배열로 만듦
+        const pathSegments = location.pathname.split("/");
+        // 마지막 경로 추출
+        const lastSegment = pathSegments[pathSegments.length - 1];
+        if (lastSegment === "latest") {
+            setSelectedSort('latest')
+        } else if (lastSegment === "likes") {
+            setSelectedSort('likes')
+        } else {
+            setSelectedSort('views')
+        }
+        setContentData([]);
+        setPage(0);
+        setPageEmpty(false);
+        setHasError(false);
 
-        // 화면의 다른 곳을 클릭하면 리모콘을 토글
-        useEffect(() => {
-            const handleClickOutside = (e: MouseEvent) => {
-            // 버튼 영역을 제외하고 클릭했을 때만 실행
-            if (!(e.target as HTMLElement).closest(".remote-button")) {
-                setShowRemote((prev) => !prev);
-            }
-            };
+        console.log(`첫번째 로직 : ${lastSegment}, ${selectedSort}`)
+    }, [location.pathname]);
+    // 2. 옵저버 생성 (옵저버상태, 데이터로딩, 데이터실패 시)
+    useEffect(() => {
+        
+        if (!sentinel) {
+            console.warn("Sentinel이 DOM에 연결되지 않았습니다.");
+            return;
+        }
+
+        if(pageEmpty) {
+            console.warn(`pageEmpty : ${pageEmpty}`);
+            return;
+        }
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                console.log("감지하고 있나?");
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting && !isLoading && !hasError) {
+                        setPage((prevPage) => prevPage + 1);
+                        console.log("스크롤이 맨 아래에 닿기 직전입니다!", page + 1);
+                    }
+                });
+            },
+            { root: null, rootMargin: "0px", threshold: 1.0 }
+        );
     
-            document.addEventListener("click", handleClickOutside);
+        observer.observe(sentinel);
     
-            return () => {
-            document.removeEventListener("click", handleClickOutside);
-            };
-        }, []);
-    
-        // 화면 크기가 1440px 이하일 때 showSlide를 false로 설정
-        useEffect(() => {
-            const handleResize = () => {
-                if (window.innerWidth <= 1440) {
-                    setShowSlide(false);
-                }
-            };
-    
-            // 초기 실행
-            handleResize();
-    
-            window.addEventListener("resize", handleResize);
-    
-            return () => {
-                window.removeEventListener("resize", handleResize);
-            };
-        }, []);
-    
-        const toggleSlide = () => {
-            setShowSlide((prev) => !prev);
+        return () => {
+            observer.disconnect();
         };
+    }, [sentinel, isLoading, hasError]);
+
+    // 3. 본문 데이터 요청 (정렬, 페이지 변경 시)
+    useEffect(() => {
+        fetchData(page);
+        console.log(`두번째 로직 : 정렬 = ${selectedSort}, 페이지 = ${page}`)
+    }, [selectedSort, page, nickname]);
+
+    // 4. 사이드바 데이터 요청 (초기화시 1번만)
+    useEffect(() => {
+        if(!nickname) return;
+        fetchNicknamePosts(nickname);
+        fetchNicknameProfile(nickname);
+    }, [nickname]);
+
+    // 화면의 다른 곳을 클릭하면 리모콘을 토글
+    useEffect(() => {
+        const handleClickOutside = (e: MouseEvent) => {
+        // 버튼 영역을 제외하고 클릭했을 때만 실행
+        if (!(e.target as HTMLElement).closest(".remote-button")) {
+            setShowRemote((prev) => !prev);
+        }
+        };
+
+        document.addEventListener("click", handleClickOutside);
+
+        return () => {
+        document.removeEventListener("click", handleClickOutside);
+        };
+    }, []);
+
+    // 화면 크기가 1440px 이하일 때 showSlide를 false로 설정
+    useEffect(() => {
+        const handleResize = () => {
+            if (window.innerWidth <= 1440) {
+                setShowSlide(false);
+            }
+        };
+
+        // 초기 실행
+        handleResize();
+
+        window.addEventListener("resize", handleResize);
+
+        return () => {
+            window.removeEventListener("resize", handleResize);
+        };
+    }, []);
+
+    const fetchData = (currentPage: number) => {
+        
+        if ( !selectedSort || pageEmpty || isLoading) return; // 페이지 끝이거나 로딩 중이면 반환
+
+        setIsLoading(true);
+        setHasError(false);
+
+        let fetchPromise;
+        console.log(`fetchData switch문 전 : ${selectedSort}`);
+        switch (selectedSort) {
+            case 'latest':
+                fetchPromise = getNicknameLatestPosts(nickname!, currentPage, 20);
+                break;
+            case 'likes':
+                fetchPromise = getNicknameMostLikedPosts(nickname!, currentPage, 20);
+                break;
+            default:
+                fetchPromise = getNicknameMostViewedPosts(nickname!, currentPage, 20);
+        }
+
+        fetchPromise
+            .then((response) => {
+                console.log('Fetched data:', response.content, response.empty);
+                setContentData((prevData) => [...prevData, ...response.content]);
+                setPageEmpty(response.empty);
+            })
+            .catch((error) => {
+                console.error('Error fetching data:', error);
+                setHasError(true);
+            })
+            .finally(() => {
+                setIsLoading(false); // 로딩 종료
+            });
+    };
+
+    const fetchNicknameProfile = (nickname: string) => {
+        getNicknameProfile(nickname)
+        .then((response) => {
+            console.log(response);
+            setBlogTitle(response.title);
+            setBlogIntro(response.intro);
+        })
+        .catch((error) => {
+            console.error("데이터 가져오는데 실패", error);
+            setBlogTitle(`${nickname}'s blog`);
+            setBlogIntro("");
+        })
+    }
+
+    const fetchNicknamePosts = (nickname: string) => {
+        getNicknamePosts(nickname)
+        .then((response) => {
+            console.log(response);
+            setBlogPosts(response);
+        })
+        .catch((error) => {
+            console.error("데이터가져오는데 실패", error);
+        })
+    }
+
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === "Enter") {
+            toUserBlogSearch(nickname!, keyword);
+        }
+    };
+
+
+    const toggleSlide = () => {
+        setShowSlide((prev) => !prev);
+    };
 
 
     if (!keycloak) {
@@ -70,115 +245,157 @@ const TestBlogPage : React.FC<Props> = ({keycloak, keycloakStatus}) => {
 
     return (
         <>
-            <BlogHeader keycloak={keycloak} nickname={nickname!}/>
+            <BlogHeader keycloak={keycloak} keycloakStatus={keycloakStatus} nickname={nickname!}/>
             {/* 전체 바디 (빈공간 포함) */}
             <div className="min-w-full min-h-screen flex justify-center bg-gray-100">
                 {/* 본문 (빈공간 미포함) */}
-                <div className="flex-1 flex justify-center bg-white shadow-lg max-w-1728 pt-20 pb-4 px-4 2xl:max-x-1376 xl:max-w-1024">
+                <div className="max-w-1728 2xl:max-x-1376 xl:max-w-1024 pt-20 pb-4 px-4 flex-1 flex justify-center   bg-white shadow-lg">
                     <div className="relative pt-32 pb-16 w-[768px] xs:w-full px-4 bg-white flex flex-col">
                         {/* 왼쪽 게시글 목록 */}
-                        <aside className="absolute top-0 -left-72 w-64 min-h-72 flex h-full  xl:hidden   bg-white">
+                        <aside className="absolute top-0 -left-72 w-64 min-h-72 flex h-full xl:hidden bg-white">
                             {/* Inner Box */}
-                            <div className="mt-40 mb-10 py-4 w-full max-h-full flex flex-col  rounded-md">
+                            <div className="mt-40 mb-10 py-4 w-full max-h-full flex flex-col rounded-md">
                                 <div // 블로그 이름
                                     className="px-2 py-4 text-xl bg-gray-100 rounded-md mb-2 text-center font-bold cursor-pointer"
-                                    onClick={() => {alert("해당 블로그로 이동")}}
-                                >
-                                    가가가가가가가가가가
+                                    onClick={() => toUserBlog(nickname!)}>
+                                        {blogTitle}
                                 </div>
                                 <div // 블로그 소개
-                                    className="px-2 py-4 rounded-md border border-gray-300 text-sm bg-white  empty:hidden">
-                                    일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오육칠팔구십
+                                    className="px-2 py-4 rounded-md border border-gray-300 text-sm bg-white  empty:hidden break-words whitespace-pre-line">
+                                    {blogIntro}
                                 </div>
                                 <div className="p-2 pt-4">
                                     <div className="px-2 py-1 border border-gray-400 flex  justify-center items-center">
                                         <BsSearch size={20}/>
                                         <input 
                                             className="pl-2 w-full outline-none"
-                                            type="text" />
+                                            type="text"                                                 
+                                            placeholder="검색어를 입력하세요"
+                                            value={keyword}
+                                            onChange={(e) => setKeyword(e.target.value)}
+                                            onKeyDown={handleKeyDown}/>
                                     </div>
                                 </div>
-                                
-                                <div // 블로그 이름
-                                    className="py-4 px-2 text-base font-bold cursor-pointer hover:underline hover:text-gray-500"
-                                >
+                                <div className="py-4 px-2 text-base font-bold">
                                     게시글 목록
                                 </div>
                                 <div // 글목록
                                     className="py-4 px-2 overflow-y-auto ">
-                                    <ul className="space-y-4 border-l-2 border-gray-300 bg-gray-50">
-                                        {Array.from({ length: 50 }).map((_, index) => (
+                                    <ul className="space-y-4 border-l-2 border-gray-300">
+                                        {blogPosts.map((post) => (
                                             <li 
-                                            key={index}
-                                            className=" hover-text-blink px-2 text-sm truncate cursor-pointer"
-                                            onClick={() => {alert("해당 게시글로 이동")}}
-                                        >
-                                            메뉴 항목 1@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-                                        </li>
+                                                key={post.postUuid}
+                                                className=" hover-text-blink px-2 text-sm truncate cursor-pointer"
+                                                onClick={() => toPostDetail(post.nickname, post.postUuid)}>
+                                                {post.title}
+                                            </li>
                                         ))}
                                     </ul>
                                 </div>
                             </div>
                         </aside>
-                        {/* <div className="flex flex-col justify-center items-center">
-                            <div className="w-[425px] 2xs:w-[325px] ">
-                                <img
-                                    className="ml-4" 
-                                    src="https://images.ghtjr.com/e94915c9-e28d-4217-ad2e-e30a7a685d7c_empty_box_miniblog.png" alt="" />
+                        {/* 빈 리스트 */}
+                        {hasError && (
+                            <div className="flex flex-col justify-center items-center">
+                                <div className="w-[425px] 2xs:w-[325px] ">
+                                    <img
+                                        className="ml-4" 
+                                        src="https://images.ghtjr.com/e94915c9-e28d-4217-ad2e-e30a7a685d7c_empty_box_miniblog.png" alt="" />
+                                </div>
+                                <div className="mt-6 text-2xl 2xs:text-xl text-gray-500">
+                                    리스트가 비어있습니다.
+                                </div>
                             </div>
-                            <div className="mt-6 text-2xl 2xs:text-xl">
-                                아직 게시글이 존재하지 않습니다
-                            </div>
-                        </div> */}
+                        )}
                     
                         {/* 본문 그리드 */}
                         <div className="grid grid-cols-2 gap-6 mx-auto xs:flex xs:flex-col" >
 
-                            {Array.from({ length: 0 }).map((_, index) => (
-                                <div
-                                    key={index}
-                                    className="bg-white w-full aspect-[17/20] md:aspect-[20/19] xs:aspect-[20/16] flex flex-col rounded-lg shadow-lg overflow-hidden hover:shadow-xl transform hover:-translate-y-2 transition duration-300 ease-in-out">
-                                    <div className="h-[167px] overflow-hidden cursor-pointer md:h-[255px] xs:h-[372px]">
-                                        <img
-                                            src={"https://velog.velcdn.com/images/sehyunny/post/fd9273aa-7a11-4c9b-ba3d-450dd04e6a1c/image.png"}
-                                            alt="content"
-                                            className="h-full w-full object-cover"
-                                        />
-                                    </div>
-                                    <div className="flex-1 flex-col p-4">
-                                        <div className=" text-lg mb-1 font-black line-clamp-1">
-                                            지난 몇 달간, 저는 AI에 대해 점점 더 불안해하는 많은 주니어 개발자들과 얘기를 나눴습니다. 그들은 GPT-4와 같은 도구들의 갈수록 발전해가는 인상적인 데모를 보고
+                            {contentData.map((item) => {
+                                // 0) 본문 콘텐츠를 정제
+                                const sanitizedContent = DOMPurify.sanitize(item.content);
+
+                                // 1) 임시 div 생성 후, sanitize 적용
+                                const tempElement = document.createElement("div");
+                                tempElement.innerHTML = sanitizedContent;
+            
+                                // 2) 모든 <img> 태그를 가져옴
+                                const imgElements = Array.from(tempElement.querySelectorAll("img"));
+            
+                                // 3) 대표 이미지 URL 추출 (첫 번째 <img> 기준)
+                                let imageUrl: string | null = null;
+                                if (imgElements.length > 0) {
+                                imageUrl = imgElements[0].src;
+                                }
+
+                                // 4) 나머지 이미지를 전부 제거
+                                //    (대표 이미지도 본문에선 제거해야 하므로, 전체 <img> 태그 remove)
+                                imgElements.forEach((img) => {
+                                    img.remove();
+                                });
+
+                                return (
+                                    <div
+                                        key={item.postUuid}
+                                        className="bg-white w-[356px] h-[418px]  flex flex-col rounded-lg shadow-lg overflow-hidden hover:shadow-xl transform hover:-translate-y-2 transition duration-300 ease-in-out">
+                                        {imageUrl && (
+                                            <div className="h-[167px] overflow-hidden cursor-pointer"
+                                                onClick={() => toPostDetail(item.nickname, item.postUuid)}>
+                                                <img
+                                                    src={imageUrl}
+                                                    alt="content"
+                                                    className="h-full w-full object-cover"/>
+                                            </div>
+                                        )}
+
+                                        <div className="flex-1 flex-col p-4 cursor-pointer"
+                                            onClick={() => toPostDetail(item.nickname, item.postUuid)}>
+                                            <div className=" text-lg mb-1 font-black line-clamp-1">
+                                                {item.title}
+                                            </div>
+                                            <div className="text-sm text-gray-600 line-clamp-3"
+                                                dangerouslySetInnerHTML={{ __html: tempElement.innerHTML }}>
+                                            </div>
                                         </div>
-                                        <div className="text-sm text-gray-600 line-clamp-3">
-                                            이거 이미지없으면 6줄로하자 대해 점점 더 불안해하는 많은 주니어 개발자들과 얘기를 나눴습니다. 그들은 GPT-4와 같은 도구들의 갈수록 발전해가는 인상적인 데모를 보고
-                                            지난 몇 달간, 저는 AI에 대해 점점 더 불안해하는 많은 주니어 개발자들과 얘기를 나눴습니다. 그들은 GPT-4와 같은 도구들의 갈수록 발전해가는 인상적인 데모를 보고
-                                        </div>
-                                    </div>
-                                    <div className=" flex flex-col justify-end text-gray-500">
-                                        <div className="px-4 py-2.5 text-xs">
-                                            2020년 12월 21일
-                                        </div>
-                                        <div className="px-4 py-2.5 flex justify-between text-xs border-t border-gray-200 text-black ">
-                                            <b className="text-black">최호석입니다</b>
-                                            <div className="flex gap-2">
-                                                <div className="flex items-center gap-1">
-                                                    <PiEyeLight size={17}/> 
-                                                    <div>40</div>
-                                                </div>
-                                                <div className="flex items-center gap-1">
-                                                    <FaHeart size={14}/>
-                                                    <div>40</div>
-                                                </div>
-                                                <div className="flex items-center gap-1">
-                                                    <FaRegComment size={15} />
-                                                    <div>20</div>
+                                        <div className=" flex flex-col justify-end text-gray-500">
+                                            <div className="px-4 py-2.5 text-xs">
+                                                {formatDate(item.createdDate)}
+                                            </div>
+                                            <div className="px-4 py-2.5 flex justify-between text-xs border-t border-gray-200 text-black ">
+                                                <b className="text-black cursor-pointer" onClick={() => toUserBlog(item.nickname)}>{item.nickname}</b>
+                                                <div className="flex gap-2">
+                                                    <div className="flex items-center gap-1">
+                                                        <PiEyeLight size={17}/> 
+                                                        <div>{item.totalViews}</div>
+                                                    </div>
+                                                    <div className="flex items-center gap-1">
+                                                        <FaHeart size={14}/>
+                                                        <div>{item.likeCount}</div>
+                                                    </div>
+                                                    <div className="flex items-center gap-1">
+                                                        <FaRegComment size={15} />
+                                                        <div>{item.likeCount}</div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
+                        {/* 빈 리스트 */}
+                        {contentData.length === 0 && (
+                            <div className="flex flex-col justify-center items-center">
+                                <div className="w-[425px] 2xs:w-[325px] ">
+                                    <img
+                                        className="ml-4" 
+                                        src="https://images.ghtjr.com/e94915c9-e28d-4217-ad2e-e30a7a685d7c_empty_box_miniblog.png" alt="" />
+                                </div>
+                                <div className="mt-6 text-2xl 2xs:text-xl text-gray-500">
+                                    리스트가 비어있습니다.
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
                 {/* 리모콘 */}
@@ -213,9 +430,8 @@ const TestBlogPage : React.FC<Props> = ({keycloak, keycloakStatus}) => {
                     <div className="h-16 p-4  flex justify-between items-center bg-white">
                         <div 
                             className="text-lg text-center font-bold cursor-pointer"
-                            onClick={() => {alert("해당 블로그로 이동")}}
-                        >
-                            가가가가가가가가가가
+                            onClick={() => toUserBlog(nickname!)}>
+                            {blogTitle}
                         </div>
                         <button 
                             className="text-gray-400 hover:text-black"
@@ -223,27 +439,28 @@ const TestBlogPage : React.FC<Props> = ({keycloak, keycloakStatus}) => {
                             <FaAngleLeft size={20} />
                         </button>
                     </div>
-                    {/* <div className="p-2 bg-white border-b border-gray-200">
+                    <div className="p-2 bg-white border-b border-gray-200">
                         <div className="px-2 py-1 border border-gray-400 flex  justify-center items-center">
                             <BsSearch size={20}/>
                             <input 
                                 className="pl-2 w-full outline-none"
-                                type="text" />
+                                type="text"                                                 
+                                placeholder="검색어를 입력하세요"
+                                value={keyword}
+                                onChange={(e) => setKeyword(e.target.value)}
+                                onKeyDown={handleKeyDown}/>
                         </div>
-                    </div> */}
-                    <div // 블로그 이름
-                        className="px-4 pt-4 text-base font-bold cursor-pointer hover:underline hover:text-gray-500"
-                        onClick={() => {alert("해당 블로그로 이동")}}
-                    >
-                        전체보기 (1)
+                    </div>
+                    <div className="px-4 pt-4 text-base font-bold">
+                        게시글 목록
                     </div>
                     <ul className="px-4 py-8 space-y-4  overflow-y-auto">
-                        {Array.from({ length: 50 }).map((_, index) => (
+                        {blogPosts.map((item) => (
                             <li 
+                                key={item.postUuid}
                                 className="hover-text-blink px-2 text-sm truncate cursor-pointer"
-                                onClick={() => {alert("해당 게시글로 이동")}}
-                            >
-                                메뉴 항목 1@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+                                onClick={() => toPostDetail(item.nickname, item.postUuid)}>
+                                {item.title}
                             </li>
                         ))}
                     </ul>
@@ -255,8 +472,9 @@ const TestBlogPage : React.FC<Props> = ({keycloak, keycloakStatus}) => {
                         onClick={toggleSlide}>
                     </div>
                 )}
-
+                
             </div>
+            <div ref={setSentinel} className="h-4"></div>
         </>
     )
 }
