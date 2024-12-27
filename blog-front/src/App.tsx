@@ -1,18 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import Keycloak from 'keycloak-js';
-import Header from './components/header/Header';
-import HomePage from './pages/HomePage';
-import SettingPage from './pages/SettingPage';
-import PostDetailPage from './pages/PostDetailPage';
-import SearchPage from './pages/SearchPage';
-import BlogPage from './pages/BlogPage';
-import HistoryPage from './pages/HistroyPage';
-import PostEditPage from './pages/PostEditPage';
-import ProfilePage from './pages/ProfilePage';
-import TestPage from './pages/TestPage';
+import HistoryPage from './pages/history/HistroyPage';
+import PostEditPage from './pages/postEdit/PostEditPage';
 import { DYNAMIC_ROUTES, ROUTES } from './constants/routes';
 import { KEYCLOAK_URL } from './util/apiUrl';
+import BlogSearchPage from './pages/search/BlogSearchPage';
+import TestHomePage from './pages/home/HomePage.test';
+import SearchPage from './pages/search/SearchPage';
+import TestPostDetailPage from './pages/postDetail/PostDetailPage.test';
+import TestSettingPage from './pages/setting/SettingPage.test';
+import TestBlogPage from './pages/blog/BlogPage.test';
 
 type KeycloakStatus = "loading" | "authenticated" | "unauthenticated";
 
@@ -50,8 +48,7 @@ function App() {
               }
             })
             .catch(() => {
-              console.error('토큰 갱신 실패, 로그인 페이지로 이동합니다.');
-              keycloakInstance.login();
+              window.location.reload();
             });
         }, 60000);
 
@@ -67,33 +64,34 @@ function App() {
 
   return (
     <Routes>
-      <Route element={<Header keycloak={keycloak}/>}>        
-        {/* 게시글 */}
-        {/* <Route path={ROUTES.POST} element={<PostDetailPage keycloak={keycloak}/>}/> */}
-        {/* 검색 */}
-        <Route path={ROUTES.SEARCH} element={<SearchPage/>}/>
-        {/* 블로그 */}
-        <Route path={ROUTES.BLOG} element={<BlogPage/>}/>
-        {/* 읽기목록 */}
-        <Route path={ROUTES.HISTORY} element={<HistoryPage/>}/>
-
-        {/* <Route path={ROUTES.POST_EDIT} element={<PostEditPage keycloak={keycloak}/>}/> */}
-        {/* 프로필 */}
-        <Route path={ROUTES.PROFILE} element={<ProfilePage/>}/>
-        {/* 테스트 */}
-        <Route path={ROUTES.TEST} element={<TestPage/>}/>
-      </Route>
-
       {/* 홈페이지 */}
-      <Route path={ROUTES.HOME} element={<HomePage keycloak={keycloak}/>}/> 
+      <Route path={ROUTES.HOME} element={<TestHomePage keycloak={keycloak} keycloakStatus={keycloakStatus}/>}/> 
+      <Route path={ROUTES.HOME_VIEWS} element={<TestHomePage keycloak={keycloak} keycloakStatus={keycloakStatus}/>}/> 
+      <Route path={ROUTES.HOME_LATEST} element={<TestHomePage keycloak={keycloak} keycloakStatus={keycloakStatus}/>}/> 
+      <Route path={ROUTES.HOME_LIKES} element={<TestHomePage keycloak={keycloak} keycloakStatus={keycloakStatus}/>}/> 
+      <Route path='/:type' element={<Navigate to={ROUTES.HOME}/>}/>
+      {/* 전체 검색 페이지 */}
+      <Route path={DYNAMIC_ROUTES.SEARCH()} element={<SearchPage keycloak={keycloak} keycloakStatus={keycloakStatus}/>}/>
       {/* 세팅 페이지 */}
-      <Route path={ROUTES.SETTING} element={<SettingPage keycloak={keycloak}/>}/>
+      <Route path={ROUTES.SETTING} element={<TestSettingPage keycloak={keycloak} keycloakStatus={keycloakStatus}/>}/>
+      {/* 히스토리 페이지 */}
+      <Route path={ROUTES.HISTORY} element={<HistoryPage keycloak={keycloak} keycloakStatus={keycloakStatus}/>} />
+      <Route path={ROUTES.HISTORY_LIKED} element={<HistoryPage keycloak={keycloak} keycloakStatus={keycloakStatus}/>} />
+      <Route path={ROUTES.HISTORY_COMMENTS} element={<HistoryPage keycloak={keycloak} keycloakStatus={keycloakStatus}/>} />
+      <Route path="/history/:type" element={<Navigate to={ROUTES.HISTORY} replace />} />
       {/* 게시글 작성 */}
       <Route path={ROUTES.POST_WRITE} element={<PostEditPage keycloak={keycloak} keycloakStatus={keycloakStatus}/>}/>
       {/* 게시글 재작성 */}
       <Route path={DYNAMIC_ROUTES.POST_REWRITE()} element={<PostEditPage keycloak={keycloak} keycloakStatus={keycloakStatus}/>}/>
       {/* 게시글 상세 페이지 */}
-      <Route path={DYNAMIC_ROUTES.POST_DETAIL()} element={<PostDetailPage keycloak={keycloak} keycloakStatus={keycloakStatus}/>}/>
+      <Route path={DYNAMIC_ROUTES.POST_DETAIL()} element={<TestPostDetailPage keycloak={keycloak} keycloakStatus={keycloakStatus}/>}/>
+      {/* 블로그 페이지 */}
+      <Route path={DYNAMIC_ROUTES.USER_BLOG()} element={<TestBlogPage keycloak={keycloak} keycloakStatus={keycloakStatus}/>}/>
+      <Route path={DYNAMIC_ROUTES.USER_BLOG_VIEWS()} element={<TestBlogPage keycloak={keycloak} keycloakStatus={keycloakStatus}/>}/>
+      <Route path={DYNAMIC_ROUTES.USER_BLOG_LATEST()} element={<TestBlogPage keycloak={keycloak} keycloakStatus={keycloakStatus}/>}/>
+      <Route path={DYNAMIC_ROUTES.USER_BLOG_LIKES()} element={<TestBlogPage keycloak={keycloak} keycloakStatus={keycloakStatus}/>}/>
+      {/* 블로그 검색 페이지 */}
+      <Route path={DYNAMIC_ROUTES.USER_BLOG_SEARCH()} element={<BlogSearchPage keycloak={keycloak} keycloakStatus={keycloakStatus}/>}/>
     </Routes>
   );
 }
