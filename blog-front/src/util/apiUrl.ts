@@ -12,29 +12,29 @@ export const SERVICE_ROUTES = {
   };
 
 // Dev
-export const HTTP = `http://`;
-export const LOCALHOST = 'localhost:';
-export const PORT_NUMBER = {
-    KEYCLOAK: '8181',
-    BLOG: '3000',
-    API_GATEWAY: '4040'
-}
+// export const HTTP = `http://`;
+// export const LOCALHOST = 'localhost:';
+// export const PORT_NUMBER = {
+//     KEYCLOAK: '8181',
+//     BLOG: '3000',
+//     API_GATEWAY: '4040'
+// }
 
-export const KEYCLOAK_URL = `${HTTP}${LOCALHOST}${PORT_NUMBER.KEYCLOAK}/`;
-export const BLOG_URL = `${HTTP}${LOCALHOST}${PORT_NUMBER.BLOG}`;
-export const API_GATEWAY_URL = `${HTTP}${LOCALHOST}${PORT_NUMBER.API_GATEWAY}`;
+// export const KEYCLOAK_URL = `${HTTP}${LOCALHOST}${PORT_NUMBER.KEYCLOAK}/`;
+// export const BLOG_URL = `${HTTP}${LOCALHOST}${PORT_NUMBER.BLOG}`;
+// export const API_GATEWAY_URL = `${HTTP}${LOCALHOST}${PORT_NUMBER.API_GATEWAY}`;
 
 // Prod
-// export const HTTPS = `https://`;
-// export const ROOT_DOMAIN = `.ghtjr.com`;
-// export const SUB_DOMAINS = {
-//     KEYCLOAK: 'keycloak',
-//     BLOG: 'blog',
-//     API_GATEWAY: 'api'
-// }
-// export const KEYCLOAK_URL = `${HTTPS}${SUB_DOMAINS.KEYCLOAK}${ROOT_DOMAIN}/`;
-// export const BLOG_URL = `${HTTPS}${SUB_DOMAINS.BLOG}${ROOT_DOMAIN}`;
-// export const API_GATEWAY_URL = `${HTTPS}${SUB_DOMAINS.API_GATEWAY}${ROOT_DOMAIN}`;
+export const HTTPS = `https://`;
+export const ROOT_DOMAIN = `.ghtjr.com`;
+export const SUB_DOMAINS = {
+    KEYCLOAK: 'keycloak',
+    BLOG: 'blog',
+    API_GATEWAY: 'api'
+}
+export const KEYCLOAK_URL = `${HTTPS}${SUB_DOMAINS.KEYCLOAK}${ROOT_DOMAIN}/`;
+export const BLOG_URL = `${HTTPS}${SUB_DOMAINS.BLOG}${ROOT_DOMAIN}`;
+export const API_GATEWAY_URL = `${HTTPS}${SUB_DOMAINS.API_GATEWAY}${ROOT_DOMAIN}`;
  
 
 // Image Service
@@ -74,6 +74,8 @@ export const API_VIEWCOUNT_INCREMENT_URL = (postUuid: string) => `${API_VIEWCOUN
 // Account Service
 export const API_ACCOUNT_URL = `${API_GATEWAY_URL}${API_VERSION}${SERVICE_ROUTES.ACCOUNT}`
 
+export const API_ACCOUNT_DELETE_URL = () => `${API_ACCOUNT_URL}/user`;
+
 // Query Service
 export const API_QUERY_URL = `${API_GATEWAY_URL}${API_VERSION}${SERVICE_ROUTES.QUERY}`
 
@@ -94,23 +96,23 @@ export const API_QUERY_SEARCH_POSTS_BY_TEXT_URL = () => `${API_QUERY_URL}/posts/
 export const API_QUERY_POST_DETAIL_URL = (postUuid: string) => `${API_QUERY_URL}/posts/${postUuid}`;
 
 // 로그인 
-// 사용자가 좋아요 누른 게시글 목록 가져오기
+// 내가 좋아요 누른 게시글 목록 가져오기
 export const API_QUERY_USER_LIKED_POSTS_URL = (userUuid: string) => `${API_QUERY_URL}/user/${userUuid}/liked-posts`;
-// 사용자가 작성한 댓글 목록 가져오기
-export const API_QUERY_USER_COMMENTS_URL = (userUuid: string) => `${API_QUERY_URL}/user/${userUuid}/comments`;
-// 사용자가 작성한 게시글 전체 목록 가져오기
-export const API_QUERY_USER_POSTS_URL = (userUuid: string) => `${API_QUERY_URL}/user/${userUuid}/posts`;
-// 사용자가 작성한 게시글 최신순으로 20개씩 가져오기
-export const API_QUERY_USER_LATEST_POSTS_URL = (userUuid: string) => `${API_QUERY_URL}/user/${userUuid}/posts/latest`;
-// 사용자가 작성한 게시글 좋아요순으로 20개씩 가져오기
-export const API_QUERY_USER_MOST_LIKED_POSTS_URL = (userUuid: string) => `${API_QUERY_URL}/user/${userUuid}/posts/most-liked`;
-// 사용자가 작성한 게시글 조회수순으로 20개씩 가져오기
-export const API_QUERY_USER_MOST_VIEWED_POSTS_URL = (userUuid: string) => `${API_QUERY_URL}/user/${userUuid}/posts/most-viewed`;
-// 사용자 UUID로 프로필 정보 가져오기
-export const API_QUERY_USER_PROFILE_URL = (userUuid: string) => `${API_QUERY_URL}/user/${userUuid}/profile`;
-// 사용자 UUID로 제목으로 게시글 검색하기
-export const API_QUERY_USER_SEARCH_POSTS_BY_TITLE_URL = (userUuid: string) => `${API_QUERY_URL}/user/${userUuid}/posts/search/title`;
-// 사용자 UUID로 텍스트로 게시글 검색하기
-export const API_QUERY_USER_SEARCH_POSTS_BY_TEXT_URL = (userUuid: string) => `${API_QUERY_URL}/user/${userUuid}/posts/search`;
-// 사용자 UUID로 내용으로 게시글 검색하기
-export const API_QUERY_USER_SEARCH_POSTS_BY_CONTENT_URL = (userUuid: string) => `${API_QUERY_URL}/user/${userUuid}/posts/search/content`;
+// 내가 작성한 댓글 목록 가져오기
+export const API_QUERY_USER_COMMENTED_POSTS_URL = (userUuid: string) => `${API_QUERY_URL}/user/${userUuid}/commented-posts`;
+// 다른유저가 작성한 게시글 전체 목록 가져오기
+export const API_QUERY_NICKNAME_POSTS_URL = (nickname: string) => `${API_QUERY_URL}/user/${nickname}/posts`;
+// 다른유저가 작성한 게시글 최신순으로 20개씩 가져오기
+export const API_QUERY_NICKNAME_LATEST_POSTS_URL = (nickname: string) => `${API_QUERY_URL}/user/${nickname}/posts/latest`;
+// 다른유저가 작성한 게시글 좋아요순으로 20개씩 가져오기
+export const API_QUERY_NICKNAME_MOST_LIKED_POSTS_URL = (nickname: string) => `${API_QUERY_URL}/user/${nickname}/posts/most-liked`;
+// 다른유저가 작성한 게시글 조회수순으로 20개씩 가져오기
+export const API_QUERY_NICKNAME_MOST_VIEWED_POSTS_URL = (nickname: string) => `${API_QUERY_URL}/user/${nickname}/posts/most-viewed`;
+// 다른유저가 UUID로 프로필 정보 가져오기
+export const API_QUERY_NICKNAME_PROFILE_URL = (nickname: string) => `${API_QUERY_URL}/user/${nickname}/profile`;
+// 다른유저가 UUID로 제목으로 게시글 검색하기
+export const API_QUERY_NICKNAME_SEARCH_POSTS_BY_TITLE_URL = (nickname: string) => `${API_QUERY_URL}/user/${nickname}/posts/search/title`;
+// 다른유저가 UUID로 텍스트로 게시글 검색하기
+export const API_QUERY_NICKNAME_SEARCH_POSTS_BY_TEXT_URL = () => `${API_QUERY_URL}/user/posts/search`;
+// 다른유저가 UUID로 내용으로 게시글 검색하기
+export const API_QUERY_NICKNAME_SEARCH_POSTS_BY_CONTENT_URL = (nickname: string) => `${API_QUERY_URL}/user/${nickname}/posts/search/content`;
