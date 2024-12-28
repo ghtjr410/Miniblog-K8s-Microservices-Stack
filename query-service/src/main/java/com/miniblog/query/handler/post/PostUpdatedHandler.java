@@ -29,7 +29,7 @@ public class PostUpdatedHandler implements EventConsumerHandler {
         Instant updatedDate = Instant.ofEpochMilli(postUpdatedEvent.getUpdatedDate());
 
 
-        postRepository.updatePost(postUuid, title, content, plainContent, updatedDate);
+        postRepository.updatePost(postUuid, title, plainContent, content, updatedDate);
     }
 
     @Override
