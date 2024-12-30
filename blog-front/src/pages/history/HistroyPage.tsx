@@ -10,6 +10,7 @@ import { getUserCommentedPosts, getUserLikedPosts } from "../../service/querySer
 import DOMPurify from "dompurify";
 import useNavigationHelper from "../../util/navigationUtil";
 import { formatDate } from "../../util/dateUtil";
+import AuthRefreshModal from "../../components/modal/AuthRefreshModal";
 
 interface Props {
     keycloak: Keycloak | null;
@@ -43,13 +44,17 @@ const HistoryPage : React.FC<Props> = ({keycloak, keycloakStatus}) => {
     const [hasError, setHasError] = useState<boolean>(false);
     const [sentinel, setSentinel] = useState<HTMLDivElement | null>(null);
 
-    const { toHome, toPostDetail, toUserBlog } = useNavigationHelper();
+    const [isAuthRefreshModalOpen, setIsAuthRefreshModalOpen] = useState(false);
+
+    const { toPostDetail, toUserBlog } = useNavigationHelper();
 
     useEffect(() => {
         if (location.pathname === "/history/comments") {
             setSelectedSort('comments')
-        } else {
+        } else if (location.pathname === "/history/liked") {
             setSelectedSort('liked')
+        } else {
+            setSelectedSort(null)
         }
         setContentData([]);
         setPage(0);
@@ -65,8 +70,7 @@ const HistoryPage : React.FC<Props> = ({keycloak, keycloakStatus}) => {
                 console.log(JSON.stringify(userInfo));
             });
         } else if (keycloakStatus === "unauthenticated") {
-            alert("접근 권한이 없습니다")
-            toHome()
+            setIsAuthRefreshModalOpen(true);
         }
     }, [keycloak, keycloakStatus]);
 
@@ -109,7 +113,7 @@ const HistoryPage : React.FC<Props> = ({keycloak, keycloakStatus}) => {
 
     const fetchData = (currentPage: number) => {
         
-        if ( !selectedSort || pageEmpty || isLoading || !userInfo) return; // 페이지 끝이거나 로딩 중이면 반환
+        if ( pageEmpty || isLoading || !userInfo) return; // 페이지 끝이거나 로딩 중이면 반환
 
         setIsLoading(true);
         setHasError(false);
@@ -119,6 +123,9 @@ const HistoryPage : React.FC<Props> = ({keycloak, keycloakStatus}) => {
         switch (selectedSort) {
             case 'comments':
                 fetchPromise = getUserCommentedPosts(userInfo.sub, currentPage, 20);
+                break;
+            case 'liked':
+                fetchPromise = getUserLikedPosts(userInfo.sub, currentPage, 20);
                 break;
             default:
                 fetchPromise = getUserLikedPosts(userInfo.sub, currentPage, 20);
@@ -232,7 +239,7 @@ const HistoryPage : React.FC<Props> = ({keycloak, keycloakStatus}) => {
                                                 </div>
                                                 <div className="flex items-center gap-1">
                                                     <FaRegComment size={15} />
-                                                    <div>{item.likeCount}</div>
+                                                    <div>{item.commentCount}</div>
                                                 </div>
                                             </div>
                                         </div>
@@ -244,7 +251,7 @@ const HistoryPage : React.FC<Props> = ({keycloak, keycloakStatus}) => {
                         
                     </div>
                     {/* 빈 리스트 */}
-                    {contentData.length === 0 && (
+                    {(contentData.length === 0 && hasError) && (
                         <div className="flex flex-col justify-center items-center">
                             <div className="w-[425px] 2xs:w-[325px] ">
                                 <img
@@ -259,6 +266,9 @@ const HistoryPage : React.FC<Props> = ({keycloak, keycloakStatus}) => {
                 </div>
             </div>
             <div ref={setSentinel} className="h-4"></div>
+            {isAuthRefreshModalOpen && (
+                <AuthRefreshModal/>
+            )}
         </>
     );
 }
