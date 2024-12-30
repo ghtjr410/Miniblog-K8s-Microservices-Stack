@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Keycloak from "keycloak-js";
 import SkeletonBlogHeader from "../../components/skeleton/SkeletonBlogHeader";
 import BlogHeader from "../../components/header/blog/BlogHeader";
@@ -72,8 +72,10 @@ const TestBlogPage : React.FC<Props> = ({keycloak, keycloakStatus}) => {
             setSelectedSort('latest')
         } else if (lastSegment === "likes") {
             setSelectedSort('likes')
-        } else {
+        } else if (lastSegment === "views"){
             setSelectedSort('views')
+        } else {
+            setSelectedSort(null)
         }
         setContentData([]);
         setPage(0);
@@ -164,7 +166,7 @@ const TestBlogPage : React.FC<Props> = ({keycloak, keycloakStatus}) => {
 
     const fetchData = (currentPage: number) => {
         
-        if ( !selectedSort || pageEmpty || isLoading) return; // 페이지 끝이거나 로딩 중이면 반환
+        if (pageEmpty || isLoading) return; // 페이지 끝이거나 로딩 중이면 반환
 
         setIsLoading(true);
         setHasError(false);
@@ -177,6 +179,9 @@ const TestBlogPage : React.FC<Props> = ({keycloak, keycloakStatus}) => {
                 break;
             case 'likes':
                 fetchPromise = getNicknameMostLikedPosts(nickname!, currentPage, 20);
+                break;
+            case 'views':
+                fetchPromise = getNicknameMostViewedPosts(nickname!, currentPage, 20);
                 break;
             default:
                 fetchPromise = getNicknameMostViewedPosts(nickname!, currentPage, 20);
@@ -384,7 +389,7 @@ const TestBlogPage : React.FC<Props> = ({keycloak, keycloakStatus}) => {
                             })}
                         </div>
                         {/* 빈 리스트 */}
-                        {contentData.length === 0 && (
+                        {(contentData.length === 0 && hasError) && (
                             <div className="flex flex-col justify-center items-center">
                                 <div className="w-[425px] 2xs:w-[325px] ">
                                     <img
