@@ -39,6 +39,7 @@ const SearchPage : React.FC<Props> = ({keycloak, keycloakStatus}) => {
     const inputRef = useRef<HTMLInputElement>(null);
     const [showRemote, setShowRemote] = useState<boolean>(true);
 
+    const [totalElements, setTotalElements] = useState<number>(0);
     const [contentData, setContentData] = useState<ContentData[]>([]);
     const [pageEmpty, setPageEmpty] = useState<boolean>(false);
     const [page, setPage] = useState<number>(0);
@@ -49,20 +50,20 @@ const SearchPage : React.FC<Props> = ({keycloak, keycloakStatus}) => {
     const { toPostDetail, toUserBlog } = useNavigationHelper();
 
     useEffect(() => {
+        setContentData([]);
+        setPage(0);
+        setTotalElements(0)
+        setPageEmpty(false);
+        setHasError(false);
+    },[keyword]);
 
+    useEffect(() => {
         if (keyword?.length) {
-            console.log("키워드는? : " + keyword)
             fetchSearchAllPosts(page);
         }
     }, [keyword, page]);
 
-    useEffect(() => {
-        setContentData([]);
-        setPage(0);
-        setPageEmpty(false);
-        setHasError(false);
 
-    },[keyword]);
 
     useEffect(() => {
         
@@ -113,6 +114,7 @@ const SearchPage : React.FC<Props> = ({keycloak, keycloakStatus}) => {
     }, []);
 
     const fetchSearchAllPosts = (currentPage: number) => {
+        console.log(`검색 - keyword.length: ${keyword?.length}, data.length: ${contentData.length}, pageEmpty: ${pageEmpty}`);
         if (pageEmpty || isLoading) return;
 
         setIsLoading(true);
@@ -121,6 +123,7 @@ const SearchPage : React.FC<Props> = ({keycloak, keycloakStatus}) => {
         searchPostsByText(keyword!, currentPage, 20)
             .then((response) => {
                 console.log('어떻게오는데 :', response);
+                setTotalElements(response.totalElements)
                 setContentData((prevData) => [...prevData, ...response.content]);
                 setPageEmpty(response.empty);
             })
@@ -138,6 +141,11 @@ const SearchPage : React.FC<Props> = ({keycloak, keycloakStatus}) => {
         if (e.key === 'Enter') {
             // 검색어가 존재하면 쿼리 파라미터 추가
             if (inputValue.trim() !== "") {
+                setContentData([]);
+                setPage(0);
+                setPageEmpty(false);
+                setHasError(false);
+                setTotalElements(0)
                 setSearchParams({ keyword: inputValue.trim() });
             } else {
                 // 검색어가 비어있으면 쿼리 파라미터를 제거하고 기본 주소로
@@ -180,7 +188,7 @@ const SearchPage : React.FC<Props> = ({keycloak, keycloakStatus}) => {
                         </div>
                         {keyword?.length && (
                             <div className="text-lg xs:text-base mb-16">
-                                총 <b>{contentData.length}개</b>의 게시글을 찾았습니다
+                                총 <b>{totalElements}개</b>의 게시글을 찾았습니다
                             </div>
                         )}
                         <div className="flex flex-col gap-16">
@@ -253,7 +261,7 @@ const SearchPage : React.FC<Props> = ({keycloak, keycloakStatus}) => {
                             })}
                         </div>
                         {/* 빈 리스트 */}
-                        {(contentData.length === 0 && keyword?.length ) && (
+                        {(keyword?.length && contentData.length === 0 && pageEmpty) && (
                             <div className="flex flex-col justify-center items-center">
                                 <div className="w-[425px] 2xs:w-[325px] ">
                                     <img
