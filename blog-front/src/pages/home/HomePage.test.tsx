@@ -50,8 +50,10 @@ const TestHomePage: React.FC<Props> = ({ keycloak, keycloakStatus }) => {
             setSelectedSort('latest')
         } else if (location.pathname === "/likes") {
             setSelectedSort('likes')
-        } else {
+        } else if (location.pathname === "/views") {
             setSelectedSort('views')
+        } else {
+            setSelectedSort(null)
         }
         setContentData([]);
         setPage(0);
@@ -61,9 +63,10 @@ const TestHomePage: React.FC<Props> = ({ keycloak, keycloakStatus }) => {
         console.log(`첫번째 로직 : ${location.pathname}, ${selectedSort}`)
     }, [location.pathname]);
 
+
     useEffect(() => {
+        console.log(`두번째 로직 : 정렬 = ${selectedSort}, 페이지 = ${page}`);
         fetchData(page);
-        console.log(`두번째 로직 : 정렬 = ${selectedSort}, 페이지 = ${page}`)
     }, [selectedSort, page]);
 
     useEffect(() => {
@@ -100,7 +103,7 @@ const TestHomePage: React.FC<Props> = ({ keycloak, keycloakStatus }) => {
 
     const fetchData = (currentPage: number) => {
         
-        if ( !selectedSort || pageEmpty || isLoading) return; // 페이지 끝이거나 로딩 중이면 반환
+        if ( pageEmpty || isLoading) return; // 페이지 끝이거나 로딩 중이면 반환
 
         setIsLoading(true);
         setHasError(false);
@@ -113,6 +116,9 @@ const TestHomePage: React.FC<Props> = ({ keycloak, keycloakStatus }) => {
                 break;
             case 'likes':
                 fetchPromise = getMostLikedPosts(currentPage, 40);
+                break;
+            case 'views':
+                fetchPromise = getMostViewedPosts(currentPage, 40);
                 break;
             default:
                 fetchPromise = getMostViewedPosts(currentPage, 40);
@@ -233,7 +239,7 @@ const TestHomePage: React.FC<Props> = ({ keycloak, keycloakStatus }) => {
                         })}
                     </div>
                     {/* 빈 리스트 */}
-                    {contentData.length === 0 && (
+                    {(contentData.length === 0 && hasError) && (
                         <div className="flex flex-col justify-center items-center">
                             <div className="w-[425px] 2xs:w-[325px] ">
                                 <img
@@ -246,10 +252,8 @@ const TestHomePage: React.FC<Props> = ({ keycloak, keycloakStatus }) => {
                         </div>
                     )}
                 </div>
-                
             </div>
             <div ref={setSentinel} className="h-4"></div>
-            
         </>
     )
 
