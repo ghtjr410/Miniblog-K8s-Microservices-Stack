@@ -5,11 +5,11 @@ import SkeletonCommonHeader from "../../components/skeleton/SkeletonCommonHeader
 import SkeletonSettingBody from "../../components/skeleton/SkeletonSettingBody";
 import Header from "../../components/header/common/Header";
 import { IoWarningOutline } from "react-icons/io5";
-import useNavigationHelper from "../../util/navigationUtil";
 import { getNicknameProfile } from "../../service/queryService.auth";
 import { API_PROFILE_CREATE_OR_UPDATE_URL } from "../../util/apiUrl";
-import { userInfo } from "os";
 import { deleteAccount } from "../../service/accountService";
+import AuthRefreshModal from "../../components/modal/AuthRefreshModal";
+import ApiFailModal from "../../components/modal/ApiFailModal";
 
 interface Props {
     keycloak: Keycloak | null;
@@ -48,12 +48,12 @@ const TestSettingPage: React.FC<Props> = ({ keycloak, keycloakStatus }) => {
     const [isModalLoading, setIsModalLoading] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    const { toHome } = useNavigationHelper();
+    const [isAuthRefreshModalOpen, setIsAuthRefreshModalOpen] = useState(false);
+    const [isApiFaileModalOpen, setIsApiFaileModalOpen] = useState(false);
 
     useEffect(() => {
         if (keycloakStatus === "unauthenticated") {
-            alert("로그인부터 하세요")
-            toHome()
+            setIsAuthRefreshModalOpen(true);
         } else if (keycloakStatus === "authenticated" && keycloak && keycloak.authenticated) {
             // 사용자 정보 로드
             keycloak.loadUserInfo().then((info: UserInfo) => {
@@ -100,7 +100,8 @@ const TestSettingPage: React.FC<Props> = ({ keycloak, keycloakStatus }) => {
         const token = keycloak?.token;
         
         if (!token) {
-            alert("인증 유효기간 끝났습니다.")
+            setIsAuthRefreshModalOpen(true);
+            return;
         }
 
         axios.post(
@@ -122,12 +123,9 @@ const TestSettingPage: React.FC<Props> = ({ keycloak, keycloakStatus }) => {
             setIsEditingTitle(false);
             setTitle(editTitle);
         })
-        .catch(error => {
-            console.error("Error Request Profile: ", error.response ? error.response.data : error.message);
+        .catch(() => {
+            setIsApiFaileModalOpen(true);
         })
-
-        console.log("저장된 블로그 제목", title);
-        console.log(`nickname: ${nickname} \n email: ${email} \n title: ${title} \n intro: ${intro}`);
     };
 
     // 블로그 소개 수정 핸들러
@@ -143,8 +141,10 @@ const TestSettingPage: React.FC<Props> = ({ keycloak, keycloakStatus }) => {
 
     const handleSaveIntro = () => {
         const token = keycloak?.token;
+
         if (!token) {
-            alert("인증 유효기간 끝났습니다.")
+            setIsAuthRefreshModalOpen(true);
+            return;
         }
 
         axios.post(
@@ -166,31 +166,28 @@ const TestSettingPage: React.FC<Props> = ({ keycloak, keycloakStatus }) => {
             setIsEditingIntro(false);
             setIntro(editIntro);
         })
-        .catch(error => {
-            console.error("Error Request Profile: ", error.response ? error.response.data : error.message);
+        .catch(() => {
+            setIsApiFaileModalOpen(true);
         })
-
-        console.log("저장된 블로그 소개", intro);
-        console.log(`nickname: ${nickname} \n email: ${email} \n title: ${title} \n intro: ${intro}`);
     };
 
     // 회원탈퇴 핸들러
     const handleDeleteAccount = () => {
         const token = keycloak?.token;
+        
         if (!token) {
-            alert("인증 유효기간 끝났습니다.")
+            setIsAuthRefreshModalOpen(true);
             return;
         }
+
         deleteAccount(token)
         .then(() => {
             handleConfirmDelete();
         })
-        .catch((error) => {
-            console.log("회원탈퇴 실패 응답 : " + error);
+        .catch(() => {
+            setIsModalOpen(false);
+            setIsApiFaileModalOpen(true);
         })
-
-        console.log("회원탈퇴 버튼 클릭됨");
-        // 실제 회원탈퇴 로직을 여기에 추가하세요
     };
     // 모달 열기
     const handleModalOpen = () => {
@@ -214,6 +211,11 @@ const TestSettingPage: React.FC<Props> = ({ keycloak, keycloakStatus }) => {
             window.location.href = "/";
         }, 3000);
     };
+
+    const handleCloseApiFailModal = () => {
+        setIsApiFaileModalOpen(false);
+    }
+
 
     if (!keycloak) {
         return (
@@ -376,6 +378,12 @@ const TestSettingPage: React.FC<Props> = ({ keycloak, keycloakStatus }) => {
                     </div>
                 </>
                 
+            )}
+            {isAuthRefreshModalOpen && (
+                <AuthRefreshModal/>
+            )}
+            {isApiFaileModalOpen && (
+                <ApiFailModal onClose={handleCloseApiFailModal}/>
             )}
         </>
     )
