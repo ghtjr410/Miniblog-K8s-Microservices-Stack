@@ -8,8 +8,12 @@ import { API_IMAGE_PRESIGNED_URL, CLOUD_FRONT_URL } from "../../util/apiUrl";
 import axios from "axios";
 import { createPost, updatePost } from "../../service/postService";
 import useNavigationHelper from "../../util/navigationUtil";
-import { useLocation, useParams, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { getPostDetail } from "../../service/queryService.public";
+import AuthRefreshModal from "../../components/modal/AuthRefreshModal";
+import ApiFailModal from "../../components/modal/ApiFailModal";
+import AuthPostModal from "../../components/modal/AuthPostModal";
+import PostNotFoundModal from "../../components/modal/PostNotFoundModal";
 
 
 interface Props{
@@ -44,7 +48,6 @@ const initialPostEditData: PostEditData = {
 }
 
 const PostEditPage: React.FC<Props> = ({keycloak, keycloakStatus}) => {
-    const { toHome } = useNavigationHelper();
     const [searchParams] = useSearchParams();
     const postUuid = searchParams.get("id");
     const { toBack, toPostDetailPreRead } = useNavigationHelper();
@@ -56,39 +59,30 @@ const PostEditPage: React.FC<Props> = ({keycloak, keycloakStatus}) => {
     const quillRef = useRef<ReactQuill>(null);
     const [postEditData, setPostEditData] = useState<PostEditData>(initialPostEditData);
 
+    
+    const [isAuthRefreshModalOpen, setIsAuthRefreshModalOpen] = useState(false);
+    const [isPostNotFoundModalOpen, setIsPostNotFoundModalOpen] = useState(false);
+    const [isApiFailModalOpen, setIsApiFailModalOpen] = useState(false);
+    const [isAuthPostModalOpen, setIsAuthPostModalOpen] = useState(false);
+
     useEffect(() => {
         // 키클락 객체상태 분기점
         console.log(`keycloak 객체 상태 : ${keycloak} : ${keycloakStatus}` )
         if(keycloakStatus === "unauthenticated") {
-          alert("인증필요");
-          toHome();
-          return;
+            setIsAuthRefreshModalOpen(true);
         }
         if (keycloak && keycloak.authenticated) {
             // 사용자 정보 로드
             keycloak.loadUserInfo().then((userInfo) => {
                 setUserInfo(userInfo);
                 setIsUserInfoLoaded(true);
-                console.log(JSON.stringify(userInfo));
             });
         }
     }, [keycloak, keycloakStatus]);
 
-    const fetchPostDetail = (postUuid: string) => {
-        getPostDetail(postUuid)
-        .then((response) => {
-            console.log(response);
-            setPostEditData(response.post);
-        })
-        .catch((error) => {
-            console.error("데이터가져오는데 실패", error);
-            toHome();
-        })
-    }
+
 
     useEffect(() => {
-      console.log("postuuid 있니?" + postUuid);
-      console.log(`isUserInfoLoaded 상태 : ${isUserInfoLoaded}`);
         if (postUuid && isUserInfoLoaded) {
             fetchPostDetail(postUuid);
         }
@@ -99,8 +93,7 @@ const PostEditPage: React.FC<Props> = ({keycloak, keycloakStatus}) => {
         if (postEditData.userUuid) {
             console.log(postEditData.userUuid + " - " + userInfo?.sub)
             if (postEditData.userUuid !== userInfo?.sub) {
-              alert("자신의 게시글이 아닙니다")
-              toHome();
+              setIsAuthPostModalOpen(true);
               return;
             }
             setTitle(postEditData.title);
@@ -108,6 +101,17 @@ const PostEditPage: React.FC<Props> = ({keycloak, keycloakStatus}) => {
             autoResizeTitle(); 
         }
     }, [postEditData]);
+
+    const fetchPostDetail = (postUuid: string) => {
+      getPostDetail(postUuid)
+      .then((response) => {
+          console.log(response);
+          setPostEditData(response.post);
+      })
+      .catch(() => {
+          setIsPostNotFoundModalOpen(true);
+      })
+  }
 
 
     // ---------------------------------------------------------
@@ -215,14 +219,13 @@ const PostEditPage: React.FC<Props> = ({keycloak, keycloakStatus}) => {
         const nickname = userInfo?.nickname;
 
         if (!token || !nickname) {
-            console.error("Token or nickname is missing");
+            setIsAuthRefreshModalOpen(true);
             return;
         }
 
         if (postUuid) {
           if (postEditData.userUuid !== userInfo?.sub) {
-            alert("자신의 게시글이 아닙니다")
-            toHome();
+            setIsAuthPostModalOpen(true);
             return;
           }
           updatePost(
@@ -251,8 +254,8 @@ const PostEditPage: React.FC<Props> = ({keycloak, keycloakStatus}) => {
             toPostDetailPreRead(nickname, response.postUuid, newPostDetailData);
   
           })
-          .catch((error) => {
-            console.error("Error updating post:", error);
+          .catch(() => {
+            setIsApiFailModalOpen(true);
           })
         } else {
           createPost(
@@ -281,20 +284,13 @@ const PostEditPage: React.FC<Props> = ({keycloak, keycloakStatus}) => {
             toPostDetailPreRead(nickname, response.postUuid, newPostDetailData);
   
           })
-          .catch((error) => {
-            console.error("Error creating post:", error);
+          .catch(() => {
+            setIsApiFailModalOpen(true);
           })
         }
     };
-
-    // ---------------------------------------------------------
-    if(!keycloak?.authenticated) {
-        // 로그인 상태가 확정이지 않을때
-        return (
-            <div>
-                로딩중 ...
-            </div>
-        )
+    const handleCloseApiFailModal = () => {
+      setIsApiFailModalOpen(false);
     }
 
     return (
@@ -338,6 +334,18 @@ const PostEditPage: React.FC<Props> = ({keycloak, keycloakStatus}) => {
                     </button>
                 </div>  
             </div>
+            {isAuthRefreshModalOpen && (
+                <AuthRefreshModal/>
+            )}
+            {isApiFailModalOpen && (
+                <ApiFailModal onClose={handleCloseApiFailModal}/>
+            )}
+            {isAuthPostModalOpen && (
+                <AuthPostModal/>
+            )}
+            {isPostNotFoundModalOpen && (
+                <PostNotFoundModal/>
+            )}
         </div>
     );
 }
