@@ -16,6 +16,11 @@ import { getNicknamePosts, getNicknameProfile, getUserLikedPosts } from "../../s
 import DOMPurify from "dompurify";
 import { createComment, deleteComment, updateComment } from "../../service/commentService";
 import { toggleLike } from "../../service/likeService";
+import ApiFailModal from "../../components/modal/ApiFailModal";
+import AuthPostModal from "../../components/modal/AuthPostModal";
+import AuthCommentModal from "../../components/modal/AuthCommentModal";
+import AuthModal from "../../components/modal/AuthModal";
+import AuthRefreshModal from "../../components/modal/AuthRefreshModal";
 
 interface Props {
     keycloak: Keycloak | null;
@@ -97,6 +102,11 @@ const TestPostDetailPage: React.FC<Props> = ({ keycloak, keycloakStatus }) => {
     const [showSlide, setShowSlide] = useState<boolean>(false);
 
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isApiFailModalOpen, setIsApiFailModalOpen] = useState(false);
+    const [isAuthPostModalOpen, setIsAuthPostModalOpen] = useState(false);
+    const [isAuthCommentModalOpen, setIsAuthCommentModalOpen] = useState(false);
+    const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+    const [isAuthRefreshModalOpen, setIsAuthRefreshModalOpen] = useState(false);
 
     // 1번
     useEffect(() => {
@@ -105,7 +115,6 @@ const TestPostDetailPage: React.FC<Props> = ({ keycloak, keycloakStatus }) => {
                 console.log(`키클락 상태 : ${keycloakStatus}`)
                 isKecloakLoading(false);
                 setHasError(false);
-                
             }
         }
         if (keycloak && keycloak.authenticated) {
@@ -115,7 +124,6 @@ const TestPostDetailPage: React.FC<Props> = ({ keycloak, keycloakStatus }) => {
                 setIsUserInfoLoaded(true);
                 console.log(JSON.stringify(userInfo));
             });
-
         }
     }, [keycloak, location.state])
 
@@ -127,7 +135,8 @@ const TestPostDetailPage: React.FC<Props> = ({ keycloak, keycloakStatus }) => {
         // location.state에서 사전 읽기 데이터를 확인
         if (location.state?.postDetailData) {
             setPostDetailData(location.state.postDetailData);
-            setBlogPosts([location.state.postDetailData])
+            fetchComments(postUuid);
+            setBlogPosts([location.state.postDetailData]);
             // 추가 데이터 API 호출
             getNicknamePosts(nickname)
             .then((response) => {
@@ -236,6 +245,19 @@ const TestPostDetailPage: React.FC<Props> = ({ keycloak, keycloakStatus }) => {
         })
     }
 
+    const fetchComments = (postUuid: string) => {
+        getPostDetail(postUuid)
+        .then((response) => {
+            console.log(response.comments);
+            setComments(response.comments);
+            setLikeCount(response.post.likeCount);
+            setHasError(false);
+        })
+        .catch(() => {
+            setHasError(false); //todo: 
+        })
+    }
+
     const fetchLikeList = () => {
         console.log(" 좋아요 여기까지옴?")
         console.log(`userinfo 상태는? ${userInfo}`)
@@ -290,12 +312,12 @@ const TestPostDetailPage: React.FC<Props> = ({ keycloak, keycloakStatus }) => {
         const nickname = userInfo?.nickname;
 
         if (!token || !nickname) {
-            alert("로그인이용자만 사용가능합니다")
+            setIsAuthRefreshModalOpen(true);
             return;
         }
 
         if (userInfo?.sub !== userUuid){
-            alert("자신의 게시글이 아닙니다");
+            setIsAuthPostModalOpen(true);
             return;
         }
 
@@ -306,8 +328,8 @@ const TestPostDetailPage: React.FC<Props> = ({ keycloak, keycloakStatus }) => {
         .then(() => {
             handleConfirmDelete();
         })
-        .catch((error) => {
-            console.error("Error deleting post:", error);
+        .catch(() => {
+            setIsApiFailModalOpen(true);
         })
     }
 
@@ -331,7 +353,7 @@ const TestPostDetailPage: React.FC<Props> = ({ keycloak, keycloakStatus }) => {
         const nickname = userInfo?.nickname;
 
         if (!token || !nickname) {
-            console.error("Token or nickname is missing");
+            setIsAuthRefreshModalOpen(true);
             return;
         }
 
@@ -359,8 +381,8 @@ const TestPostDetailPage: React.FC<Props> = ({ keycloak, keycloakStatus }) => {
                 },
             ]);
         })
-        .catch((error) => {
-            console.error("Error creating comment:", error);
+        .catch(() => {
+            setIsApiFailModalOpen(true);
         });
     }
 
@@ -377,11 +399,11 @@ const TestPostDetailPage: React.FC<Props> = ({ keycloak, keycloakStatus }) => {
         const nickname = userInfo?.nickname;
 
         if (!token || !nickname) {
-            alert("로그인이용자만 사용가능합니다")
+            setIsAuthRefreshModalOpen(true);
             return;
         }
         if (userInfo?.sub !== editUserId){
-            alert("자신의 댓글이 아닙니다");
+            setIsAuthCommentModalOpen(true);
             return;
         }
         
@@ -410,9 +432,8 @@ const TestPostDetailPage: React.FC<Props> = ({ keycloak, keycloakStatus }) => {
             setEditUserId(null);
             setEditContent("");
         })
-        .catch((error) => {
-            console.error("Error updating comment:", error);
-            alert("댓글 수정에 실패하였습니다");
+        .catch(() => {
+            setIsApiFailModalOpen(true);
         })
     };
 
@@ -428,7 +449,7 @@ const TestPostDetailPage: React.FC<Props> = ({ keycloak, keycloakStatus }) => {
         const nickname = userInfo?.nickname;
 
         if (!token || !nickname) {
-            alert("로그인이용자만 사용가능합니다")
+            setIsAuthModalOpen(true);
             return;
         }
 
@@ -445,8 +466,8 @@ const TestPostDetailPage: React.FC<Props> = ({ keycloak, keycloakStatus }) => {
                 return newIsLike;
             });
         })
-        .catch((error) => {
-            console.error("Error creating comment:", error);
+        .catch(() => {
+            setIsApiFailModalOpen(true);
         })
     }
 
@@ -460,12 +481,12 @@ const TestPostDetailPage: React.FC<Props> = ({ keycloak, keycloakStatus }) => {
         const nickname = userInfo?.nickname;
 
         if (!token || !nickname) {
-            alert("로그인이용자만 사용가능합니다")
+            setIsAuthRefreshModalOpen(true);
             return;
         }
 
         if (userInfo?.sub !== userUuid){
-            alert("자신의 댓글이 아닙니다");
+            setIsAuthCommentModalOpen(true);
             return;
         }
 
@@ -519,6 +540,14 @@ const TestPostDetailPage: React.FC<Props> = ({ keycloak, keycloakStatus }) => {
             textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`; // 내용에 맞게 높이 조정
         }
     };
+
+    const handleCloseApiFailModal = () => {
+        setIsApiFailModalOpen(false);
+    }
+    const handleCloseAuthModal = () => {
+        setIsAuthModalOpen(false);
+      }
+
     if (!keycloak) {
         return (
             <>
@@ -918,8 +947,30 @@ const TestPostDetailPage: React.FC<Props> = ({ keycloak, keycloakStatus }) => {
                 </>
                 
             )}
+            {isApiFailModalOpen &&(
+                <ApiFailModal onClose={handleCloseApiFailModal}/>
+            )}
+            {isAuthPostModalOpen && (
+                <AuthPostModal/>
+            )}
+            {isAuthCommentModalOpen && (
+                <AuthCommentModal/>
+            )}
+            {isAuthModalOpen && (
+                <AuthModal onClose={handleCloseAuthModal}/>
+            )}
+            {isAuthRefreshModalOpen && (
+                <AuthRefreshModal/>
+            )}
+
         </>
     )
 }
 
 export default TestPostDetailPage;
+
+// const [isApiFailModalOpen, setIsApiFailModalOpen] = useState(false);
+// const [isAuthPostModalOpen, setIsAuthPostModalOpen] = useState(false);
+// const [isAuthCommentModalOpen, setIsAuthCommentModalOpen] = useState(false);
+// const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+// const [isAuthRefreshModalOpen, setIsAuthRefreshModalOpen] = useState(false);
