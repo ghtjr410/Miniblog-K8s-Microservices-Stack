@@ -46,6 +46,7 @@ const BlogSearchPage : React.FC<Props> = ({keycloak, keycloakStatus}) => {
     const [inputValue, setInputValue] = useState(keyword || "");
     const inputRef = useRef<HTMLInputElement>(null);
 
+    const [totalElements, setTotalElements] = useState<number>(0);
     const [contentData, setContentData] = useState<ContentData[]>([]);
     const [pageEmpty, setPageEmpty] = useState<boolean>(false);
     const [page, setPage] = useState<number>(0);
@@ -62,23 +63,30 @@ const BlogSearchPage : React.FC<Props> = ({keycloak, keycloakStatus}) => {
 
     const { toPostDetail, toUserBlog } = useNavigationHelper();
 
+    useEffect(() => {
+        console.log("1번 @");
+        setContentData([]);
+        setPage(0);
+        setTotalElements(0)
+        setPageEmpty(false);
+        setHasError(false);
+
+    },[nickname, keyword]);
 
     useEffect(() => {
-
         if (nickname && keyword?.length) {
-            console.log("키워드는? : " + keyword)
+            console.log("2번 @");
             fetchSearchUserPosts(page);
         }
     }, [nickname, keyword, page]);
 
     useEffect(() => {
+        if(!nickname) return;
+        console.log("3번 @");
+        fetchNicknamePosts(nickname);
+        fetchNicknameProfile(nickname);
+    }, [nickname]);
 
-        setContentData([]);
-        setPage(0);
-        setPageEmpty(false);
-        setHasError(false);
-
-    },[keyword]);
 
     useEffect(() => {
         
@@ -112,11 +120,7 @@ const BlogSearchPage : React.FC<Props> = ({keycloak, keycloakStatus}) => {
         };
     }, [sentinel, isLoading, hasError]);
 
-    useEffect(() => {
-        if(!nickname) return;
-        fetchNicknamePosts(nickname);
-        fetchNicknameProfile(nickname);
-    }, [nickname]);
+
 
     // 화면의 다른 곳을 클릭하면 리모콘을 토글
     useEffect(() => {
@@ -153,14 +157,18 @@ const BlogSearchPage : React.FC<Props> = ({keycloak, keycloakStatus}) => {
     }, []);
 
     const fetchSearchUserPosts = (currentPage: number) => {
+        // (keyword?.length && contentData.length === 0 && pageEmpty)
+        console.log(`검색 - keyword.length: ${keyword?.length}, data.length: ${contentData.length}, pageEmpty: ${pageEmpty}`);
         if (pageEmpty || isLoading) return;
-
+        console.log(`데이터 요청시작`);
         setIsLoading(true);
         setHasError(false);
 
         searchNicknamePostsByText(nickname!, keyword!, currentPage, 20)
             .then((response) => {
                 console.log('어떻게오는데 :', response);
+                console.log('비어있는거 확인 @  :', response.empty);
+                setTotalElements(response.totalElements)
                 setContentData((prevData) => [...prevData, ...response.content]);
                 setPageEmpty(response.empty);
             })
@@ -203,6 +211,11 @@ const BlogSearchPage : React.FC<Props> = ({keycloak, keycloakStatus}) => {
         if (e.key === 'Enter') {
             // 검색어가 존재하면 쿼리 파라미터 추가
             if (inputValue.trim() !== "") {
+                setContentData([]);
+                setPage(0);
+                setPageEmpty(false);
+                setHasError(false);
+                setTotalElements(0)
                 setSearchParams({ keyword: inputValue.trim() });
             } else {
                 // 검색어가 비어있으면 쿼리 파라미터를 제거하고 기본 주소로
@@ -283,9 +296,13 @@ const BlogSearchPage : React.FC<Props> = ({keycloak, keycloakStatus}) => {
                                 onChange={(e) => setInputValue(e.target.value)}
                                 onKeyDown={handleKeyDown} />
                         </div>
-                        {keyword?.length && (
+                        {keyword?.length ? (
                             <div className="text-lg xs:text-base mb-16">
-                                총 <b>{contentData.length}개</b>의 게시글을 찾았습니다
+                                총 <b>{totalElements}개</b>의 게시글을 찾았습니다
+                            </div>
+                        ) : (
+                            <div className="text-lg xs:text-base mb-16">
+                                검색어를 올바르게 입력해주세요
                             </div>
                         )}
                         <div className="flex flex-col gap-16">
@@ -359,7 +376,7 @@ const BlogSearchPage : React.FC<Props> = ({keycloak, keycloakStatus}) => {
                             })}
                         </div>
                         {/* 빈 리스트 */}
-                        {(contentData.length === 0 && keyword?.length ) && (
+                        {(keyword?.length && contentData.length === 0 && pageEmpty) && (
                             <div className="flex flex-col justify-center items-center">
                                 <div className="w-[425px] 2xs:w-[325px] ">
                                     <img
