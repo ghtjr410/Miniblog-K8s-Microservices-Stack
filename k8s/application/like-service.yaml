@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: miniblog
+  name: like-service-deployment
+  labels:
+    app: like-service-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: like-service-deployment
+  template:
+    metadata:
+      labels:
+        app: like-service-deployment
+    spec:
+      containers:
+        - name: like-service
+          image: 017820660901.dkr.ecr.ap-northeast-2.amazonaws.com/like-service:latest
+          ports:
+            - containerPort: 4046
+          env:
+            - name: SPRING_APPLICATION_NAME
+              value: "like-service"
+            - name: SERVER_PORT
+              value: "4046"
+            - name: LOKI_URL
+              value: "http://loki:3100/loki/api/v1/push"
+            - name: MANAGEMENT_ZIPKIN_TRACING_ENDPOINT
+              value: "http://tempo:9411/api/v2/spans"
+            - name: SPRING_DATASOURCE_URI
+              value:
+            - name: SPRING_DATASOURCE_USERNAME
+              value:
+            - name: SPRING_DATASOURCE_PASSWORD
+              value:
+            - name: SPRING_KAFKA_BOOTSTRAP_SERVERS
+              value: "broker-service:9092"
+            - name: SPRING_KAFKA_PROPERTIES_SCHEMA_REGISTRY_URL
+              value: "http://schema-registry-service:8085"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: miniblog
+  name: like-service-service
+spec:
+  selector:
+    app: like-service-deployment
+  ports:
+    - protocol: TCP
+      port: 4046
+      targetPort: 4046
+  type: ClusterIP
