@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: miniblog
+  name: comment-service-deployment
+  labels:
+    app: comment-service-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: comment-service-deployment
+  template:
+    metadata:
+      labels:
+        app: comment-service-deployment
+    spec:
+      containers:
+        - name: comment-service
+          image: 017820660901.dkr.ecr.ap-northeast-2.amazonaws.com/comment-service:latest
+          ports:
+            - containerPort: 4044
+          env:
+            - name: SPRING_APPLICATION_NAME
+              value: "comment-service"
+            - name: SERVER_PORT
+              value: "4044"
+            - name: LOKI_URL
+              value: "http://loki:3100/loki/api/v1/push"
+            - name: MANAGEMENT_ZIPKIN_TRACING_ENDPOINT
+              value: "http://tempo:9411/api/v2/spans"
+            - name: SPRING_DATASOURCE_URI
+              value:
+            - name: SPRING_DATASOURCE_USERNAME
+              value:
+            - name: SPRING_DATASOURCE_PASSWORD
+              value:
+            - name: SPRING_KAFKA_BOOTSTRAP_SERVERS
+              value: "broker-service:9092"
+            - name: SPRING_KAFKA_PROPERTIES_SCHEMA_REGISTRY_URL
+              value: "http://schema-registry-service:8085"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: miniblog
+  name: comment-service-service
+spec:
+  selector:
+    app: comment-service-deployment
+  ports:
+    - protocol: TCP
+      port: 4044
+      targetPort: 4044
+  type: ClusterIP
