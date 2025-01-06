@@ -37,10 +37,4 @@ public class Viewcount {
     @Min(0)
     @Builder.Default
     private Long totalViews = 0L;
-
-    // 낙관적 락 버전 필드 추가
-    @Version
-    @Column(name = "version", nullable = false)
-    @Builder.Default
-    private Long version = 0L;
 }

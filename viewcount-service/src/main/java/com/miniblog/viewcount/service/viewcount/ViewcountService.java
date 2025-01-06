@@ -26,13 +26,19 @@ public class ViewcountService {
         Viewcount viewcount = viewcountRepository.findById(postUuidAsUUID)
                 .orElseThrow(() -> new NotFoundException("게시글을 찾을 수 없습니다: postUuid = " + postUuid));
 
-        // totalViews 증가
-        viewcount.setTotalViews(viewcount.getTotalViews() + 1);
+        // 기존 카운트
+        long oldCount = viewcount.getTotalViews();
 
-        // 낙관적 락 충돌이 발생할 경우 ObjectOptimisticLockingFailureException 발생
-        Viewcount updatedViewcount = viewcountRepository.save(viewcount);
+        // UPDATE 쿼리 (1회)
+        viewcountRepository.incrementViewcount(postUuidAsUUID);
 
+        // 재조회 대신, 증가된 값을 직접 계산
+        long updatedCount = oldCount + 1;
+
+        // 이벤트 생성 시, updatedCount 사용
+        viewcount.setTotalViews(updatedCount);
+        // 대부분의 뷰 카운트 로직은 “정확도”보단 “대략적인 누적”을 중요 MySQL은 Returning지원X
         // Outbox 이벤트 발행
-        outboxEventService.createOutboxEvent(updatedViewcount, ProducedEventType.VIEWCOUNT_UPDATE);
+        outboxEventService.createOutboxEvent(viewcount, ProducedEventType.VIEWCOUNT_UPDATE);
     }
 }
