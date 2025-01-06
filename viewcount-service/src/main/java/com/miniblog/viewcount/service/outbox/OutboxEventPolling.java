@@ -9,6 +9,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 @RequiredArgsConstructor
@@ -20,7 +21,9 @@ public class OutboxEventPolling {
     @Scheduled(fixedRate = 1000)
     public List<OutboxEvent> pollPendingEvents() {
         List<OutboxEvent> unprocessedEvents = outboxEventRepository.findByProcessedFalseAndSagaStatus(SagaStatus.CREATED);
-        unprocessedEvents.forEach(outboxEventProcessor::processEvent);
+
+        unprocessedEvents.stream()
+                .forEach(event -> Thread.ofVirtual().start(() -> outboxEventProcessor.processEvent(event)));
 
         return unprocessedEvents;
     }
