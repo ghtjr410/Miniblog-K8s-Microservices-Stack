@@ -9,6 +9,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.concurrent.Executors;
 
 @Service
 @RequiredArgsConstructor
@@ -19,8 +20,15 @@ public class OutboxEventPolling {
 
     @Scheduled(fixedRate = 1000)
     public List<OutboxEvent> pollPendingEvents(){
+        // 처리되지 않은 이벤트 조회
         List<OutboxEvent> unprocessedEvents = outboxEventRepository.findByProcessedFalseAndSagaStatus(SagaStatus.CREATED);
-        unprocessedEvents.forEach(outboxEventProcessor::processEvent);
+        // 가상 스레드 풀 생성
+        try (var executor = Executors.newVirtualThreadPerTaskExecutor()){
+            // 가상 스레드 풀에서 이벤트 처리 작업 제출
+            unprocessedEvents.forEach(event ->
+                    executor.submit(() -> outboxEventProcessor.processEvent(event))
+            );
+        }
 
         return unprocessedEvents;
     }
