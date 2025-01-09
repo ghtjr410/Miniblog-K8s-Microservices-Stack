@@ -7,7 +7,8 @@ metadata:
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
-    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-northeast-2:017820660901:certificate/f728ec93-f5c6-4846-b2c9-af444e4dfa1d
+#    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-northeast-2:017820660901:certificate/f728ec93-f5c6-4846-b2c9-af444e4dfa1d #예전 버전
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-northeast-2:017820660901:certificate/afb53aea-7747-4194-87cd-a20aedd41211
     alb.ingress.kubernetes.io/ssl-redirect: '443'
     alb.ingress.kubernetes.io/backend-protocol: HTTP
 spec:
@@ -53,3 +54,23 @@ spec:
                 name: grafana-service
                 port:
                   number: 3000
+    - host: musical.ghtjr.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: musical-front-service
+                port:
+                  number: 80
+    - host: portfolio.ghtjr.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: portfolio-front-service
+                port:
+                  number: 80
