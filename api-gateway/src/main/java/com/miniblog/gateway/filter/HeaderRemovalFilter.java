@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.util.*;
 
 @Component
-public class CustomHeaderRemovalFilter extends OncePerRequestFilter {
+public class HeaderRemovalFilter extends OncePerRequestFilter {
     private final Set<String> headersToRemove = Set.of("x-user-roles", "x-user-sub");
 
     @Override
@@ -25,6 +25,7 @@ public class CustomHeaderRemovalFilter extends OncePerRequestFilter {
             public Enumeration<String> getHeaderNames() {
                 Enumeration<String> originalHeaderNames = request.getHeaderNames();
                 List<String> headerNames = new ArrayList<>();
+
                 while (originalHeaderNames.hasMoreElements()) {
                     String headerName = originalHeaderNames.nextElement();
                     if (!headersToRemove.contains(headerName.toLowerCase())) {
