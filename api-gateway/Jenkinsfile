@@ -1,4 +1,4 @@
-pipeline {
+pipeline { // test
     agent any
     environment {
         AWS_ACCOUNT_ID = '017820660901'
