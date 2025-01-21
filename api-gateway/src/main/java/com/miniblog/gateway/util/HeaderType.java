@@ -16,4 +16,7 @@ public enum HeaderType {
     public String getHeaderName() {
         return headerName;
     }
+    public String test() {
+        return "a";
+    }
 }
