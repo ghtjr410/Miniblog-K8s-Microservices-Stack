@@ -1,8 +1,8 @@
 pipeline {
     agent any
     environment {
-        AWS_ACCOUNT_ID = '017820660901'  // AWS Account ID를 직접 설정
-        AWS_REGION = 'ap-northeast-2'  // AWS Region을 직접 설정
+        AWS_ACCOUNT_ID = '017820660901'
+        AWS_REGION = 'ap-northeast-2'
         ECR_REPO_NAME = 'blog-front'
         IMAGE_TAG = "${env.BUILD_NUMBER}"
         GIT_CREDENTIALS_ID = 'github-credentials'
