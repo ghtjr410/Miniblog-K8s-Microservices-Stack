@@ -6,6 +6,7 @@ pipeline {
         ECR_REPO_NAME = 'blog-front'
         IMAGE_TAG = "${env.BUILD_NUMBER}"
         GIT_CREDENTIALS_ID = 'github-credentials'
+        ECR_IMAGE_REPO_URL = credentials('ecr-image-repo-url')
     }
     stages {
         stage('Checkout') {
@@ -69,7 +70,7 @@ pipeline {
             }
             steps {
                 script {
-                    docker.build("017820660901.dkr.ecr.ap-northeast-2.amazonaws.com/blog-front:${IMAGE_TAG}", 'blog-front/.')
+                    docker.build("${ECR_IMAGE_REPO_URL}/blog-front:${IMAGE_TAG}", 'blog-front/.')
                 }
             }
         }
@@ -79,7 +80,7 @@ pipeline {
             }
             steps {
                 script {
-                    docker.image("017820660901.dkr.ecr.ap-northeast-2.amazonaws.com/blog-front:${IMAGE_TAG}").push()
+                    docker.image("${ECR_IMAGE_REPO_URL}/blog-front:${IMAGE_TAG}").push()
                 }
             }
         }
@@ -97,7 +98,7 @@ pipeline {
                             echo ECR_REPO_NAME: ${ECR_REPO_NAME}
                             echo IMAGE_TAG: ${IMAGE_TAG}
                             helm upgrade --install blog-front ./blog-front ^
-                                --set image.repository=017820660901.dkr.ecr.ap-northeast-2.amazonaws.com/blog-front ^
+                                --set image.repository=${ECR_IMAGE_REPO_URL}/blog-front ^
                                 --set image.tag=${IMAGE_TAG}
                         """
                     }
