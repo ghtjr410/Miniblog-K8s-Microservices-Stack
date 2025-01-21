@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: miniblog
+  name: api-gateway-deployment
+  labels:
+    app: api-gateway-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api-gateway-deployment
+  template:
+    metadata:
+      labels:
+        app: api-gateway-deployment
+    spec:
+      containers:
+        - name: api-gateway
+          image: {{ .Values.image.repository }}/api-gateway:latest
+          ports:
+            - containerPort: 4040
+          env:
+            - name: SPRING_APPLICATION_NAME
+              value: "api-gateway"
+            - name: SERVER_PORT
+              value: "4040"
+            - name: SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI
+              value: "https://keycloak.ghtjr.com/realms/miniblog-realm"
+            - name: LOKI_URL
+              value: "http://loki:3100/loki/api/v1/push"
+            - name: MANAGEMENT_ZIPKIN_TRACING_ENDPOINT
+              value: "http://tempo:9411/api/v2/spans"
+            - name: IMAGE_SERVICE_URL
+              value: "http://image-service-service:4041"
+            - name: POST_SERVICE_URL
+              value: "http://post-service-service:4042"
+            - name: QUERY_SERVICE_URL
+              value: "http://query-service-service:4043"
+            - name: COMMENT_SERVICE_URL
+              value: "http://comment-service-service:4044"
+            - name: LIKE_SERVICE_URL
+              value: "http://like-service-service:4046"
+            - name: VIEWCOUNT_SERVICE_URL
+              value: "http://viewcount-service-service:4047"
+            - name: PROFILE_SERVICE_URL
+              value: "http://profile-service-service:4048"
+            - name: ACCOUNT_SERVICE_URL
+              value: "http://account-service-service:4049"

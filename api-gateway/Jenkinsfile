@@ -90,16 +90,18 @@ pipeline {
             steps {
                 dir('charts/application') {
                     script {
-                        bat """
-                            echo Current Directory: %CD%
-                            echo AWS_ACCOUNT_ID: ${AWS_ACCOUNT_ID}
-                            echo AWS_REGION: ${AWS_REGION}
-                            echo ECR_REPO_NAME: ${ECR_REPO_NAME}
-                            echo IMAGE_TAG: ${IMAGE_TAG}
-                            helm upgrade --install api-gateway ./api-gateway ^
-                                --set image.repository=017820660901.dkr.ecr.ap-northeast-2.amazonaws.com/api-gateway ^
-                                --set image.tag=${IMAGE_TAG}
-                        """
+                        withCredentials([string(credentialsId: 'ecr-image-repo-url', variable: 'ECR_IMAGE_REPO_URL')]) {
+                            bat """
+                                echo Current Directory: %CD%
+                                echo AWS_ACCOUNT_ID: ${AWS_ACCOUNT_ID}
+                                echo AWS_REGION: ${AWS_REGION}
+                                echo ECR_REPO_NAME: ${ECR_REPO_NAME}
+                                echo IMAGE_TAG: ${IMAGE_TAG}
+                                helm upgrade --install api-gateway ./api-gateway ^
+                                    --set image.repository=${ECR_IMAGE_REPO_URL}/api-gateway ^
+                                    --set image.tag=${IMAGE_TAG}
+                            """
+                        }
                     }
                 }
             }
