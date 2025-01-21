@@ -6,7 +6,6 @@ pipeline {
         ECR_REPO_NAME = 'blog-front'
         IMAGE_TAG = "${env.BUILD_NUMBER}"
         GIT_CREDENTIALS_ID = 'github-credentials'
-        ECR_IMAGE_REPO_URL = credentials('ecr-image-repo-url')
     }
     stages {
         stage('Checkout') {
@@ -70,7 +69,7 @@ pipeline {
             }
             steps {
                 script {
-                    docker.build("${ECR_IMAGE_REPO_URL}/blog-front:${IMAGE_TAG}", 'blog-front/.')
+                    docker.build("017820660901.dkr.ecr.ap-northeast-2.amazonaws.com/blog-front:${IMAGE_TAG}", 'blog-front/.')
                 }
             }
         }
@@ -80,7 +79,7 @@ pipeline {
             }
             steps {
                 script {
-                    docker.image("${ECR_IMAGE_REPO_URL}/blog-front:${IMAGE_TAG}").push()
+                    docker.image("017820660901.dkr.ecr.ap-northeast-2.amazonaws.com/blog-front:${IMAGE_TAG}").push()
                 }
             }
         }
@@ -91,16 +90,18 @@ pipeline {
             steps {
                 dir('charts/application') {
                     script {
-                        bat """
-                            echo Current Directory: %CD%
-                            echo AWS_ACCOUNT_ID: ${AWS_ACCOUNT_ID}
-                            echo AWS_REGION: ${AWS_REGION}
-                            echo ECR_REPO_NAME: ${ECR_REPO_NAME}
-                            echo IMAGE_TAG: ${IMAGE_TAG}
-                            helm upgrade --install blog-front ./blog-front ^
-                                --set image.repository=${ECR_IMAGE_REPO_URL}/blog-front ^
-                                --set image.tag=${IMAGE_TAG}
-                        """
+                        withCredentials([string(credentialsId: 'ecr-image-repo-url', variable: 'ECR_IMAGE_REPO_URL')]) {
+                            bat """
+                                echo Current Directory: %CD%
+                                echo AWS_ACCOUNT_ID: ${AWS_ACCOUNT_ID}
+                                echo AWS_REGION: ${AWS_REGION}
+                                echo ECR_REPO_NAME: ${ECR_REPO_NAME}
+                                echo IMAGE_TAG: ${IMAGE_TAG}
+                                helm upgrade --install blog-front ./blog-front ^
+                                    --set image.repository=${ECR_IMAGE_REPO_URL}/blog-front ^
+                                    --set image.tag=${IMAGE_TAG}
+                            """
+                        }
                     }
                 }
             }
