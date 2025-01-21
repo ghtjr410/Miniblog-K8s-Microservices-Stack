@@ -10,7 +10,6 @@ export const ROUTES = {
     HISTORY_LIKED: '/history/liked',
     HISTORY_COMMENTS: '/history/comments',
     TEST: '/test',
-    AAA:'aaa',
 };
 
 export const DYNAMIC_ROUTES = {

@@ -1,21 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  namespace: {{ .Values.namespace }}
-  name: {{ .Release.Name }}-deployment
+  namespace: miniblog
+  name: blog-front-deployment
 spec:
-  replicas: {{ .Values.replicaCount }}
+  replicas: 1
   selector:
     matchLabels:
-      app.kubernetes.io/name: {{ .Release.Name }}-deployment
+      app.kubernetes.io/name: blog-front-deployment
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: {{ .Release.Name }}-deployment
+        app.kubernetes.io/name: blog-front-deployment
     spec:
       containers:
-          - image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
-            imagePullPolicy: {{ .Values.image.pullPolicy }}
-            name: {{ .Release.Name }}-deployment
-            ports:
-                - containerPort: {{ .Values.service.port }}
+        - image: 017820660901.dkr.ecr.ap-northeast-2.amazonaws.com/blog-front:latest
+          imagePullPolicy: Always
+          name: blog-front-deployment
+          ports:
+            - containerPort: 80
