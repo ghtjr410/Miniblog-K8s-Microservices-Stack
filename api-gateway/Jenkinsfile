@@ -98,7 +98,7 @@ pipeline { // test 1
                                 echo ECR_REPO_NAME: ${ECR_REPO_NAME}
                                 echo IMAGE_TAG: ${IMAGE_TAG}
                                 helm upgrade --install api-gateway ./api-gateway ^
-                                    --set image.repository=${ECR_IMAGE_REPO_URL}/api-gateway ^
+                                    --set image.repository=${ECR_IMAGE_REPO_URL} ^
                                     --set image.tag=${IMAGE_TAG}
                             """
                         }
