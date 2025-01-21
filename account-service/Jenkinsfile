@@ -108,7 +108,8 @@ pipeline { // test 1
                                     --set image.tag=${IMAGE_TAG} ^
                                     --set azure.db.url=${AZURE_DB_URL} ^
                                     --set azure.db.username=${AZURE_DB_USERNAME} ^
-                                    --set azure.db.password=${AZURE_DB_PASSWORD}
+                                    --set azure.db.password=${AZURE_DB_PASSWORD} ^
+                                    --set keycloak.secret=${KEYCLOAK_SECRET}
                             """
                         }
                     }

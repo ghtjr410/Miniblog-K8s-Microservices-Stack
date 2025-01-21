@@ -4,9 +4,9 @@ image:
 
 azure:
   db:
-    url:
-    username:
-    password:
+    url: "" # Jenkins Credentials
+    username: "" # Jenkins Credentials
+    password: "" # Jenkins Credentials
 
 keycloak:
-  secret:
+  secret: "" # Jenkins Credentials
