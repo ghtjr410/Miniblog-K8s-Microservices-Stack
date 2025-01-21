@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: account-service
-          image: {{ .Values.image.repository }}/account-service:{{ .Values.image.tag }}
+          image: {{ .Values.image.repository | quote }}/account-service:{{ .Values.image.tag }}
           ports:
             - containerPort: 4049
           env:
@@ -28,17 +28,17 @@ spec:
             - name: KEYCLOAK_AUTH_SERVER_URL
               value: "https://keycloak.ghtjr.com"
             - name: KEYCLOAK_CREDENTIALS_SECRET
-              value: {{ .Values.keycloak.secret}}
+              value: {{ .Values.keycloak.secret | quote}}
             - name: LOKI_URL
               value: "http://loki:3100/loki/api/v1/push"
             - name: MANAGEMENT_ZIPKIN_TRACING_ENDPOINT
               value: "http://tempo:9411/api/v2/spans"
             - name: SPRING_DATASOURCE_URI
-              value: {{ .Values.azure.db.url}}
+              value: {{ .Values.azure.db.url | quote }}
             - name: SPRING_DATASOURCE_USERNAME
-              value: {{ .Values.azure.db.username}}
+              value: {{ .Values.azure.db.username | quote }}
             - name: SPRING_DATASOURCE_PASSWORD
-              value: {{ .Values.azure.db.password}}
+              value: {{ .Values.azure.db.password | quote }}
             - name: SPRING_KAFKA_BOOTSTRAP_SERVERS
               value: "broker-service:9092"
             - name: SPRING_KAFKA_PROPERTIES_SCHEMA_REGISTRY_URL
