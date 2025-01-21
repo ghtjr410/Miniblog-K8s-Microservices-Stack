@@ -9,8 +9,7 @@ export const ROUTES = {
     HISTORY: '/history',
     HISTORY_LIKED: '/history/liked',
     HISTORY_COMMENTS: '/history/comments',
-    TEST: '/test',
-    DUMMY: '/dummy'
+    TEST: '/test'
 };
 
 export const DYNAMIC_ROUTES = {
