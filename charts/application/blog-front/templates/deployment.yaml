@@ -14,7 +14,7 @@ spec:
         app.kubernetes.io/name: blog-front-deployment
     spec:
       containers:
-        - image: 017820660901.dkr.ecr.ap-northeast-2.amazonaws.com/blog-front:latest
+        - image: {{ .Values.image.repository }}/blog-front:latest
           imagePullPolicy: Always
           name: blog-front-deployment
           ports:
