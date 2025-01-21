@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: miniblog
+  name: account-service-service
+spec:
+  selector:
+    app: account-service-deployment
+  ports:
+    - protocol: TCP
+      port: 4049
+      targetPort: 4049
+  type: ClusterIP
