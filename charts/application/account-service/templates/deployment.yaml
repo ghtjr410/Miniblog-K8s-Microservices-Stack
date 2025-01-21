@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: account-service
-          image: {{ .Values.image.repository | quote }}/account-service:{{ .Values.image.tag }}
+          image: {{ .Values.image.repository }}/account-service:{{ .Values.image.tag }}
           ports:
             - containerPort: 4049
           env:
