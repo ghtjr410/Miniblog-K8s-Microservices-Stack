@@ -1,0 +1,9 @@
+image:
+  repository: "" # Jenkins Credentials
+  tag: latest
+
+aws:
+  db:
+    url:
+    username:
+    password:

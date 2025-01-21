@@ -1,0 +1,6 @@
+apiVersion: v2
+name: comment-service
+description: A Helm chart for deploying Comment Service
+type: application
+version: 0.1.0
+appVersion: "latest"
