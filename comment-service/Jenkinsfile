@@ -105,6 +105,9 @@ pipeline { // test 1
                                 helm upgrade --install comment-service ./comment-service ^
                                     --set image.repository=${ECR_IMAGE_REPO_URL} ^
                                     --set image.tag=${IMAGE_TAG}
+                                    --set aws.db.url=${AWS_DB_URL} ^
+                                    --set aws.db.username=${AWS_DB_USERNAME} ^
+                                    --set aws.db.password=${AWS_DB_PASSWORD}
                             """
                         }
                     }

@@ -24,7 +24,7 @@ public class CommentServiceAspect {
 
     @AfterReturning(pointcut = "commentServiceMethods()", returning = "result")
     public void logCommentService(JoinPoint joinPoint, Object result) {
-        log.info("Successfully - executed: {} with result = {}", joinPoint.getSignature(), result);
+        log.info("Successfully executed: {} with result = {}", joinPoint.getSignature(), result);
     }
 
     @Around("commentServiceMethods()")
