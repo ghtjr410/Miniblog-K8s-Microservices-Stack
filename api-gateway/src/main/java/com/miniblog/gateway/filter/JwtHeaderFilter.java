@@ -19,7 +19,9 @@ public class JwtHeaderFilter {
     public HandlerFilterFunction<ServerResponse, ServerResponse> addJwtHeadersFilter(Set<HeaderType> headersToInclude) {
         return (request, next) -> {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
             if (authentication != null && authentication.getPrincipal() instanceof Jwt) {
+                
                 Jwt jwt = (Jwt) authentication.getPrincipal();
                 HeaderMapRequestWrapper requestWrapper = new HeaderMapRequestWrapper(request.servletRequest());
 
@@ -35,10 +37,9 @@ public class JwtHeaderFilter {
                             String rolesHeader = String.join(",", roles);
                             requestWrapper.addHeader(headerType.getHeaderName(), rolesHeader);
                             break;
-                        // 필요한 경우 다른 헤더 타입 추가 가능
                     }
                 }
-                // 새로운 ServerRequest 생성
+
                 ServerRequest newRequest = ServerRequest.create(requestWrapper, request.messageConverters());
 
                 return next.handle(newRequest);

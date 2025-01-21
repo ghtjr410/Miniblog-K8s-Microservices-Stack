@@ -12,4 +12,8 @@ public enum HeaderType {
     HeaderType(String headerName) {
         this.headerName = headerName;
     }
+
+    public String getHeaderName() {
+        return headerName;
+    }
 }

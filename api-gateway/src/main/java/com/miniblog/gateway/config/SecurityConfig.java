@@ -1,6 +1,6 @@
 package com.miniblog.gateway.config;
 
-import com.miniblog.gateway.filter.CustomHeaderRemovalFilter;
+import com.miniblog.gateway.filter.HeaderRemovalFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -28,7 +28,7 @@ public class SecurityConfig {
     private final String[] userOnlyResourceUrls = {"/api/v1/image-service/**", "/api/v1/post-service/**", "/api/v1/like-service/**", "/api/v1/profile-service/**"};
     private final String[] adminOnlyResourceUrls = {"/api/v1/admin-service/**"};
 
-    private final CustomHeaderRemovalFilter customHeaderRemovalFilter;
+    private final HeaderRemovalFilter headerRemovalFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
@@ -41,7 +41,7 @@ public class SecurityConfig {
                         .anyRequest().authenticated())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())))
-                .addFilterBefore(customHeaderRemovalFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(headerRemovalFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 
