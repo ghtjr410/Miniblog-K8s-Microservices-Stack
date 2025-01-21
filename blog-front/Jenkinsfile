@@ -1,0 +1,108 @@
+pipeline {
+    agent any
+    environment {
+        AWS_ACCOUNT_ID = '017820660901'  // AWS Account ID를 직접 설정
+        AWS_REGION = 'ap-northeast-2'  // AWS Region을 직접 설정
+        ECR_REPO_NAME = 'blog-front'
+        IMAGE_TAG = "${env.BUILD_NUMBER}"
+        GIT_CREDENTIALS_ID = 'github-credentials'
+    }
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main',
+                    url: 'https://github.com/ghtjr410/Miniblog-K8s-Microservices-Stack.git',
+                    credentialsId: "${GIT_CREDENTIALS_ID}"
+            }
+        }
+        stage('Check Tools') {
+            steps {
+                bat '''
+                    aws --version
+                    docker --version
+                '''
+            }
+        }
+        stage('Print AWS Identity') {
+            steps {
+                withAWS(region: "${AWS_REGION}", credentials: 'aws-credentials') {
+                    bat '''
+                        aws sts get-caller-identity
+                    '''
+                }
+            }
+        }
+
+        stage('Login to ECR') {
+            when {
+                changeset "user-front/**"
+            }
+            steps {
+                withAWS(region: "${AWS_REGION}", credentials: 'aws-credentials') {
+                    bat '''
+                        aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin 017820660901.dkr.ecr.ap-northeast-2.amazonaws.com
+                    '''
+                }
+            }
+        }
+        stage('Verify ECR Login') {
+            when {
+                changeset "blog-front/**"
+            }
+            steps {
+                withAWS(region: "${AWS_REGION}", credentials: 'aws-credentials') {
+                    bat '''
+                        aws ecr describe-repositories --region ap-northeast-2
+                        if %ERRORLEVEL% EQU 0 (
+                            echo Successfully listed ECR repositories.
+                        ) else (
+                            echo Failed to list ECR repositories.
+                            exit /b 1
+                        )
+                    '''
+                }
+            }
+        }
+        stage('Build Docker Image') {
+            when {
+                changeset "blog-front/**"
+            }
+            steps {
+                script {
+                    docker.build("017820660901.dkr.ecr.ap-northeast-2.amazonaws.com/blog-front:${IMAGE_TAG}", 'blog-front/.')
+                }
+            }
+        }
+        stage('Push Docker Image to ECR') {
+            when {
+                changeset "user-front/**"
+            }
+            steps {
+                script {
+                    docker.image("017820660901.dkr.ecr.ap-northeast-2.amazonaws.com/user-front:${IMAGE_TAG}").push()
+                }
+            }
+        }
+        stage('Deploy to EKS') {
+            when {
+                changeset "blog-front/**"
+            }
+            steps {
+                dir('helm-charts') {
+                    script {
+                        bat """
+                            echo Current Directory: %CD%
+                            echo AWS_ACCOUNT_ID: ${AWS_ACCOUNT_ID}
+                            echo AWS_REGION: ${AWS_REGION}
+                            echo ECR_REPO_NAME: ${ECR_REPO_NAME}
+                            echo IMAGE_TAG: ${IMAGE_TAG}
+                            helm upgrade --install blog-front ./blog-front ^
+                                --set image.repository=017820660901.dkr.ecr.ap-northeast-2.amazonaws.com/blog-front ^
+                                --set image.tag=${IMAGE_TAG}
+                        """
+                    }
+                }
+            }
+        }
+    }
+}
