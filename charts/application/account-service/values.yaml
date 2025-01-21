@@ -1,12 +1,12 @@
 image:
-  repository: "" # Jenkins Credentials
-  tag: latest
+  repository: "default-repository" # Jenkins Credentials
+  tag: "latest"
 
 azure:
   db:
-    url: "" # Jenkins Credentials
-    username: "" # Jenkins Credentials
-    password: "" # Jenkins Credentials
+    url: "default-db-url" # Jenkins Credentials
+    username: "default-username" # Jenkins Credentials
+    password: "default-password" # Jenkins Credentials
 
 keycloak:
-  secret: "" # Jenkins Credentials
+  secret: "default-keycloak-secret" # Jenkins Credentials
