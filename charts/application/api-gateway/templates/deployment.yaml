@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: api-gateway
-          image: {{ .Values.image.repository }}/api-gateway:latest
+          image: {{ .Values.image.repository }}/api-gateway:{{ .Values.image.repository }}
           ports:
             - containerPort: 4040
           env:
