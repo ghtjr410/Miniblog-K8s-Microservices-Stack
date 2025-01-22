@@ -110,10 +110,10 @@ pipeline { // test 1
                                 helm upgrade --install account-service ./account-service ^
                                     --set image.repository=${ECR_IMAGE_REPO_URL} ^
                                     --set image.tag=${IMAGE_TAG} ^
-                                    --set azure.db.url=${AZURE_DB_URL} ^
-                                    --set azure.db.username=${AZURE_DB_USERNAME} ^
-                                    --set azure.db.password=${AZURE_DB_PASSWORD} ^
-                                    --set keycloak.secret=${KEYCLOAK_SECRET}
+                                    --set azure.db.url="${AZURE_DB_URL}" ^
+                                    --set azure.db.username="${AZURE_DB_USERNAME}" ^
+                                    --set azure.db.password="${AZURE_DB_PASSWORD}" ^
+                                    --set keycloak.secret="${KEYCLOAK_SECRET}"
                             """
                         }
                     }
