@@ -25,7 +25,7 @@ public class OutboxEventPollingAspect {
         if (result instanceof List<?>) {
             List<?> unprocessedEvents = (List<?>) result;
             if (!unprocessedEvents.isEmpty()) {
-                log.info("pollPendingEvents completed Processed events count: {}", unprocessedEvents.size());
+                log.info("pollPendingEvents completed -- Processed events count: {}", unprocessedEvents.size());
             }
         }
     }
