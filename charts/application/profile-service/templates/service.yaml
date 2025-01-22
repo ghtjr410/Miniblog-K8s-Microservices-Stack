@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: miniblog
+  name: profile-service-service
+spec:
+  selector:
+    app: profile-service-deployment
+  ports:
+    - protocol: TCP
+      port: 4048
+      targetPort: 4048
+  type: ClusterIP
