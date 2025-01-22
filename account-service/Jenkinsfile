@@ -103,6 +103,10 @@ pipeline { // test 1
                                 echo AWS_REGION: ${AWS_REGION}
                                 echo ECR_REPO_NAME: ${ECR_REPO_NAME}
                                 echo IMAGE_TAG: ${IMAGE_TAG}
+                                echo AZURE_DB_URL: ${AZURE_DB_URL}
+                                echo AZURE_DB_USERNAME: ${AZURE_DB_USERNAME}
+                                echo AZURE_DB_PASSWORD: ${AZURE_DB_PASSWORD}
+                                echo KEYCLOAK_SECRET: ${KEYCLOAK_SECRET}
                                 helm upgrade --install account-service ./account-service ^
                                     --set image.repository=${ECR_IMAGE_REPO_URL} ^
                                     --set image.tag=${IMAGE_TAG} ^
