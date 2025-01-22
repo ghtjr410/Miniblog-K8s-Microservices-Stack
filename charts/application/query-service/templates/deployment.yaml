@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: miniblog
+  name: query-service-deployment
+  labels:
+    app: query-service-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: query-service-deployment
+  template:
+    metadata:
+      labels:
+        app: query-service-deployment
+    spec:
+      containers:
+        - name: query-service
+          image: 017820660901.dkr.ecr.ap-northeast-2.amazonaws.com/query-service:{{ .Values.image.tag }}
+          ports:
+            - containerPort: 4043
+          env:
+            - name: SPRING_APPLICATION_NAME
+              value: "query-service"
+            - name: SERVER_PORT
+              value: "4043"
+            - name: LOKI_URL
+              value: "http://loki:3100/loki/api/v1/push"
+            - name: MANAGEMENT_ZIPKIN_TRACING_ENDPOINT
+              value: "http://tempo:9411/api/v2/spans"
+            - name: SPRING_KAFKA_BOOTSTRAP_SERVERS
+              value: "broker-service:9092"
+            - name: SPRING_KAFKA_PROPERTIES_SCHEMA_REGISTRY_URL
+              value: "http://schema-registry-service:8085"
+            - name: SPRING_DATA_MONGODB_URI
+              valueFrom:
+                secretKeyRef:
+                  name: query-service-secrets
+                  key: SPRING_DATA_MONGODB_URI
