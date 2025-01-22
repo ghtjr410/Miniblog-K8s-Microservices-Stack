@@ -90,18 +90,15 @@ pipeline {
             steps {
                 dir('charts/application') {
                     script {
-                        withCredentials([string(credentialsId: 'ecr-image-repo-url', variable: 'ECR_IMAGE_REPO_URL')]) {
-                            bat """
-                                echo Current Directory: %CD%
-                                echo AWS_ACCOUNT_ID: ${AWS_ACCOUNT_ID}
-                                echo AWS_REGION: ${AWS_REGION}
-                                echo ECR_REPO_NAME: ${ECR_REPO_NAME}
-                                echo IMAGE_TAG: ${IMAGE_TAG}
-                                helm upgrade --install blog-front ./blog-front ^
-                                    --set image.repository=${ECR_IMAGE_REPO_URL}/blog-front ^
-                                    --set image.tag=${IMAGE_TAG}
-                            """
-                        }
+                        bat """
+                            echo Current Directory: %CD%
+                            echo AWS_ACCOUNT_ID: ${AWS_ACCOUNT_ID}
+                            echo AWS_REGION: ${AWS_REGION}
+                            echo ECR_REPO_NAME: ${ECR_REPO_NAME}
+                            echo IMAGE_TAG: ${IMAGE_TAG}
+                            helm upgrade --install blog-front ./blog-front ^
+                                --set image.tag=${IMAGE_TAG}
+                        """
                     }
                 }
             }
