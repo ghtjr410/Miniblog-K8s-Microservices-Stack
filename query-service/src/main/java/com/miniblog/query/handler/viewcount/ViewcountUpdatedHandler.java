@@ -21,7 +21,7 @@ public class ViewcountUpdatedHandler implements EventConsumerHandler {
         String postUuid = viewcountUpdatedEvent.getPostUuid().toString();
 
         if (!postRepository.existsById(postUuid)) {
-            throw new IllegalArgumentException("Post with UUID = " + postUuid + " does not exist.");
+            throw new IllegalArgumentException("Post with UUID " + postUuid + " does not exist.");
         }
 
         boolean updated = postRepository.incrementTotalViews(postUuid);
