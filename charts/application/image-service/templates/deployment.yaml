@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: miniblog
+  name: image-service-deployment
+  labels:
+    app: image-service-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: image-service-deployment
+  template:
+    metadata:
+      labels:
+        app: image-service-deployment
+    spec:
+      containers:
+        - name: image-service
+          image: 017820660901.dkr.ecr.ap-northeast-2.amazonaws.com/image-service:{{ .Values.image.tag }}
+          ports:
+            - containerPort: 4041
+          env:
+            - name: SPRING_APPLICATION_NAME
+              value: "image-service"
+            - name: SERVER_PORT
+              value: "4041"
+            - name: LOKI_URL
+              value: "http://loki:3100/loki/api/v1/push"
+            - name: MANAGEMENT_ZIPKIN_TRACING_ENDPOINT
+              value: "http://tempo:9411/api/v2/spans"
+            - name: AWS_S3_BUCKET
+              value: "images.ghtjr.com"
+            - name: AWS_REGION
+              value: "ap-northeast-2"
+            - name: AWS_ACCESSKEYID
+              valueFrom:
+                secretKeyRef:
+                  name: image-service-secrets
+                  key: AWS_ACCESSKEYID
+            - name: AWS_SECRETACCESSKEY
+              valueFrom:
+                secretKeyRef:
+                  name: image-service-secrets
+                  key: AWS_SECRETACCESSKEY
