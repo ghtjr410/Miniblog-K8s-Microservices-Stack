@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: miniblog
+  name: like-service-service
+spec:
+  selector:
+    app: like-service-deployment
+  ports:
+    - protocol: TCP
+      port: 4046
+      targetPort: 4046
+  type: ClusterIP
