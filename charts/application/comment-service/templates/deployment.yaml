@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: comment-service
-          image: {{ .Values.image.repository }}/comment-service:{{ .Values.image.tag }}
+          image: 017820660901.dkr.ecr.ap-northeast-2.amazonaws.com/comment-service:{{ .Values.image.tag }}
           ports:
             - containerPort: 4044
           env:
@@ -30,11 +30,20 @@ spec:
             - name: MANAGEMENT_ZIPKIN_TRACING_ENDPOINT
               value: "http://tempo:9411/api/v2/spans"
             - name: SPRING_DATASOURCE_URI
-              value: {{ .Values.aws.db.url}}
+              valueFrom:
+                secretKeyRef:
+                  name: comment-service-secrets
+                  key: SPRING_DATASOURCE_URI
             - name: SPRING_DATASOURCE_USERNAME
-              value: {{ .Values.aws.db.username}}
+              valueFrom:
+                secretKeyRef:
+                  name: comment-service-secrets
+                  key: SPRING_DATASOURCE_USERNAME
             - name: SPRING_DATASOURCE_PASSWORD
-              value: {{ .Values.aws.db.password}}
+              valueFrom:
+                secretKeyRef:
+                  name: comment-service-secrets
+                  key: SPRING_DATASOURCE_PASSWORD
             - name: SPRING_KAFKA_BOOTSTRAP_SERVERS
               value: "broker-service:9092"
             - name: SPRING_KAFKA_PROPERTIES_SCHEMA_REGISTRY_URL

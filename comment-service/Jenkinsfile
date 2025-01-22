@@ -90,26 +90,15 @@ pipeline { // test 1
             steps {
                 dir('charts/application') {
                     script {
-                        withCredentials([
-                            string(credentialsId: 'ecr-image-repo-url', variable: 'ECR_IMAGE_REPO_URL'),
-                            string(credentialsId: 'aws-db-url', variable: 'AWS_DB_URL'),
-                            string(credentialsId: 'aws-db-username', variable: 'AWS_DB_USERNAME'),
-                            string(credentialsId: 'aws-db-password', variable: 'AWS_DB_PASSWORD'),
-                        ]) {
-                            bat """
-                                echo Current Directory: %CD%
-                                echo AWS_ACCOUNT_ID: ${AWS_ACCOUNT_ID}
-                                echo AWS_REGION: ${AWS_REGION}
-                                echo ECR_REPO_NAME: ${ECR_REPO_NAME}
-                                echo IMAGE_TAG: ${IMAGE_TAG}
-                                helm upgrade --install comment-service ./comment-service ^
-                                    --set image.repository=${ECR_IMAGE_REPO_URL} ^
-                                    --set image.tag=${IMAGE_TAG}
-                                    --set aws.db.url=${AWS_DB_URL} ^
-                                    --set aws.db.username=${AWS_DB_USERNAME} ^
-                                    --set aws.db.password=${AWS_DB_PASSWORD}
-                            """
-                        }
+                        bat """
+                            echo Current Directory: %CD%
+                            echo AWS_ACCOUNT_ID: ${AWS_ACCOUNT_ID}
+                            echo AWS_REGION: ${AWS_REGION}
+                            echo ECR_REPO_NAME: ${ECR_REPO_NAME}
+                            echo IMAGE_TAG: ${IMAGE_TAG}
+                            helm upgrade --install comment-service ./comment-service ^
+                                --set image.tag=${IMAGE_TAG}
+                        """
                     }
                 }
             }
