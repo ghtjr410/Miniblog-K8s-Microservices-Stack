@@ -32,7 +32,7 @@ public class AccountServiceAspect {
             throw ex;
         } catch (Exception ex) {
             // 예측하지 못한 예외를 로깅하고 RuntimeException으로 래핑하여 던짐 (글로벌 예외 처리기에서 처리)
-            log.error("Unexpected exception in {}.{}() with cause = {}",
+            log.error("Unexpected - exception in {}.{}() with cause = {}",
                     joinPoint.getSignature().getDeclaringTypeName(),
                     joinPoint.getSignature().getName(),
                     ex.getCause() != null ? ex.getCause() : "NULL",
