@@ -38,7 +38,7 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: post-service-secrets
-                  key: SPRING_DATASOURCE_USERNAME"ghtjr410"
+                  key: SPRING_DATASOURCE_USERNAME
             - name: SPRING_DATASOURCE_PASSWORD
               valueFrom:
                 secretKeyRef:
