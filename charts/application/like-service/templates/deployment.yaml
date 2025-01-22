@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: like-service
-          image: 017820660901.dkr.ecr.ap-northeast-2.amazonaws.com/like-service:latest
+          image: 017820660901.dkr.ecr.ap-northeast-2.amazonaws.com/like-service:{{ .Values.image.tag }}
           ports:
             - containerPort: 4046
           env:
