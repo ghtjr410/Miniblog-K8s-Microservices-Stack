@@ -82,8 +82,6 @@ public class UserQueryService {
     }
     //todo:  닉네임을 기준으로 제목과 내용으로 텍스트 검색하기
     public Page<Post> searchPostsByNicknameAndText(String nickname, String text, int page, int size) {
-        // 부분 일치(앞뒤로 아무 글자나 붙을 수 있음)를 위해 .* 패턴 사용
-        String regex = ".*" + text + ".*";
         Pageable pageable = PageRequest.of(page, size);
         return postRepository.searchByNicknameAndText(nickname, text, pageable);
     }
