@@ -1,3 +1,2 @@
 image:
-  repository: "" # Jenkins Credentials
   tag: latest

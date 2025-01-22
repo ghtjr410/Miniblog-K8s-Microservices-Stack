@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: api-gateway
-          image: {{ .Values.image.repository }}/api-gateway:{{ .Values.image.tag }}
+          image: 017820660901.dkr.ecr.ap-northeast-2.amazonaws.com/api-gateway:{{ .Values.image.tag }}
           ports:
             - containerPort: 4040
           env:
