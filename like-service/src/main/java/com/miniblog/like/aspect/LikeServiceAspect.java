@@ -22,7 +22,7 @@ public class LikeServiceAspect {
 
     @AfterReturning(pointcut = "likeServiceMethods()", returning = "result")
     public void logLikeService(JoinPoint joinPoint, Object result) {
-        log.info("Successfully executed: {} with result = {}", joinPoint.getSignature(), result);
+        log.info("Successfully executed - : {} with result = {}", joinPoint.getSignature(), result);
     }
 
     @Around("likeServiceMethods()")
