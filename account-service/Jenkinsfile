@@ -90,32 +90,15 @@ pipeline { // test 1
             steps {
                 dir('charts/application') {
                     script {
-                        withCredentials([
-                            string(credentialsId: 'ecr-image-repo-url', variable: 'ECR_IMAGE_REPO_URL'),
-                            string(credentialsId: 'azure-db-url', variable: 'AZURE_DB_URL'),
-                            string(credentialsId: 'azure-db-username', variable: 'AZURE_DB_USERNAME'),
-                            string(credentialsId: 'azure-db-password', variable: 'AZURE_DB_PASSWORD'),
-                            string(credentialsId: 'keycloak-secret', variable: 'KEYCLOAK_SECRET'),
-                        ]) {
-                            bat """
-                                echo Current Directory: %CD%
-                                echo AWS_ACCOUNT_ID: ${AWS_ACCOUNT_ID}
-                                echo AWS_REGION: ${AWS_REGION}
-                                echo ECR_REPO_NAME: ${ECR_REPO_NAME}
-                                echo IMAGE_TAG: ${IMAGE_TAG}
-                                echo AZURE_DB_URL: ${AZURE_DB_URL}
-                                echo AZURE_DB_USERNAME: ${AZURE_DB_USERNAME}
-                                echo AZURE_DB_PASSWORD: ${AZURE_DB_PASSWORD}
-                                echo KEYCLOAK_SECRET: ${KEYCLOAK_SECRET}
-                                helm upgrade --install account-service ./account-service ^
-                                    --set image.repository=${ECR_IMAGE_REPO_URL} ^
-                                    --set image.tag=${IMAGE_TAG} ^
-                                    --set azure.db.url="${AZURE_DB_URL}" ^
-                                    --set azure.db.username="${AZURE_DB_USERNAME}" ^
-                                    --set azure.db.password="${AZURE_DB_PASSWORD}" ^
-                                    --set keycloak.secret="${KEYCLOAK_SECRET}" --dry-run --debug
-                            """
-                        }
+                        bat """
+                            echo Current Directory: %CD%
+                            echo AWS_ACCOUNT_ID: ${AWS_ACCOUNT_ID}
+                            echo AWS_REGION: ${AWS_REGION}
+                            echo ECR_REPO_NAME: ${ECR_REPO_NAME}
+                            echo IMAGE_TAG: ${IMAGE_TAG}
+                            helm upgrade --install account-service ./account-service ^
+                                --set image.tag=${IMAGE_TAG}
+                        """
                     }
                 }
             }
