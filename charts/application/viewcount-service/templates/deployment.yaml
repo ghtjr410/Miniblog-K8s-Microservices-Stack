@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: miniblog
+  name: viewcount-service-deployment
+  labels:
+    app: viewcount-service-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: viewcount-service-deployment
+  template:
+    metadata:
+      labels:
+        app: viewcount-service-deployment
+    spec:
+      containers:
+        - name: viewcount-service
+          image: 017820660901.dkr.ecr.ap-northeast-2.amazonaws.com/viewcount-service:{{ .Values.image.tag }}
+          ports:
+            - containerPort: 4047
+          env:
+            - name: SPRING_APPLICATION_NAME
+              value: "viewcount-service"
+            - name: SERVER_PORT
+              value: "4047"
+            - name: LOKI_URL
+              value: "http://loki:3100/loki/api/v1/push"
+            - name: MANAGEMENT_ZIPKIN_TRACING_ENDPOINT
+              value: "http://tempo:9411/api/v2/spans"
+            - name: SPRING_DATASOURCE_URI
+              valueFrom:
+                secretKeyRef:
+                  name: viewcount-service-secrets
+                  key: SPRING_DATASOURCE_URI
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: viewcount-service-secrets
+                  key: SPRING_DATASOURCE_USERNAME
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: viewcount-service-secrets
+                  key: SPRING_DATASOURCE_PASSWORD
+            - name: SPRING_KAFKA_BOOTSTRAP_SERVERS
+              value: "broker-service:9092"
+            - name: SPRING_KAFKA_PROPERTIES_SCHEMA_REGISTRY_URL
+              value: "http://schema-registry-service:8085"
