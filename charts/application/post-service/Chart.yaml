@@ -1,0 +1,6 @@
+apiVersion: v2
+name: post-service
+description: A Helm chart for deploying Post Service
+type: application
+version: 0.1.0
+appVersion: "latest"
