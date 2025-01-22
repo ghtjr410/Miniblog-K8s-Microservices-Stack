@@ -91,7 +91,7 @@ pipeline { // test 1
                 dir('charts/application') {
                     script {
                         bat """
-                            echo Current Directory: %CD%
+                            echo Current  Directory: %CD%
                             echo AWS_ACCOUNT_ID: ${AWS_ACCOUNT_ID}
                             echo AWS_REGION: ${AWS_REGION}
                             echo ECR_REPO_NAME: ${ECR_REPO_NAME}
