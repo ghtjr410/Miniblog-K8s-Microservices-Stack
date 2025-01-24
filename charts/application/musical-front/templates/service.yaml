@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: miniblog
+  name: musical-front-service
+spec:
+  selector:
+    app.kubernetes.io/name: musical-front-deployment
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: NodePort

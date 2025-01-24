@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: miniblog
+  name: musical-front-deployment
+  labels:
+    app.kubernetes.io/name: musical-front-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: musical-front-deployment
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: musical-front-deployment
+    spec:
+      containers:
+        - image: 017820660901.dkr.ecr.ap-northeast-2.amazonaws.com/musical-front:latest
+          imagePullPolicy: Always
+          name: musical-front-deployment
+          ports:
+            - containerPort: 80

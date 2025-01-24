@@ -1,0 +1,6 @@
+apiVersion: v2
+name: musical-front
+description: A Helm chart for deploying Musical Front
+type: application
+version: 0.1.0
+appVersion: "latest"
