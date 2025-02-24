@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana
+  namespace: miniblog
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grafana
+  template:
+    metadata:
+      labels:
+        app: grafana
+    spec:
+      containers:
+        - name: grafana
+          image: grafana/grafana:10.1.0
+          ports:
+            - containerPort: 3000
+          env:
+            - name: GF_SERVER_ROOT_URL
+              value: https://grafana.ghtjr.com/
+            - name: GF_SERVER_HOME_URL
+              value: https://grafana.ghtjr.com/
+            - name: GF_AUTH_DISABLE_LOGIN_FORM
+              value: "true"
+            - name: GF_AUTH_GENERIC_OAUTH_ENABLED
+              value: "true"
+            - name: GF_AUTH_GENERIC_OAUTH_NAME
+              value: Keycloak
+            - name: GF_AUTH_GENERIC_OAUTH_CLIENT_ID
+              value: grafana-client
+            - name: GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET
+              value: KEYCLOAK_CREDENTIALS
+            - name: GF_AUTH_GENERIC_OAUTH_SCOPES
+              value: KEYCLOAK_SCOPES
+            - name: GF_AUTH_GENERIC_OAUTH_AUTH_URL
+              value: KEYCLOAK_AUTH_URL
+            - name: GF_AUTH_GENERIC_OAUTH_TOKEN_URL
+              value: KEYCLOAK_TOKEN_URL
+            - name: GF_AUTH_GENERIC_OAUTH_API_URL
+              value: KEYCLOAK_API_URL
+            - name: GF_AUTH_SIGNOUT_REDIRECT_URL
+              value: KEYCLOAK_REDIRECT_URL
+            - name: GF_AUTH_OAUTH_AUTO_LOGOUT
+              value: "true"
+            - name: GF_AUTH_GENERIC_OAUTH_ROLE_ATTRIBUTE_PATH
+              value: contains(realm_access.roles[*], 'admin') && 'Admin' || (contains(realm_access.roles[*], 'develop') && 'Editor' || 'Viewer')
+          volumeMounts:
+            - name: grafana-config
+              mountPath: /etc/grafana/provisioning/datasources
+      volumes:
+        - name: grafana-config
+          configMap:
+            name: grafana-configmap
