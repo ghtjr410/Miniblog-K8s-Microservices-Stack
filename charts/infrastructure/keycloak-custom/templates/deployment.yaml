@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: keycloak
+  namespace: miniblog
+  labels:
+    app: keycloak
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: keycloak
+  template:
+    metadata:
+      labels:
+        app: keycloak
+    spec:
+      containers:
+        - name: keycloak
+          image: 017820660901.dkr.ecr.ap-northeast-2.amazonaws.com/keycloak-custom:latest
+          args:
+            - start
+            - "--proxy=edge"
+          env:
+            - name: KEYCLOAK_ADMIN
+              value: KEYCLOAK_ADMIN_USERNAME
+            - name: KEYCLOAK_ADMIN_PASSWORD
+              value: KEYCLOAK_ADMIN_PASSWORD
+            - name: KC_HOSTNAME
+              value: keycloak.ghtjr.com
+            - name: KC_DB
+              value: mysql
+            - name: KC_DB_URL_HOST
+              value: KEYCLOAK_DB_URL_HOST
+            - name: KC_DB_URL_PORT
+              value: KEYCLOAK_DB_URL_PORT
+            - name: KC_DB_USERNAME
+              value: KEYCLOAK_DB_USERNAME
+            - name: KC_DB_PASSWORD
+              value: KEYCLOAK_DB_PASSWORD
+          ports:
+            - containerPort: 8080
