@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
+import java.util.concurrent.Executors;
 
 @Service
 @RequiredArgsConstructor
@@ -39,6 +40,11 @@ public class ViewcountService {
         viewcount.setTotalViews(updatedCount);
         // 대부분의 뷰 카운트 로직은 “정확도”보단 “대략적인 누적”을 중요 MySQL은 Returning지원X
         // Outbox 이벤트 발행
-        outboxEventService.createOutboxEvent(viewcount, ProducedEventType.VIEWCOUNT_UPDATE);
+        // Virtual Threads 활용한 비동기 이벤트 처리
+        try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
+            executor.submit(() -> {
+                outboxEventService.createOutboxEvent(viewcount, ProducedEventType.VIEWCOUNT_UPDATE);
+            });
+        }
     }
 }
