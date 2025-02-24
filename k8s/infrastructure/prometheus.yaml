@@ -50,8 +50,8 @@ metadata:
 data:
   prometheus.yml: |
     global:
-      scrape_interval: 2s
-      evaluation_interval: 2s
+      scrape_interval: 10s
+      evaluation_interval: 10s
 
     scrape_configs:
       - job_name: 'api-gateway'
@@ -78,3 +78,33 @@ data:
           - targets: ['query-service-service:4043']
             labels:
               application: 'Query Service'
+      - job_name: 'comment-service'
+        metrics_path: '/actuator/prometheus'
+        static_configs:
+          - targets: ['comment-service-service:4044']
+            labels:
+              application: 'Comment Service'
+      - job_name: 'like-service'
+        metrics_path: '/actuator/prometheus'
+        static_configs:
+          - targets: ['like-service-service:4046']
+            labels:
+              application: 'Like Service'
+      - job_name: 'viewcount-service'
+        metrics_path: '/actuator/prometheus'
+        static_configs:
+          - targets: ['viewcount-service-service:4047']
+            labels:
+              application: 'Viewcount Service'
+      - job_name: 'profile-service'
+        metrics_path: '/actuator/prometheus'
+        static_configs:
+          - targets: ['profile-service-service:4048']
+            labels:
+              application: 'Profile Service'
+      - job_name: 'account-service'
+        metrics_path: '/actuator/prometheus'
+        static_configs:
+          - targets: ['account-service-service:4049']
+            labels:
+              application: 'Account Service'
