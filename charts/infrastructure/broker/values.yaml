@@ -1,0 +1,20 @@
+namespace: miniblog
+
+replicaCount: 1
+
+image:
+  repository: confluentinc/cp-kafka
+  tag: 7.5.0
+  pullPolicy: IfNotPresent
+
+service:
+  name: broker-service
+  port: 9092
+
+broker:
+  id: "1"
+  zookeeperConnect: "zookeeper-service:2181"
+  listenerSecurityProtocolMap: "PLAINTEXT:PLAINTEXT"
+  listeners: "PLAINTEXT://:9092"
+  advertisedListeners: "PLAINTEXT://broker-service:9092"
+  offsetsTopicReplicationFactor: "1"
