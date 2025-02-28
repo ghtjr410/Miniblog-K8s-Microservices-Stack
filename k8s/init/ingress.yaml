@@ -64,13 +64,3 @@ spec:
                 name: musical-front-service
                 port:
                   number: 80
-    - host: portfolio.ghtjr.com
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: portfolio-front-service
-                port:
-                  number: 80
